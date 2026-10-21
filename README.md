@@ -1,2 +1,3 @@
-# pokemagma
-PokeMagma es un fan-game que lleva la experiencia clásica del juego de game boy "Pokemon Ruby" al navegador. Este proyecto recrea las mecánicas de combate. Gestión de equipo y captura de arquitectura web. Para mantener la pureza de la era dorada de los sprites, el juego incluye los pokemon de las generaciones 1, 2 y 3 (Kanto, Johto y Hoenn).
+# PokeMagma
+PokeMagma is a fan game that brings the classic experience of the Game Boy title "Pokémon Ruby" to the web browser. This project recreates core gameplay elements—such as battle mechanics, team management, and Pokémon catching—within a web-based framework.
+To preserve the authentic feel of the golden age of sprite-based graphics, the game features Pokémon from the first, second, and third generations (Kanto, Johto, and Hoenn).
