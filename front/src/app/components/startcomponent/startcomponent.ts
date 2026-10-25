@@ -6,4 +6,11 @@ import { Component } from '@angular/core';
   styleUrl: './startcomponent.css',
   templateUrl: './startcomponent.html',
 })
-export class Startcomponent {}
+export class Startcomponent {
+  mostrarOpciones = false;
+
+  cambiarOpciones(){
+    this.mostrarOpciones = !this.mostrarOpciones;
+  }
+
+}
