@@ -1,0 +1,54 @@
+.gif-background-pokemon{
+  position: absolute;
+  width: 100%;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.pokemon-title{
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 400px;
+  margin: 0;
+}
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 1;
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.button-start{
+  font-family: "pixelise", sans-serif;
+  font-size: 45px;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
+}
+.button-option {
+  font-family: "pixelise", sans-serif;
+  font-size: 45px;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
+  animation: aparecer 0.5s ease;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
