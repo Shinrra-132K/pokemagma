@@ -1,1 +1,60 @@
-<p>signupcomponent works!</p>
+<div class="signup">
+  <img
+    class="signup-background"
+    src="https://i.pinimg.com/1200x/f4/3a/29/f43a290acbf20483e955e21ca48fce16.jpg"
+    alt="fondo">
+
+  <div class="signup-card">
+    <form class="signup-form">
+      <h2 class="signup-title">¡Conviértete en entrenador Pokemon!</h2>
+
+      <label for="usuario">Nombre de usuario</label>
+      <input id="usuario" name="usuario" type="text" placeholder="Pika_chuu">
+
+      <label for="correo">Correo electrónico</label>
+      <input id="correo" name="correo" type="email" placeholder="pikachu@gmail.com">
+
+      <label for="contrasena">Contraseña</label>
+      <input id="contrasena" name="contrasena" type="password" placeholder="p1KacHHu2!">
+
+      <fieldset class="gender-group">
+        <legend>Género</legend>
+        <div class="gender-options">
+          <input type="radio" id="genero-mujer" name="genero" value="mujer">
+          <label for="genero-mujer" title="Mujer">
+            <p>Mujer</p>
+          </label>
+
+          <input type="radio" id="genero-hombre" name="genero" value="hombre">
+          <label for="genero-hombre" title="Hombre">
+            <p>Hombre</p>
+          </label>
+        </div>
+      </fieldset>
+      <button type="button" class="button-create">Crear cuenta</button>
+
+      <p class="login-text">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login">Inicia sesión</a>
+      </p>
+    </form>
+
+    <aside class="avatar-panel">
+      <div class="avatar avatar-default">
+        <img src="https://i.pinimg.com/736x/0f/1a/c2/0f1ac2212178a6df5508057ffb5f830a.jpg" alt="Avatar por defecto">
+        <p>Elige tu género</p>
+      </div>
+
+      <div class="avatar avatar-mujer">
+        <img src="https://i.pinimg.com/736x/97/49/85/9749855666ac36a68b02279b4fe458ce.jpg" alt="Avatar de mujer">
+        <p>Entrenadora</p>
+      </div>
+
+      <div class="avatar avatar-hombre">
+        <img src="https://i.pinimg.com/736x/9e/13/2d/9e132d2f34b8edc95f4954ed4adfc568.jpg" alt="Avatar de hombre">
+        <p>Entrenador</p>
+      </div>
+    </aside>
+
+  </div>
+</div>
