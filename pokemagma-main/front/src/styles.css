@@ -1,0 +1,21 @@
+@font-face {
+  font-family: "pokemon-solid";
+  src: url("/assets/fonts/Pokemon Solid.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "pixelise";
+  src: url("/assets/fonts/Pixelise.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "pixelta";
+  src: url("/assets/fonts/Pixelta.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
