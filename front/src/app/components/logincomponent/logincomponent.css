@@ -88,6 +88,20 @@
   border: none;
   border-radius: 8px;
 }
+.b-admin, .b-volver{
+  position: relative;
+  z-index: 1;
+  font-family: "pixelise", sans-serif;
+  margin-top: 15px;
+  margin-left: 15px;
+  padding: 4px;
+  font-size: 25px;
+  cursor: pointer;
+  color: black;
+  background-color: #fff;
+  border: none;
+  border-radius: 8px;
+}
 
 .button-login:hover {
   background-color: #AB3126;

@@ -5,9 +5,10 @@ import { App } from './app';
 import { Startcomponent } from './components/startcomponent/startcomponent';
 import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
+import { Admincomponent } from './components/admincomponent/admincomponent';
 
 @NgModule({
-  declarations: [App, Startcomponent, Logincomponent, Signupcomponent],
+  declarations: [App, Startcomponent, Logincomponent, Signupcomponent, Admincomponent],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [App],

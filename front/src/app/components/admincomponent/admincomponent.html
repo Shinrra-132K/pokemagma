@@ -1,0 +1,574 @@
+<div class="admin-container">
+
+  <input type="radio" name="seccion" id="tab-dashboard" class="tab-radio" checked>
+  <input type="radio" name="seccion" id="tab-usuarios" class="tab-radio">
+  <input type="radio" name="seccion" id="tab-pokemones" class="tab-radio">
+  <input type="radio" name="seccion" id="tab-auditorias" class="tab-radio">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <span class="brand-icon"></span>
+      <div>
+        <h2>POKÉADMIN</h2>
+        <small>Panel administrativo</small>
+      </div>
+    </div>
+
+    <div class="admin-profile">
+      <div class="admin-avatar">:)</div>
+      <div>
+        <strong>Administrador</strong>
+        <small>Super Admin</small>
+      </div>
+    </div>
+
+    <p class="menu-label">MENÚ PRINCIPAL</p>
+
+    <nav class="sidebar-menu">
+      <label for="tab-dashboard"><span>📊</span> Dashboard</label>
+      <label for="tab-usuarios"><span>👥</span> Usuarios</label>
+      <label for="tab-pokemones"><span>⚡</span> Pokémon</label>
+      <label for="tab-auditorias"><span>📋</span> Auditorías</label>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-decoration">🔴 ⚪ 🔴</div>
+
+      <button class="logout-button" type="button">
+        <span routerLink="/**">🚪</span> Cerrar sesión
+      </button>
+    </div>
+
+  </aside>
+
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h2>Panel de administración</h2>
+        <p>Bienvenido al sistema de gestión Pokémon.</p>
+      </div>
+
+      <div class="topbar-user">
+        <span class="notification">🔔</span>
+        <div class="user-circle">👑</div>
+        <div>
+          <strong>Administrador</strong>
+          <small>Super Admin</small>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- ===================== DASHBOARD ===================== -->
+    <section class="section-content" id="sec-dashboard">
+
+      <div class="welcome-banner">
+        <div>
+          <h1>¡Hola, Entrenador! 👋</h1>
+          <p>Este es el resumen general de tu aplicación Pokémon.</p>
+        </div>
+        <div class="banner-pokemon">⚡</div>
+      </div>
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon azul">👥</div>
+          <div>
+            <p>Usuarios registrados</p>
+            <h2>1,248</h2>
+            <small>+12% este mes</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon verde">🟢</div>
+          <div>
+            <p>Usuarios activos</p>
+            <h2>1,156</h2>
+            <small>+8% este mes</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon amarillo">😴</div>
+          <div>
+            <p>Usuarios inactivos</p>
+            <h2>92</h2>
+            <small>-4% este mes</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon morado">🛡️</div>
+          <div>
+            <p>Administradores</p>
+            <h2>3</h2>
+            <small>Personal autorizado</small>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="dashboard-grid">
+
+        <div class="content-card activity-card">
+
+          <div class="card-heading">
+            <div>
+              <h3>Actividad reciente</h3>
+              <p>Últimos movimientos de los entrenadores</p>
+            </div>
+            <label for="tab-auditorias" class="small-button">Ver todo</label>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon">📌</div>
+            <div class="activity-description">
+              <strong>Sarah Johnson</strong>
+              <p>Inicio de sesión</p>
+            </div>
+            <span class="activity-time">08:30 AM</span>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon">📌</div>
+            <div class="activity-description">
+              <strong>Michael Chen</strong>
+              <p>Actualización de perfil</p>
+            </div>
+            <span class="activity-time">08:15 AM</span>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon">📌</div>
+            <div class="activity-description">
+              <strong>Emily Davis</strong>
+              <p>Captura de Pokémon</p>
+            </div>
+            <span class="activity-time">06:45 PM</span>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon">📌</div>
+            <div class="activity-description">
+              <strong>James Wilson</strong>
+              <p>Cierre de sesión</p>
+            </div>
+            <span class="activity-time">05:20 PM</span>
+          </div>
+
+        </div>
+
+
+        <div class="content-card pokemon-summary">
+
+          <h3>Pokémon registrados</h3>
+          <p>Catálogo disponible en el sistema</p>
+
+          <div class="pokemon-ball">⚪</div>
+
+          <h1>6</h1>
+          <span>Pokémon de muestra</span>
+
+          <label for="tab-pokemones" class="primary-button">Ver Pokédex</label>
+
+        </div>
+
+      </div>
+
+
+      <div class="content-card generation-card">
+
+        <h3>Generaciones disponibles</h3>
+        <p>El proyecto contempla las tres primeras generaciones.</p>
+
+        <div class="generation-grid">
+          <div class="generation-item gen-one">
+            <span>🔥</span>
+            <strong>Primera generación</strong>
+            <small>Kanto · 001 - 151</small>
+          </div>
+
+          <div class="generation-item gen-two">
+            <span>🌿</span>
+            <strong>Segunda generación</strong>
+            <small>Johto · 152 - 251</small>
+          </div>
+
+          <div class="generation-item gen-three">
+            <span>🌊</span>
+            <strong>Tercera generación</strong>
+            <small>Hoenn · 252 - 386</small>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================== USUARIOS ===================== -->
+    <section class="section-content" id="sec-usuarios">
+
+      <div class="section-title">
+        <div>
+          <h1>Gestión de usuarios</h1>
+          <p>Administra las cuentas, roles y permisos de los entrenadores.</p>
+        </div>
+
+        <button class="primary-button" type="button">+ Agregar usuario</button>
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon azul">👥</div>
+          <div>
+            <p>Total usuarios</p>
+            <h2>1,248</h2>
+            <small>Registrados</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon verde">🟢</div>
+          <div>
+            <p>Activos</p>
+            <h2>1,156</h2>
+            <small>Usuarios activos</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon amarillo">⏸️</div>
+          <div>
+            <p>Inactivos</p>
+            <h2>92</h2>
+            <small>Usuarios inactivos</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon morado">🛡️</div>
+          <div>
+            <p>Administradores</p>
+            <h2>3</h2>
+            <small>Personal autorizado</small>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="content-card table-card">
+
+        <div class="table-toolbar">
+          <input type="text" placeholder="🔎 Buscar por nombre o correo...">
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Correo electrónico</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha de registro</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Sarah Johnson</strong></div></td>
+              <td>sarah.johnson@gmail.com</td>
+              <td><span class="role-badge">Jugador</span></td>
+              <td><span class="status-badge">● Activo</span></td>
+              <td>12 Oct 2026</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Michael Chen</strong></div></td>
+              <td>michael.chen@gmail.com</td>
+              <td><span class="role-badge">Administrador</span></td>
+              <td><span class="status-badge">● Activo</span></td>
+              <td>10 Oct 2026</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Emily Davis</strong></div></td>
+              <td>emily.davis@gmail.com</td>
+              <td><span class="role-badge">Jugador</span></td>
+              <td><span class="status-badge">● Activo</span></td>
+              <td>08 Oct 2026</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>James Wilson</strong></div></td>
+              <td>james.wilson@gmail.com</td>
+              <td><span class="role-badge">Moderador</span></td>
+              <td><span class="status-badge inactive">● Inactivo</span></td>
+              <td>05 Oct 2026</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Lisa Rodriguez</strong></div></td>
+              <td>lisa.rodriguez@gmail.com</td>
+              <td><span class="role-badge">Jugador</span></td>
+              <td><span class="status-badge">● Activo</span></td>
+              <td>01 Oct 2026</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="table-footer">Mostrando 5 usuarios de ejemplo</p>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================== POKÉMON ===================== -->
+    <section class="section-content" id="sec-pokemones">
+
+      <div class="section-title">
+        <div>
+          <h1>Gestión de Pokémon</h1>
+          <p>Consulta el catálogo de Pokémon disponibles en el juego.</p>
+        </div>
+      </div>
+
+      <div class="generation-grid pokemon-generations">
+
+        <div class="generation-item gen-one">
+          <span>🔥</span>
+          <strong>Kanto</strong>
+          <small>Primera generación</small>
+        </div>
+
+        <div class="generation-item gen-two">
+          <span>🌿</span>
+          <strong>Johto</strong>
+          <small>Segunda generación</small>
+        </div>
+
+        <div class="generation-item gen-three">
+          <span>🌊</span>
+          <strong>Hoenn</strong>
+          <small>Tercera generación</small>
+        </div>
+
+      </div>
+
+      <div class="content-card table-card">
+
+        <div class="table-toolbar">
+          <input type="text" placeholder="🔎 Buscar Pokémon por nombre o número...">
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+            <tr>
+              <th>Número</th>
+              <th>Pokémon</th>
+              <th>Tipo</th>
+              <th>Generación</th>
+              <th>Estado</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+              <td><strong>#001</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Bulbasaur</strong></div></td>
+              <td>Planta / Veneno</td>
+              <td>Primera</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+
+            <tr>
+              <td><strong>#004</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Charmander</strong></div></td>
+              <td>Fuego</td>
+              <td>Primera</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+
+            <tr>
+              <td><strong>#007</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Squirtle</strong></div></td>
+              <td>Agua</td>
+              <td>Primera</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+
+            <tr>
+              <td><strong>#025</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Pikachu</strong></div></td>
+              <td>Eléctrico</td>
+              <td>Primera</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+
+            <tr>
+              <td><strong>#152</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Chikorita</strong></div></td>
+              <td>Planta</td>
+              <td>Segunda</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+
+            <tr>
+              <td><strong>#252</strong></td>
+              <td><div class="user-table"><div class="pokemon-mini">⚪</div><strong>Treecko</strong></div></td>
+              <td>Planta</td>
+              <td>Tercera</td>
+              <td><span class="status-badge">● Disponible</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="table-footer">Mostrando 6 Pokémon de ejemplo.</p>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================== AUDITORÍAS ===================== -->
+    <section class="section-content" id="sec-auditorias">
+
+      <div class="section-title">
+        <div>
+          <h1>Auditorías del sistema</h1>
+          <p>Consulta los movimientos y acciones realizadas por los usuarios.</p>
+        </div>
+
+        <button class="primary-button" type="button">↓ Exportar registros</button>
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon azul">📋</div>
+          <div>
+            <p>Movimientos registrados</p>
+            <h2>5</h2>
+            <small>Registros de ejemplo</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon verde">🔐</div>
+          <div>
+            <p>Inicios de sesión</p>
+            <h2>1</h2>
+            <small>Actividad de acceso</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon amarillo">📝</div>
+          <div>
+            <p>Actualizaciones</p>
+            <h2>1</h2>
+            <small>Cambios realizados</small>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon morado">🎮</div>
+          <div>
+            <p>Acciones del juego</p>
+            <h2>1</h2>
+            <small>Actividad Pokémon</small>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="content-card table-card">
+
+        <div class="card-heading">
+          <div>
+            <h3>Historial de actividad</h3>
+            <p>Registro de acciones realizadas en la aplicación.</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Descripción</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Sarah Johnson</strong></div></td>
+              <td><span class="role-badge">Inicio de sesión</span></td>
+              <td>Nuevo inicio de sesión registrado</td>
+              <td>31 Oct 2026</td>
+              <td>08:30 AM</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Michael Chen</strong></div></td>
+              <td><span class="role-badge">Actualización de perfil</span></td>
+              <td>Modificó su información personal</td>
+              <td>31 Oct 2026</td>
+              <td>08:15 AM</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Emily Davis</strong></div></td>
+              <td><span class="role-badge">Captura de Pokémon</span></td>
+              <td>Capturó un Pikachu</td>
+              <td>30 Oct 2026</td>
+              <td>06:45 PM</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>James Wilson</strong></div></td>
+              <td><span class="role-badge">Cierre de sesión</span></td>
+              <td>Cerró su sesión correctamente</td>
+              <td>30 Oct 2026</td>
+              <td>05:20 PM</td>
+            </tr>
+
+            <tr>
+              <td><div class="user-table"><div class="table-avatar">👤</div><strong>Lisa Rodriguez</strong></div></td>
+              <td><span class="role-badge">Cuenta creada</span></td>
+              <td>Se registró un nuevo usuario</td>
+              <td>30 Oct 2026</td>
+              <td>03:10 PM</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="table-footer">Total de movimientos: 5</p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
