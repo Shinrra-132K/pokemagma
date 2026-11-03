@@ -6,9 +6,17 @@ import { Startcomponent } from './components/startcomponent/startcomponent';
 import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
 import { Admincomponent } from './components/admincomponent/admincomponent';
+import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
 
 @NgModule({
-  declarations: [App, Startcomponent, Logincomponent, Signupcomponent, Admincomponent],
+  declarations: [
+    App,
+    Startcomponent,
+    Logincomponent,
+    Signupcomponent,
+    Admincomponent,
+    Notfoundcomponent,
+  ],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [App],
