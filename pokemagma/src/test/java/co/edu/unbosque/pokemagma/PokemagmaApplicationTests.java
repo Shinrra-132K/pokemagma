@@ -1,10 +1,10 @@
-package co.edu.unbosque.back;
+package co.edu.unbosque.pokemagma;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BackApplicationTests {
+class PokemagmaApplicationTests {
 
 	@Test
 	void contextLoads() {

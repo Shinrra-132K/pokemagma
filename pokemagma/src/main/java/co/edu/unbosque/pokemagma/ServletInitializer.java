@@ -1,4 +1,4 @@
-package co.edu.unbosque.back;
+package co.edu.unbosque.pokemagma;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -7,7 +7,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(BackApplication.class);
+		return application.sources(PokemagmaApplication.class);
 	}
 
 }
