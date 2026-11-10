@@ -78,6 +78,15 @@ public class PlayerProfile {
 	public void setTrainerApparance(String trainerApparance) {
 		this.trainerApparance = trainerApparance;
 	}
+
+	@Override
+	public String toString() {
+		return "PlayerProfile [id=" + id + ", user=" + user + ", gender=" + gender + ", trainerApparance="
+				+ trainerApparance + "]";
+	}
+	
+	
+	
 	
 	
 	
