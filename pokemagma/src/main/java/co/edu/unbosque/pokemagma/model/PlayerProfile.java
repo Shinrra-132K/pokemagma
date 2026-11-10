@@ -34,14 +34,6 @@ public class PlayerProfile {
 	@Column(nullable = false)
 	private String trainerApparance;
 	
-	@Column(nullable = false)
-	private String currentMap;
-	
-	@Column(nullable = false)
-	private int mapX;
-	
-	@Column(nullable = false)
-	private int mapY;
 	
 	public PlayerProfile() {
 		// TODO Auto-generated constructor stub
@@ -53,9 +45,6 @@ public class PlayerProfile {
 		this.user = user;
 		this.gender = gender;
 		this.trainerApparance = trainerApparance;
-		this.currentMap = "pueblo_inicio";
-		this.mapX = 1;
-		this.mapY = 1;
 	}
 
 	public Long getId() {
@@ -88,36 +77,6 @@ public class PlayerProfile {
 
 	public void setTrainerApparance(String trainerApparance) {
 		this.trainerApparance = trainerApparance;
-	}
-
-	public String getCurrentMap() {
-		return currentMap;
-	}
-
-	public void setCurrentMap(String currentMap) {
-		this.currentMap = currentMap;
-	}
-
-	public int getMapX() {
-		return mapX;
-	}
-
-	public void setMapX(int mapX) {
-		this.mapX = mapX;
-	}
-
-	public int getMapY() {
-		return mapY;
-	}
-
-	public void setMapY(int mapY) {
-		this.mapY = mapY;
-	}
-	
-	public void moveTo(String map, int x, int y) {
-		currentMap = map;
-		mapX = x;
-		mapY = y;
 	}
 	
 	
