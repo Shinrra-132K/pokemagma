@@ -4,15 +4,34 @@ import java.time.Instant;
 import java.util.Objects;
 
 import co.edu.unbosque.pokemagma.model.GameEvent.EventType;
-
+/**
+ * DTO para transferir un evento de auditoria del juego
+ */
 public class GameEventDTO {
-	
+	/**
+	 * Identificador del evento
+	 */
 	private Long id;
+	/**
+	 * Identificador del jugador asociada al evento
+	 */
 	private Long playerId;
+	/**
+	 * Tipo de evento registrado
+	 */
 	private EventType type;
+	/**
+	 * Descripcion del evento
+	 */
 	private String description;
+	/**
+	 * Fecha y hora en que ocurrio el evento
+	 */
 	private Instant createdAt;
 	
+	/**
+	 * 
+	 */
 	public GameEventDTO() {
 		// TODO Auto-generated constructor stub
 	}

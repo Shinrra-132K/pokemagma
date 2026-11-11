@@ -5,24 +5,71 @@ import java.util.Objects;
 
 import co.edu.unbosque.pokemagma.model.User.Role;
 
+/**
+ * DTO para los usuarios
+ * 
+ * Representa los datos de la entidad que se transfiere entre las capas de la aplicacion
+ */
 public class UserDTO {
-	
+	/**
+	 * Identificador unico de ususario
+	 */
 	private Long id;
+	/**
+	 * Nombre de usuario
+	 */
 	private String username;
+	/**
+	 * Correo electronico del usuario
+	 */
 	private String email;
+	/**
+	 * Contraseña recibida o codificada dependiendo de laoperacion
+	 */
 	private String password;
+	/**
+	 * Rol del usuario
+	 */
 	private Role role;
+	/**
+	 * Estado de expiracion de la cuenta
+	 */
 	private boolean accountNonExpired;
+	/**
+	 * Estado de bloqueo de la cuenta
+	 */
 	private boolean accountNonLocked;
+	/**
+	 * Estado de expiracion de las credenciales
+	 */
 	private boolean credentialsNonExpired;
+	/**
+	 * Estado de habilitacion de la cuenta
+	 */
 	private boolean enable;
+	/**
+	 * Estado de verificacion del correo
+	 */
 	private boolean emailVerified;
+	/**
+	 * Fecha de registro
+	 */
 	private Instant registeredAt;
 	
+	/**
+	 * Constructor vacio
+	 */
 	public UserDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Constructor con los datos basicos del usuario
+	 * 
+	 * @param username nombre del usuario
+	 * @param email correo electronico
+	 * @param password contraseña
+	 */
 	public UserDTO(String username, String email, String password) {
 		super();
 		this.username = username;
@@ -30,13 +77,10 @@ public class UserDTO {
 		this.password = password;
 	}
 
-	public UserDTO(String username, String email, String password, Role role) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.role = role;
-	}
+	/**
+	 * 
+	 * Geters y setters de las variables
+	 */
 
 	public Long getId() {
 		return id;
@@ -126,6 +170,11 @@ public class UserDTO {
 		this.registeredAt = registeredAt;
 	}
 
+	/**
+	 * Calcula el hash del DTO a partir de sus campos
+	 * 
+	 * @return codigo hash
+	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(Boolean.valueOf(accountNonExpired), Boolean.valueOf(accountNonLocked),
@@ -133,6 +182,12 @@ public class UserDTO {
 				id, password, registeredAt, role, username);
 	}
 
+	/**
+	 * Compara este DTO con otro por sus campos
+	 * 
+	 * @param obj objeto que se compara
+	 * @return true si los campos coinciden
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -149,6 +204,11 @@ public class UserDTO {
 				&& role == other.role && Objects.equals(username, other.username);
 	}
 
+	/**
+	 * Devuelve la representacion textual del DTO
+	 * 
+	 * @return texto con sus datos (sin contener la contraseña)
+	 */
 	@Override
 	public String toString() {
 		return "UserDTO [id=" + id + ", username=" + username + ", email=" + email + ", role=" + role
