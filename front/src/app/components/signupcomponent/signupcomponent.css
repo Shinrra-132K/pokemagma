@@ -1,0 +1,215 @@
+.signup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1E195C;
+}
+
+.signup-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  z-index: 0;
+}
+
+.signup-card {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding: 32px 40px;
+  background-color: rgba(
+    220, 217, 250, 0.50);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(7, 3, 48, 0.45);
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 340px;
+}
+
+.signup-title {
+  font-family: "pixelise", sans-serif;
+  font-size: 40px;
+  text-align: center;
+  margin: 0 0 5px;
+}
+
+.signup-form label {
+  font-family: "pixelise", sans-serif;
+  font-size: 25px;
+}
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
+  padding: 0.4px;
+  font-family: "pixelise", sans-serif;
+  font-size: 26px;
+  border: 2px solid #F40B0B;
+  border-radius: 8px;
+  outline: none;
+  background-color: #fff;
+}
+
+.signup-form input[type="text"]:focus,
+.signup-form input[type="email"]:focus,
+.signup-form input[type="password"]:focus {
+  border-color: #8FAFFA;
+}
+.gender-group {
+  font-family: "pixelise", sans-serif;
+  font-size: 26px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.gender-group legend {
+  padding: 0;
+  margin-bottom: 0px;
+}
+
+.gender-options {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.gender-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gender-options label {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gender-options label p {
+  margin: 0;
+  line-height: 1;
+}
+
+.gender-options label + input + label {
+  border-left: 1px solid #000000;
+}
+
+.gender-options label img {
+  width: 24px;
+  height: 24px;
+}
+
+.gender-options label:hover {
+  background-color: #eceef8;
+}
+
+.gender-options input:checked + label {
+  background-color: #D13B2E;
+  color: #fff;
+}
+
+
+.button-create {
+  font-family: "pixelise", sans-serif;
+  margin-top: 5px;
+  padding: 4px;
+  font-size: 25px;
+  cursor: pointer;
+  color: black;
+  background-color: #fff;
+  border: none;
+  border-radius: 8px;
+}
+
+.button-create:hover {
+  background-color: #AB3126;
+  color: #fff;
+}
+
+.login-text {
+  text-align: center;
+  font-size: 22px;
+  font-family: "pixelise", sans-serif;
+}
+.avatar-panel {
+  --avatar-size: 160px;
+  flex: 0 0 var(--avatar-size);
+  width: var(--avatar-size);
+  text-align: center;
+}
+
+.avatar {
+  display: none;
+}
+
+.avatar img {
+  display: block;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.avatar p {
+  font-family: "pixelise", sans-serif;
+  margin: 12px 0 0;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.avatar-default {
+  display: block;
+}
+
+.signup-card:has(#genero-mujer:checked) .avatar-default,
+.signup-card:has(#genero-hombre:checked) .avatar-default {
+  display: none;
+}
+
+.signup-card:has(#genero-mujer:checked) .avatar-mujer {
+  display: block;
+}
+
+.signup-card:has(#genero-hombre:checked) .avatar-hombre {
+  display: block;
+}
+@media (max-width: 800px) {
+  .signup-card {
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .signup-form {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .avatar svg {
+    width: 100px;
+    height: 100px;
+  }
+}

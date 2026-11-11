@@ -1,17 +1,18 @@
 .gif-background-pokemon{
   position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  z-index: 0;
 }
 .pokemon-title{
   position: absolute;
   z-index: 1;
   text-align: center;
   top: 41%;
-  left: 50%;
+  left: 52%;
   transform: translate(-50%, -50%);
   height: 400px;
   margin: 0;
@@ -20,6 +21,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: white;
   gap: 16px;
   z-index: 1;
   position: absolute;
@@ -31,7 +33,7 @@
   font-family: "pixelise", sans-serif;
   font-size: 45px;
   -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: black;
+  -webkit-text-stroke-color: white;
   background-color: transparent;
   border-color: transparent;
   cursor: pointer;
@@ -40,7 +42,7 @@
   font-family: "pixelise", sans-serif;
   font-size: 45px;
   -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: black;
+  -webkit-text-stroke-color: white;
   background-color: transparent;
   border-color: transparent;
   cursor: pointer;
