@@ -4,6 +4,12 @@ import java.util.Objects;
 
 import co.edu.unbosque.pokemagma.model.PlayerProfile.Gender;
 
+/**
+ * DTO para recibir los datos necesarios al registrar una cuenta de jugador.
+ *
+ * No es una entidad y no se guarda directamente en la base de datos.
+ * El servicio valida estos datos y crea el User y el PlayerProfile.
+ */
 public class RegisterRequestDTO {
 
 	/** Nombre de usuario solicitado para la cuenta. */
@@ -20,7 +26,7 @@ public class RegisterRequestDTO {
 
 	/** Constructor vacío requerido para recibir el DTO desde la API. */
 	public RegisterRequestDTO() {
-		// TODO Auto-generated constructor stub
+		/**Contenido vacio del constructor */
 	}
 
 	/**

@@ -86,45 +86,91 @@ public class GameEvent {
 	}
 
 	/**
-	 * 
-	 * Getters y setters de las variables
+	 * Obtiene el identificador del evento.
+	 *
+	 * @return ID del evento
 	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * Establece el identificador del evento.
+	 *
+	 * @param id identificador del evento
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Obtiene el identificador del jugador asociado.
+	 *
+	 * @return ID del jugador, o null si es un evento del sistema
+	 */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/**
+	 * Establece el identificador del jugador asociado.
+	 *
+	 * @param playerId identificador del jugador
+	 */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/**
+	 * Obtiene la categoría del evento.
+	 *
+	 * @return tipo de evento
+	 */
 	public EventType getType() {
 		return type;
 	}
 
+	/**
+	 * Establece la categoría del evento.
+	 *
+	 * @param type tipo de evento
+	 */
 	public void setType(EventType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Obtiene la descripción del evento.
+	 *
+	 * @return descripción registrada
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 * Establece la descripción del evento.
+	 *
+	 * @param description descripción que se registrará
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 * Obtiene la fecha y hora del evento.
+	 *
+	 * @return instante en que ocurrió el evento
+	 */
 	public Instant getCreatedAt() {
 		return createdAt;
 	}
 
+	/**
+	 * Establece la fecha y hora del evento.
+	 *
+	 * @param createdAt instante en que ocurrió el evento
+	 */
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
 	}

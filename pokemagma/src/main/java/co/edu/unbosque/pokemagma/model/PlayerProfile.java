@@ -16,13 +16,13 @@ import jakarta.persistence.Table;
 /**
  * Representa el perfil de jugador asociado a una cuenta de usuario
  * 
- * Guarda la seccion de genero y la apariencia del entrenador
- * El mapa y el movimiento pertenecen al fronted y no persisten en el back
+ * Guarda la seccion de genero y la apariencia del entrenador El mapa y el
+ * movimiento pertenecen al fronted y no persisten en el back
  */
 @Entity
 @Table(name = "player_profile")
 public class PlayerProfile {
-	
+
 	/**
 	 * Generos disponibles para asociar el aspecto inicial
 	 */
@@ -32,13 +32,13 @@ public class PlayerProfile {
 		 */
 		MALE, FEMALE
 	}
-	
+
 	/**
 	 * Id del perfil
 	 */
 	@Id
 	private Long id;
-	
+
 	/**
 	 * Cuenta a la que pertenece el perfil del jugador
 	 */
@@ -46,21 +46,20 @@ public class PlayerProfile {
 	@MapsId
 	@JoinColumn(name = "user_id")
 	private User user;
-	
+
 	/**
 	 * Genero seleccionado para el perfil del entrenador
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Gender gender;
-	
+
 	/**
 	 * Identificador de la apariencia del entrenador
 	 */
 	@Column(nullable = false)
 	private String trainerApparance;
-	
-	
+
 	public PlayerProfile() {
 		// TODO Auto-generated constructor stub
 	}
@@ -68,8 +67,8 @@ public class PlayerProfile {
 	/**
 	 * Crea el perfil de un jugador
 	 * 
-	 * @param user cuenta asociada al perfil
-	 * @param gender genero seleccionado
+	 * @param user             cuenta asociada al perfil
+	 * @param gender           genero seleccionado
 	 * @param trainerApparance identificador de la apariencia inicial
 	 */
 	public PlayerProfile(User user, Gender gender, String trainerApparance) {
@@ -80,42 +79,77 @@ public class PlayerProfile {
 	}
 
 	/**
-	 * 
-	 * Getters y setters de las variables
+	 * Obtiene el identificador del perfil.
+	 *
+	 * @return ID del perfil
 	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * Establece el identificador del perfil.
+	 *
+	 * @param id identificador del perfil
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Obtiene la cuenta asociada al perfil.
+	 *
+	 * @return cuenta del usuario
+	 */
 	public User getUser() {
 		return user;
 	}
 
+	/**
+	 * Establece la cuenta asociada al perfil.
+	 *
+	 * @param user cuenta del usuario
+	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
+	/**
+	 * Obtiene el género seleccionado.
+	 *
+	 * @return género del perfil
+	 */
 	public Gender getGender() {
 		return gender;
 	}
 
+	/**
+	 * Establece el género del perfil.
+	 *
+	 * @param gender género seleccionado
+	 */
 	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 
+	/**
+	 * Obtiene el identificador de la apariencia del entrenador.
+	 *
+	 * @return identificador de apariencia
+	 */
 	public String getTrainerApparance() {
 		return trainerApparance;
 	}
 
+	/**
+	 * Establece el identificador de la apariencia del entrenador.
+	 *
+	 * @param trainerApparance identificador de apariencia
+	 */
 	public void setTrainerApparance(String trainerApparance) {
 		this.trainerApparance = trainerApparance;
 	}
-	
-	
+
 	/**
 	 * Devuelve un hash estable durante la asignacion del ID
 	 * 
@@ -155,14 +189,5 @@ public class PlayerProfile {
 		return "PlayerProfile [id=" + id + ", user=" + user + ", gender=" + gender + ", trainerApparance="
 				+ trainerApparance + "]";
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }

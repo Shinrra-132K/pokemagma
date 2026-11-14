@@ -64,42 +64,82 @@ public class InventoryItem {
 		this.quantity = quantity;
 	}
 
+	/**
+	 * Obtiene el identificador de la fila del inventario.
+	 *
+	 * @return ID de la fila
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * Establece el identificador de la fila del inventario.
+	 *
+	 * @param id identificador de la fila
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Obtiene el identificador del jugador propietario.
+	 *
+	 * @return ID del jugador
+	 */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/**
+	 * Establece el identificador del jugador propietario.
+	 *
+	 * @param playerId identificador del jugador
+	 */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/**
+	 * Obtiene el código del objeto.
+	 *
+	 * @return código del objeto
+	 */
 	public String getItemCode() {
 		return itemCode;
 	}
 
+	/**
+	 * Establece el código del objeto.
+	 *
+	 * @param itemCode código del objeto
+	 */
 	public void setItemCode(String itemCode) {
 		this.itemCode = itemCode;
 	}
 
+	/**
+	 * Obtiene la cantidad disponible del objeto.
+	 *
+	 * @return cantidad de unidades
+	 */
 	public int getQuantity() {
 		return quantity;
 	}
 
+	/**
+	 * Establece la cantidad disponible del objeto.
+	 *
+	 * @param quantity cantidad de unidades
+	 */
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 
 	/**
-	 * Añade unidades al inventario
-	 * 
-	 * @param amount cantidad que se añadira
+	 * Añade unidades a la cantidad del objeto.
+	 *
+	 * @param amount cantidad que se desea añadir
 	 */
 	// pendiente
 	public void add(int amount) {
@@ -109,9 +149,9 @@ public class InventoryItem {
 	}
 
 	/**
-	 * Retira unidades del inventario
-	 * 
-	 * @param amount cantidad que se eliminara
+	 * Retira unidades de la cantidad del objeto.
+	 *
+	 * @param amount cantidad que se desea retirar
 	 */
 	// pendiente
 	public void remove(int amount) {
@@ -159,7 +199,5 @@ public class InventoryItem {
 		return "InventoryItem [id=" + id + ", playerId=" + playerId + ", itemCode=" + itemCode + ", quantity="
 				+ quantity + "]";
 	}
-	
-	
 
 }

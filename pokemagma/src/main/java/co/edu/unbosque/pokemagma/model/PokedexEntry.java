@@ -60,7 +60,7 @@ public class PokedexEntry {
 	/**
 	 * Crea uan entrada de pokedex marcada inicialmente como vista
 	 * 
-	 * @param playerId ID del jugador
+	 * @param playerId  ID del jugador
 	 * @param speciesId Id de especie de pokemon
 	 */
 	public PokedexEntry(Long playerId, Integer speciesId) {
@@ -70,67 +70,111 @@ public class PokedexEntry {
 		this.seen = true;
 		this.caught = false;
 	}
-	
-	/**
-	 * 
-	 * getters y setters de las variables
-	 */
 
+	/**
+	 * Obtiene el identificador único de la entrada.
+	 *
+	 * @return ID de la entrada
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * Establece el identificador de la entrada.
+	 *
+	 * @param id identificador de la entrada
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Obtiene el identificador del jugador propietario.
+	 *
+	 * @return ID del jugador
+	 */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/**
+	 * Establece el identificador del jugador propietario.
+	 *
+	 * @param playerId identificador del jugador
+	 */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/**
+	 * Obtiene el identificador de la especie Pokémon.
+	 *
+	 * @return ID de la especie
+	 */
 	public Integer getSpeciesId() {
 		return speciesId;
 	}
 
+	/**
+	 * Establece el identificador de la especie Pokémon.
+	 *
+	 * @param speciesId identificador de la especie
+	 */
 	public void setSpeciesId(Integer speciesId) {
 		this.speciesId = speciesId;
 	}
 
+	/**
+	 * Indica si el jugador ha visto esta especie.
+	 *
+	 * @return true si la especie fue vista
+	 */
 	public boolean isSeen() {
 		return seen;
 	}
 
+	/**
+	 * Establece si el jugador ha visto esta especie.
+	 *
+	 * @param seen estado de avistamiento
+	 */
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
 
+	/**
+	 * Indica si el jugador ha capturado esta especie.
+	 *
+	 * @return true si la especie fue capturada
+	 */
 	public boolean isCaught() {
 		return caught;
 	}
 
+	/**
+	 * Establece si el jugador ha capturado esta especie.
+	 *
+	 * @param caught estado de captura
+	 */
 	public void setCaught(boolean caught) {
 		this.caught = caught;
 	}
 
 	/**
-	 * Marca la especie como vista
+	 * Marca la especie como vista por el jugador.
 	 */
 	public void markSeen() {
 		seen = true;
 	}
 
 	/**
-	 * Marca la especie como vista y capturada
+	 * Marca la especie como vista y capturada por el jugador.
 	 */
 	public void markCaught() {
 		seen = true;
 		caught = true;
 	}
-	
 
 	/**
 	 * Devuelve un hash durante la asigancion del ID
