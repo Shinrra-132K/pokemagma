@@ -30,12 +30,21 @@ public class GameEventDTO {
 	private Instant createdAt;
 	
 	/**
-	 * 
+	 * Constructor vacio
 	 */
 	public GameEventDTO() {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Constructor con todos los campos
+	 * 
+	 * @param id identificador del evento
+	 * @param playerId identificador del jugador
+	 * @param type tipo de evento
+	 * @param description descripcion del evento
+	 * @param createdAt fecha y hora del evento
+	 */
 	public GameEventDTO(Long id, Long playerId, EventType type, String description, Instant createdAt) {
 		super();
 		this.id = id;
@@ -45,6 +54,11 @@ public class GameEventDTO {
 		this.createdAt = createdAt;
 	}
 
+	
+	/**
+	 * 
+	 * getters y settters
+	 */
 	public Long getId() {
 		return id;
 	}
@@ -85,10 +99,20 @@ public class GameEventDTO {
 		this.createdAt = createdAt;
 	}
 
+	/**
+	 * @return codigo hash del DTO
+	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdAt, description, id, playerId, type);
 	}
+	
+	/**
+	 * Compara este DTO con otro por sus campos
+	 * 
+	 * @param obj objeto que se compara
+	 * @return true si los campos coinciden
+	 */
 
 	@Override
 	public boolean equals(Object obj) {
@@ -103,6 +127,10 @@ public class GameEventDTO {
 				&& Objects.equals(id, other.id) && Objects.equals(playerId, other.playerId) && type == other.type;
 	}
 
+	
+	/**
+	 * @return representacion textual del DTO
+	 */
 	@Override
 	public String toString() {
 		return "GameEventDTO [id=" + id + ", playerId=" + playerId + ", type=" + type + ", description=" + description
