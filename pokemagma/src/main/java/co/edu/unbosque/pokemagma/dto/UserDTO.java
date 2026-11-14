@@ -8,7 +8,8 @@ import co.edu.unbosque.pokemagma.model.User.Role;
 /**
  * DTO para los usuarios
  * 
- * Representa los datos de la entidad que se transfiere entre las capas de la aplicacion
+ * Representa los datos de la entidad que se transfiere entre las capas de la
+ * aplicacion
  */
 public class UserDTO {
 	/**
@@ -55,7 +56,7 @@ public class UserDTO {
 	 * Fecha de registro
 	 */
 	private Instant registeredAt;
-	
+
 	/**
 	 * Constructor vacio
 	 */
@@ -67,7 +68,7 @@ public class UserDTO {
 	 * Constructor con los datos basicos del usuario
 	 * 
 	 * @param username nombre del usuario
-	 * @param email correo electronico
+	 * @param email    correo electronico
 	 * @param password contraseña
 	 */
 	public UserDTO(String username, String email, String password) {
@@ -77,99 +78,117 @@ public class UserDTO {
 		this.password = password;
 	}
 
-	/**
-	 * 
-	 * Geters y setters de las variables
-	 */
-
+	/** @return identificador del usuario */
 	public Long getId() {
 		return id;
 	}
 
+	/** @param id identificador del usuario */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/** @return nombre de usuario */
 	public String getUsername() {
 		return username;
 	}
 
+	/** @param username nombre de usuario */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	/** @return correo electrónico */
 	public String getEmail() {
 		return email;
 	}
 
+	/** @param email correo electrónico */
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
+	/** @return contraseña */
 	public String getPassword() {
 		return password;
 	}
 
+	/** @param password contraseña */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	/** @return rol */
 	public Role getRole() {
 		return role;
 	}
 
+	/** @param role rol del usuario */
 	public void setRole(Role role) {
 		this.role = role;
 	}
 
+	/** @return true si la cuenta no ha expirado */
 	public boolean isAccountNonExpired() {
 		return accountNonExpired;
 	}
 
-	public void setAccountNonExpired(boolean accountNonExpired) {
-		this.accountNonExpired = accountNonExpired;
+	/** @param value estado de expiración de la cuenta */
+	public void setAccountNonExpired(boolean value) {
+		accountNonExpired = value;
 	}
 
+	/** @return true si la cuenta no está bloqueada */
 	public boolean isAccountNonLocked() {
 		return accountNonLocked;
 	}
 
-	public void setAccountNonLocked(boolean accountNonLocked) {
-		this.accountNonLocked = accountNonLocked;
+	/** @param value estado de bloqueo de la cuenta */
+	public void setAccountNonLocked(boolean value) {
+		accountNonLocked = value;
 	}
 
+	/** @return true si las credenciales no han expirado */
 	public boolean isCredentialsNonExpired() {
 		return credentialsNonExpired;
 	}
 
-	public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-		this.credentialsNonExpired = credentialsNonExpired;
+	/** @param value estado de expiración de las credenciales */
+	public void setCredentialsNonExpired(boolean value) {
+		credentialsNonExpired = value;
 	}
 
-	public boolean isEnable() {
+	/** @return true si la cuenta está habilitada */
+	public boolean isEnabled() {
 		return enable;
 	}
 
-	public void setEnable(boolean enable) {
-		this.enable = enable;
+	/** @param enabled estado de habilitación */
+	public void setEnabled(boolean enabled) {
+		this.enable = enabled;
 	}
 
+	/** @return true si el correo está verificado */
 	public boolean isEmailVerified() {
 		return emailVerified;
 	}
 
+	/** @param emailVerified estado de verificación */
 	public void setEmailVerified(boolean emailVerified) {
 		this.emailVerified = emailVerified;
 	}
 
+	/** @return fecha de registro */
 	public Instant getRegisteredAt() {
 		return registeredAt;
 	}
 
+	/** @param registeredAt fecha de registro */
 	public void setRegisteredAt(Instant registeredAt) {
 		this.registeredAt = registeredAt;
 	}
 
+	
 	/**
 	 * Calcula el hash del DTO a partir de sus campos
 	 * 
@@ -216,7 +235,5 @@ public class UserDTO {
 				+ ", credentialsNonExpired=" + credentialsNonExpired + ", enable=" + enable + ", emailVerified="
 				+ emailVerified + ", registeredAt=" + registeredAt + "]";
 	}
-	
-	
 
 }

@@ -1,6 +1,7 @@
 package co.edu.unbosque.pokemagma.dto;
 
 import java.util.Objects;
+
 /**
  * DTO para transferir el profreso de una especie en la pokedex
  */
@@ -25,8 +26,7 @@ public class PokedexEntryDTO {
 	 * Indica si la especie fue capturada
 	 */
 	private boolean caught;
-	
-	
+
 	/**
 	 * Constructor vacio
 	 */
@@ -37,11 +37,11 @@ public class PokedexEntryDTO {
 	/**
 	 * Constructor con todos los campos
 	 * 
-	 * @param id identificador de la entrada
-	 * @param playerId identificador del jugador
+	 * @param id        identificador de la entrada
+	 * @param playerId  identificador del jugador
 	 * @param speciesId identificador de la especie
-	 * @param seen estado de avistamiento
-	 * @param caught estado de captura
+	 * @param seen      estado de avistamiento
+	 * @param caught    estado de captura
 	 */
 	public PokedexEntryDTO(Long id, Long playerId, Integer speciesId, boolean seen, boolean caught) {
 		super();
@@ -52,49 +52,56 @@ public class PokedexEntryDTO {
 		this.caught = caught;
 	}
 
-	/**
-	 * Getters y setters de los campos
-	 * 
-	 */
+	/** @return identificador de la entrada */
 	public Long getId() {
 		return id;
 	}
 
+	/** @param id identificador de la entrada */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/** @return ID del jugador */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/** @param playerId ID del jugador */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/** @return ID de especie */
 	public Integer getSpeciesId() {
 		return speciesId;
 	}
 
+	/** @param speciesId ID de especie */
 	public void setSpeciesId(Integer speciesId) {
 		this.speciesId = speciesId;
 	}
 
+	/** @return true si fue vista */
 	public boolean isSeen() {
 		return seen;
 	}
 
+	/** @param seen estado de avistamiento */
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
 
+	/** @return true si fue capturada */
 	public boolean isCaught() {
 		return caught;
 	}
 
+	/** @param caught estado de captura */
 	public void setCaught(boolean caught) {
 		this.caught = caught;
 	}
+	
 
 	/**
 	 * @return codigo hash del DTO
@@ -131,7 +138,5 @@ public class PokedexEntryDTO {
 		return "PokedexEntryDTO [id=" + id + ", playerId=" + playerId + ", speciesId=" + speciesId + ", seen=" + seen
 				+ ", caught=" + caught + "]";
 	}
-	
-	
 
 }

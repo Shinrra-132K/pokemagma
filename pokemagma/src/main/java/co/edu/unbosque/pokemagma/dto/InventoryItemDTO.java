@@ -1,6 +1,7 @@
 package co.edu.unbosque.pokemagma.dto;
 
 import java.util.Objects;
+
 /**
  * DTO para transferir los datos de una fila del inventario
  */
@@ -21,7 +22,7 @@ public class InventoryItemDTO {
 	 * Cantidad del objeto
 	 */
 	private int quantity;
-	
+
 	/**
 	 * Constructor vacio
 	 */
@@ -32,7 +33,7 @@ public class InventoryItemDTO {
 	/**
 	 * Constructor con todos los campos
 	 * 
-	 * @param id identificador de la fila
+	 * @param id       identificador de la fila
 	 * @param playerId ID del jugador
 	 * @param itemCode codigo del objeto
 	 * @param quantity cantida disponible
@@ -45,38 +46,42 @@ public class InventoryItemDTO {
 		this.quantity = quantity;
 	}
 
-	/**
-	 * Getters y setters de los campos
-	 * @return
-	 */
+	/** @return identificador de la fila */
 	public Long getId() {
 		return id;
 	}
 
+	/** @param id identificador de la fila */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/** @return ID del jugador */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/** @param playerId ID del jugador */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/** @return código del objeto */
 	public String getItemCode() {
 		return itemCode;
 	}
 
+	/** @param itemCode código del objeto */
 	public void setItemCode(String itemCode) {
 		this.itemCode = itemCode;
 	}
 
+	/** @return cantidad disponible */
 	public int getQuantity() {
 		return quantity;
 	}
 
+	/** @param quantity cantidad disponible */
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
@@ -116,7 +121,5 @@ public class InventoryItemDTO {
 		return "InventoryItemDTO [id=" + id + ", playerId=" + playerId + ", itemCode=" + itemCode + ", quantity="
 				+ quantity + "]";
 	}
-	
-	
 
 }

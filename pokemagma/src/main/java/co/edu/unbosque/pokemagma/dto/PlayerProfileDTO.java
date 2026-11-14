@@ -26,7 +26,7 @@ public class PlayerProfileDTO {
 	 * Identificador de la operacion del entrenador
 	 */
 	private String trainerApparence;
-	
+
 	/**
 	 * Constructor vacio
 	 */
@@ -37,9 +37,9 @@ public class PlayerProfileDTO {
 	/**
 	 * Constructor con todos los campos del perfil
 	 * 
-	 * @param id identificador del perfil
-	 * @param userId identificador de la cuenta relacionada
-	 * @param gender genero seleccionado
+	 * @param id               identificador del perfil
+	 * @param userId           identificador de la cuenta relacionada
+	 * @param gender           genero seleccionado
 	 * @param trainerApparence apariencia del entrenador
 	 */
 	public PlayerProfileDTO(Long id, Long userId, Gender gender, String trainerApparence) {
@@ -50,49 +50,46 @@ public class PlayerProfileDTO {
 		this.trainerApparence = trainerApparence;
 	}
 
-
-	/**
-	 * 
-	 * getters y setters de los campos
-	 */
+	/** @return identificador del perfil */
 	public Long getId() {
 		return id;
 	}
 
-
+	/** @param id identificador del perfil */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-
+	/** @return ID de la cuenta relacionada */
 	public Long getUserId() {
 		return userId;
 	}
 
-
+	/** @param userId ID de la cuenta relacionada */
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
-
+	/** @return género seleccionado */
 	public Gender getGender() {
 		return gender;
 	}
 
-
+	/** @param gender género seleccionado */
 	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 
-
-	public String getTrainerApparence() {
+	/** @return apariencia del entrenador */
+	public String getTrainerAppearance() {
 		return trainerApparence;
 	}
 
-
-	public void setTrainerApparence(String trainerApparence) {
-		this.trainerApparence = trainerApparence;
+	/** @param trainerAppearance apariencia del entrenador */
+	public void setTrainerAppearance(String trainerAppearance) {
+		this.trainerApparence = trainerAppearance;
 	}
+	
 
 	/**
 	 * @return codigo has del DTO
@@ -129,7 +126,5 @@ public class PlayerProfileDTO {
 		return "PlayerProfileDTO [id=" + id + ", userId=" + userId + ", gender=" + gender + ", trainerApparence="
 				+ trainerApparence + "]";
 	}
-	
-	
 
 }

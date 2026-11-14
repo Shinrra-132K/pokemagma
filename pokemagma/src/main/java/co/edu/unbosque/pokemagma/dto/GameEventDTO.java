@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import co.edu.unbosque.pokemagma.model.GameEvent.EventType;
+
 /**
  * DTO para transferir un evento de auditoria del juego
  */
@@ -28,7 +29,7 @@ public class GameEventDTO {
 	 * Fecha y hora en que ocurrio el evento
 	 */
 	private Instant createdAt;
-	
+
 	/**
 	 * Constructor vacio
 	 */
@@ -39,11 +40,11 @@ public class GameEventDTO {
 	/**
 	 * Constructor con todos los campos
 	 * 
-	 * @param id identificador del evento
-	 * @param playerId identificador del jugador
-	 * @param type tipo de evento
+	 * @param id          identificador del evento
+	 * @param playerId    identificador del jugador
+	 * @param type        tipo de evento
 	 * @param description descripcion del evento
-	 * @param createdAt fecha y hora del evento
+	 * @param createdAt   fecha y hora del evento
 	 */
 	public GameEventDTO(Long id, Long playerId, EventType type, String description, Instant createdAt) {
 		super();
@@ -54,47 +55,52 @@ public class GameEventDTO {
 		this.createdAt = createdAt;
 	}
 
-	
-	/**
-	 * 
-	 * getters y settters
-	 */
+	/** @return identificador del evento */
 	public Long getId() {
 		return id;
 	}
 
+	/** @param id identificador del evento */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/** @return ID del jugador */
 	public Long getPlayerId() {
 		return playerId;
 	}
 
+	/** @param playerId ID del jugador */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
 
+	/** @return tipo de evento */
 	public EventType getType() {
 		return type;
 	}
 
+	/** @param type tipo de evento */
 	public void setType(EventType type) {
 		this.type = type;
 	}
 
+	/** @return descripción del evento */
 	public String getDescription() {
 		return description;
 	}
 
+	/** @param description descripción del evento */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/** @return fecha y hora del evento */
 	public Instant getCreatedAt() {
 		return createdAt;
 	}
 
+	/** @param createdAt fecha y hora del evento */
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
 	}
@@ -106,7 +112,7 @@ public class GameEventDTO {
 	public int hashCode() {
 		return Objects.hash(createdAt, description, id, playerId, type);
 	}
-	
+
 	/**
 	 * Compara este DTO con otro por sus campos
 	 * 
@@ -127,7 +133,6 @@ public class GameEventDTO {
 				&& Objects.equals(id, other.id) && Objects.equals(playerId, other.playerId) && type == other.type;
 	}
 
-	
 	/**
 	 * @return representacion textual del DTO
 	 */
@@ -136,7 +141,5 @@ public class GameEventDTO {
 		return "GameEventDTO [id=" + id + ", playerId=" + playerId + ", type=" + type + ", description=" + description
 				+ ", createdAt=" + createdAt + "]";
 	}
-	
-	
 
 }
