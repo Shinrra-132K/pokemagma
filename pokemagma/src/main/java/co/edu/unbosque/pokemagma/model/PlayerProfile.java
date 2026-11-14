@@ -60,6 +60,9 @@ public class PlayerProfile {
 	@Column(nullable = false)
 	private String trainerApparance;
 
+	/**
+	 * Constructor vacio
+	 */
 	public PlayerProfile() {
 		// TODO Auto-generated constructor stub
 	}
