@@ -32,9 +32,9 @@ public interface PokedexEntryRepository extends JpaRepository<PokedexEntry, Long
 	/**
 	 * Comprueba si una especie ya tiene una entrada para este jugador
 	 * 
-	 * @param playerIdidentificador del jugador
+	 * @param playerId identificador del jugador
 	 * @param speciesId identificador de la especie pokemon
-	 * @return true si la entrada existe
+	 * @return
 	 */
 	public boolean existByPlayerIdAndSpeciesId(Long playerId, Integer speciesId);
 	
