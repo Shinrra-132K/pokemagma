@@ -11,6 +11,12 @@ import co.edu.unbosque.pokemagma.dto.UserDTO;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
 
+/**
+ * Servicio que gestiona las operaciones de las cuentas de ususario
+ * 
+ * Implementa las operaciones CRUD definidas en CRUDOperation y proporciona
+ * metodos para consultar usuarios y validar sus credenciales
+ */
 public class UserService implements CRUDOperation<UserDTO> {
 
 	@Autowired
@@ -126,6 +132,12 @@ public class UserService implements CRUDOperation<UserDTO> {
 		return userRepo.existsById(id);
 	}
 
+	/**
+	 * Busca un usuasrio por su ID y lo convierte en DTO
+	 * 
+	 * @param id identificador del usuario
+	 * @return DTO del susario sin contraseña o null si no existe
+	 */
 	public UserDTO getById(Long id) {
 		Optional<User> found = userRepo.findById(id);
 		if (found.isPresent()) {
@@ -135,6 +147,12 @@ public class UserService implements CRUDOperation<UserDTO> {
 		}
 	}
 
+	/**
+	 * Comprueba si el nombre de ususario de una cuenta ya esta registrado
+	 * 
+	 * @param newUser usuario que se desea comprobar
+	 * @return true si el nombre ya esta registrado
+	 */
 	public boolean findUsernameAlreadyTaken(User newUser) {
 		Optional<User> found = userRepo.findByUsername(newUser.getUsername());
 		if (found.isPresent()) {
@@ -144,11 +162,23 @@ public class UserService implements CRUDOperation<UserDTO> {
 		}
 	}
 
+	/**
+	 * Comprueba si un nombre de ususario ya esta registrado
+	 * 
+	 * @param username nombre de ususario
+	 * @return true si esta registrado
+	 */
 	public boolean findUsernameAlreadyTaken(String username) {
 		Optional<User> found = userRepo.findByUsername(username);
 		return found.isPresent();
 	}
 
+	/**
+	 * Elimina un usuario por su ID
+	 * 
+	 * @param id identificador del usuario
+	 * @return 0 si se elimino, 1 si no existe
+	 */
 	@Override
 	public int deleteById(Long id) {
 		Optional<User> found = userRepo.findById(id);
@@ -160,6 +190,13 @@ public class UserService implements CRUDOperation<UserDTO> {
 		}
 	}
 
+	/**
+	 * Comprueba si la contraseña recibida coincide con la contraseña almacenada
+	 * 
+	 * @param username nombre de ususario
+	 * @param password contraseña recibida
+	 * @return 0 si las credenciales coinciden, 1 si son incorrectos
+	 */
 	public int validateCredentials(String username, String password) {
 		Optional<User> userOpt = userRepo.findByUsername(username);
 

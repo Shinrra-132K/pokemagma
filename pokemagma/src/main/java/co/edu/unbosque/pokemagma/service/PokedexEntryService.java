@@ -136,7 +136,7 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	 */
 	@Override
 	public boolean exist(Long id) {
-		return pokedexRepo.existsById(id) ? true: false;
+		return pokedexRepo.existsById(id);
 	}
 	
 	/**

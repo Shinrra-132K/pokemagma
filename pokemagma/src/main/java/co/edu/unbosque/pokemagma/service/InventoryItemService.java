@@ -137,7 +137,7 @@ public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 	 */
 	@Override
 	public boolean exist(Long id) {
-		return inventoryRepo.existsById(id) ? true : false;
+		return inventoryRepo.existsById(id);
 	}
 	
 	/**

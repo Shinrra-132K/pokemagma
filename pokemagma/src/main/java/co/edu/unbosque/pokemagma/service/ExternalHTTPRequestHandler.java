@@ -57,6 +57,12 @@ public class ExternalHTTPRequestHandler {
 
 	}
 	
+	/**
+	 * Convierte una cadena JSON a formato legible
+	 * 
+	 * @param uglyJson JSON recibido sin formato
+	 * @return JSON con formato e identacion
+	 */
 	public static String prettyPrintUsingGson(String uglyJson) {
 		Gson gson = new GsonBuilder().setStrictness(Strictness.LENIENT).setPrettyPrinting().create();
 		JsonElement jsonElement = JsonParser.parseString(uglyJson);

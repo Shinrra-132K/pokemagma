@@ -44,6 +44,13 @@ public class PokemonService {
 		return ExternalHTTPRequestHandler.doGetAndParse(url);
 	}
 	
+	/**
+	 * Consulta una pagina de resultados de pokemon
+	 * 
+	 * @param limit maximo de resultados
+	 * @param offset posiciones desde la que se obtienen los resultados
+	 * @return respuesta JSON de PokeApi formateada
+	 */
 	public String getPokemonList(int limit, int offset) {
 		String url = POKEAPI_URL + "pokemon?limit=" + limit + "&offset=" + offset;
 		return ExternalHTTPRequestHandler.doGetAndParse(url);

@@ -153,7 +153,7 @@ public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 	 */
 	@Override
 	public boolean exist(Long id) {
-		return profileRepo.existsById(id) ?  true : false;
+		return profileRepo.existsById(id);
 	}
 	
 	/**
