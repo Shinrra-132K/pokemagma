@@ -6,6 +6,7 @@ import { Signupcomponent } from './components/signupcomponent/signupcomponent';
 import { Admincomponent} from './components/admincomponent/admincomponent';
 import { Notfoundcomponent} from './components/notfoundcomponent/notfoundcomponent';
 import { Howtoplaycomponent } from'./components/howtoplaycomponent/howtoplaycomponent';
+import { Forgottenpasswordcomponent } from'./components/forgottenpasswordcomponent/forgottenpasswordcomponent'
 
 /**
  * Tabla de rutas principales de la aplicación.
@@ -39,6 +40,11 @@ const routes: Routes = [
   {
     path: 'admin',
     component: Admincomponent
+  },
+    /*'forgottenpassword': Vista para enviar correo electrónico y poder reestablecer la contraseña */
+  {
+    path: 'forgottenpassword',
+    component: Forgottenpasswordcomponent
   },
     /*'notfound': Vista de error para páginas no encontradas.*/
   {
