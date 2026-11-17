@@ -1,23 +1,25 @@
 <img
-  src="/assets/images/background.PNG"
+  src="/assets/images/teammagmabackground.jpeg"
   class="gif-background-pokemon"
   alt="background-gif">
-<img src="/assets/images/pokemontitle.png" class="pokemon-title" alt="pokemagma title">
+<h1 class="pokemon-title">PokeMagma</h1>
 <div class="menu-buttons">
   @if(!mostrarOpciones){
-  <button type="button" class="button-start" (click)="cambiarOpciones()">
-    PRESS TO START
-  </button>
+    <button type="button" class="button-start" (click)="cambiarOpciones()">
+      PRESS TO START
+    </button>
   }@else{
-    <button type="button" class="button-option" [routerLink]="['/login']">
-      INICIAR SESIÓN
-    </button>
     <button type="button" class="button-option">
-      REGISTRARSE
+      <button type="button" class="button-option" routerLink="/login">
+        INICIAR SESIÓN
+      </button>
+      <button type="button" class="button-option" routerLink="/signup">
+        REGISTRARSE
+      </button>
+      <button type="button" class="button-option" routerLink="/howtoplay">
+        ¿CÓMO JUGAR?
+      </button>
     </button>
-    <button type="button" class="button-option">
-      ¿CÓMO JUGAR?
-    </button>
-  }
+      }
 </div>
 

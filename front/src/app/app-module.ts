@@ -5,9 +5,25 @@ import { App } from './app';
 import { Startcomponent } from './components/startcomponent/startcomponent';
 import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
+import { Admincomponent } from './components/admincomponent/admincomponent';
+import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
+import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
 
+/**
+ * @file app.module.ts
+ * @description Módulo raíz de la aplicación Angular. Agrupa todos los componentes,
+ * rutas y proveedores de servicios globales necesarios para el funcionamiento inicial del sistema.
+ */
 @NgModule({
-  declarations: [App, Startcomponent, Logincomponent, Signupcomponent],
+  declarations: [
+    App,
+    Startcomponent,
+    Logincomponent,
+    Signupcomponent,
+    Admincomponent,
+    Notfoundcomponent,
+    Howtoplaycomponent,
+  ],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [App],

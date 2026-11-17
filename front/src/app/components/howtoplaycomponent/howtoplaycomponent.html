@@ -1,0 +1,187 @@
+<div class="how">
+  <img
+    class="how-background"
+    src="https://i.pinimg.com/1200x/2a/5b/23/2a5b23f93f5b34fe2580171018f54f98.jpg"
+    alt="fondo">
+
+  <div class="how-card">
+    <header class="how-header">
+      <h2 class="how-title">¿Cómo jugar PokeMagma?</h2>
+      <p class="how-counter">{{ paso() + 1 }} / {{ total }}</p>
+    </header>
+
+    <div class="how-body">
+
+      <section class="paso" [class.activo]="paso() === 0">
+        <h3 class="paso-titulo">1. Crea tu cuenta</h3>
+        <div class="escena">
+          <figure class="figura">
+            <img class="sprite" src="https://archives.bulbagarden.net/media/upload/3/38/Spr_RS_May.png?20061120214202" alt="Personaje de mujer">
+            <figcaption>Mujer</figcaption>
+          </figure>
+          <figure class="figura">
+            <img class="sprite" src="https://archives.bulbagarden.net/media/upload/6/68/Spr_RS_Brendan.png?20061120214210" alt="Personaje de hombre">
+            <figcaption>Hombre</figcaption>
+          </figure>
+        </div>
+        <div class="dialogo">
+          <p>¡Bienvenido, futuro entrenador!</p>
+          <p>Ten en cuenta que esta web está basada en el juego de pokemon edición ruby. Para poder jugar tendrás que crear primero tu cuenta de entrenador pokemon, debes ingresar tu nombre de usuario, correo electrónico y contraseña además deberás seleccionar tu género.</p>
+          <p>Después de darle clic a "crear cuenta" no olvides revisar tu correo y activar tu cuenta, o de lo contrario no podrás iniciar sesión.</p>
+        </div>
+        <a class="boton boton-rojo" routerLink="/signup">Registrarse</a>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 1">
+        <h3 class="paso-titulo">2. Inicia sesión</h3>
+        <ol class="flujo">
+          <li>Iniciar sesión</li>
+          <li>Intro</li>
+          <li>Nueva partida<br>Cargar partida</li>
+        </ol>
+        <div class="dialogo">
+          <p>Después de haber creado y activado tu cuenta, ya podrás iniciar sesión con tu nombre de usuario o correo electrónico y tu contraseña. Si en algún momento olvidas tu contraseña puedes darle clic a "olvide mi contraseña", revisa tu correo y cambia tu contraseña.</p>
+          <p>al entrar verás la intro del juego y después elegirás entre "nueva partida" o "cargar partida" por una que ya estuviera iniciada.</p>
+        </div>
+        <a class="boton boton-rojo" routerLink="/login">Iniciar sesión</a>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 2">
+        <h3 class="paso-titulo">3. Controles</h3>
+        <div class="controles">
+          <div class="control">
+            <div class="flechas">
+              <span class="tecla f-arriba">↑</span>
+              <span class="tecla f-izq">←</span>
+              <span class="tecla f-abajo">↓</span>
+              <span class="tecla f-der">→</span>
+            </div>
+            <p>Moverte</p>
+          </div>
+          <div class="control">
+            <span class="tecla">X</span>
+            <p>Aceptar · Sí</p>
+          </div>
+          <div class="control">
+            <span class="tecla">Z</span>
+            <p>Cancelar · Volver</p>
+          </div>
+          <div class="control">
+            <span class="tecla">C</span>
+            <p>Correr (mantenla pulsada mientras usas alguna flecha)</p>
+          </div>
+          <div class="control">
+            <span class="tecla tecla-ancha">ENTER</span>
+            <p>Abrir inventario</p>
+          </div>
+        </div>
+        <div class="dialogo">
+          <p>Con estas teclas podrás jugar pokemagma, si en algun momento olvidas alguna puedes volver aqui y revisar.</p>
+        </div>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 3">
+        <h3 class="paso-titulo">4. Explora la región de Hoenn</h3>
+        <ul class="pokemon-gif">
+          <li><img src="/assets/sprites/animated/first_gen/001.gif" alt="Bulbasaur"></li>
+          <li><img src="/assets/sprites/animated/first_gen/004.gif" alt="Charmander"></li>
+          <li><img src="/assets/sprites/animated/first_gen/007.gif" alt="Squirtle"></li>
+          <li><img src="/assets/sprites/animated/first_gen/025.gif" alt="Pikachu"></li>
+        </ul>
+        <div class="dialogo">
+          <p>Recorre pueblos, ciudades y rutas de la región Hoenn mientras avanzas en la historia. Encuentra pokemones salvajes en la hierba alta, pelea contra entrenadores pokemon y completa la pokedex. Apenas inicies una partida podrás elegir entre 3 pokemones, uno de ellos será tu primer compañero.</p>
+        </div>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 4">
+        <h3 class="paso-titulo">5. Captura Pokémon</h3>
+        <div class="escena escena-captura">
+          <div class="image-container-captura">
+            <img src="/assets/sprites/animated/third_gen/383.gif" class="" alt="console with charmander">
+          </div>
+          <ol class="lista-pasos">
+            <li>Camina por la hierba alta hasta que aparezca un Pokémon salvaje.</li>
+            <li>Lucha con el pokemon salvaje, usa tus ataques para debilitarlo y ganar.</li>
+            <li>Abre tu mochila y lanza una pokeball si deseas atrapar el pokemon.</li>
+            <li>Si la bola se sacude y hace "clic", ¡es tuyo!</li>
+          </ol>
+        </div>
+        <div class="dialogo">
+          <p>Es más fácil capturar a un Pokémon con pocos PS, dormido o paralizado. ¡Ten siempre Pokéballs y pociones de curación contigo!.</p>
+          <p> Si combates contra otro entrenador y lo derrotas ganarás dinero, pero si te derrotan, perderás dinero. ¡Ve siempre con tus mejores pokemones!</p>
+        </div>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 5">
+        <h3 class="paso-titulo">6. Pokédex</h3>
+        <ul class="dex">
+          <li class="dex-fila">
+            <span class="dex-num">001</span>
+            <span class="dex-nombre">TREECKO</span>
+            <img class="ball" src="/assets/images/pokeicon.png" alt="Capturado">
+          </li>
+          <li class="dex-fila dex-visto">
+            <span class="dex-num">002</span>
+            <span class="dex-nombre">ZIGZAGOON</span>
+            <span class="dex-ojo">VISTO</span>
+          </li>
+          <li class="dex-fila dex-nuevo">
+            <span class="dex-num">003</span>
+            <span class="dex-nombre">? ? ? ? ?</span>
+            <span class="dex-ojo">&nbsp;</span>
+          </li>
+        </ul>
+        <div class="dialogo">
+          <p>La pokedex se irá actualizando sola a medida que juegues. Estarán todos los pokemon hasta la tercera generación de forma misteriosa (????), si capturas un pokemon saldrá una pokebola junto al nombre, si peleaste contra él o decidiste huir aparecerá como visto.</p>
+        </div>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 6">
+        <h3 class="paso-titulo">7. Batallas</h3>
+        <div class="batalla">
+          <div class="batalla-enemigo">
+            <p class="batalla-nombre">ZIGZAGOON <small>Nv3</small></p>
+            <div class="hp"><span class="hp-label">PS</span><div class="hp-barra"><i class="hp-relleno" style="width: 45%"></i></div></div>
+          </div>
+          <div class="batalla-menu">
+            <p class="batalla-pregunta">¿Qué hará<br>TREECKO?</p>
+            <ul class="batalla-opciones">
+              <li class="sel">LUCHA</li>
+              <li>MOCHILA</li>
+              <li>POKéMON</li>
+              <li>HUIDA</li>
+            </ul>
+          </div>
+        </div>
+        <div class="dialogo">
+          <p>Elige con las flechas y confirma con X. LUCHA usa un movimiento, MOCHILA gasta objetos, POKéMON cambia de compañero y HUIDA intenta escapar.</p>
+        </div>
+      </section>
+
+      <section class="paso" [class.activo]="paso() === 7">
+        <h3 class="paso-titulo">8. Inventario</h3>
+        <div class="escena escena-bolsa">
+          <span class="tecla tecla-ancha">ENTER</span>
+          <ul class="bolsa">
+            <li class="sel"><span>Pokemon</span></li>
+            <li><span>Mochila</span></li>
+            <li><span>Placa entrenador</span></li>
+            <li><span>Seguir jugando</span></li>
+            <li><span>Guardar y salir</span></li>
+          </ul>
+        </div>
+        <div class="dialogo">
+          <p>Pulsa ENTER en cualquier momento para abrir tu inventario. Sube y baja con las flechas, Puedes ver la información de tus pokemon, tus objetos en mochila, tu perfil de usuario, seguir jugando o salir del juego.</p>
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="how-footer">
+      <button type="button" class="boton" (click)="anterior()" [disabled]="esPrimero()">◀ Volver</button>
+
+      <button type="button" class="boton" (click)="siguiente()" [hidden]="esUltimo()">Siguiente ▶</button>
+      <a class="boton boton-rojo" routerLink="/signup" [hidden]="!esUltimo()">¡A jugar!</a>
+    </footer>
+  </div>
+</div>
