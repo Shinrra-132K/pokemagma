@@ -74,7 +74,6 @@
 }
 
 .how-body {
-  /* altura fija para que la tarjeta no "salte" entre pasos */
   min-height: 390px;
 }
 
@@ -105,6 +104,9 @@
   align-items: center;
   gap: 28px;
 }
+.image-container-captura{
+  height: 100px;
+}
 
 .dialogo {
   position: relative;
@@ -124,20 +126,6 @@
 
 .dialogo p:last-child {
   margin-bottom: 0;
-}
-
-.dialogo::after {
-  content: "▼";
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
-  font-size: 18px;
-  color: #F40B0B;
-  animation: parpadeo 0.8s steps(1) infinite;
-}
-
-@keyframes parpadeo {
-  50% { opacity: 0; }
 }
 
 .boton {
@@ -179,24 +167,6 @@
   gap: 12px;
 }
 
-.puntos {
-  display: flex;
-  gap: 8px;
-}
-
-.punto {
-  width: 14px;
-  height: 14px;
-  padding: 0;
-  cursor: pointer;
-  background-color: #fff;
-  border: 2px solid #1E195C;
-}
-
-.punto-activo {
-  background-color: #F40B0B;
-}
-
 .sprite {
   width: 96px;
   height: 96px;
@@ -208,26 +178,6 @@
   margin: 0;
   text-align: center;
   font-size: 24px;
-}
-
-.ball {
-  width: 30px;
-  height: 30px;
-  shape-rendering: crispEdges;
-}
-
-.ball-grande {
-  width: 96px;
-  height: 96px;
-  flex: 0 0 96px;
-  animation: meneo 1.2s steps(1) infinite;
-}
-
-@keyframes meneo {
-  0%   { transform: rotate(0deg); }
-  25%  { transform: rotate(-18deg); }
-  50%  { transform: rotate(0deg); }
-  75%  { transform: rotate(18deg); }
 }
 
 .flujo {
@@ -315,39 +265,32 @@
 .f-abajo  { grid-column: 2; grid-row: 2; }
 .f-der    { grid-column: 3; grid-row: 2; }
 
-.losetas {
+.escena-captura {
+  justify-content: flex-start;
+}
+.pokemon-gif {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px 20px;
-  margin: 0;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  align-items: end;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 50px;
   padding: 0;
   list-style: none;
 }
 
-.losetas li {
+.pokemon-gif li {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 24px;
-  line-height: 1;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-.loseta {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  border: 3px solid #1E195C;
-}
-
-.l-suelo  { background-color: #78C878; }
-.l-arena  { background-color: #E6D278; }
-.l-hierba { background-color: #A0E678; background-image: repeating-linear-gradient(135deg, #3E9B3E 0 3px, transparent 3px 8px); }
-.l-arbol  { background-color: #14641E; }
-.l-agua   { background-color: #3C5ADC; }
-.l-casa   { background-color: #DC3C3C; }
-
-.escena-captura {
-  justify-content: flex-start;
+.pokemon-gif img {
+  display: block;
+  image-rendering: pixelated;
+  transform: scale(2);
+  transform-origin: bottom center;
 }
 
 .lista-pasos {
@@ -363,6 +306,15 @@
 
 .lista-pasos li::marker {
   color: #AB3126;
+}
+
+.ball {
+  display: block;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
 .dex {
@@ -405,6 +357,7 @@
 }
 
 .batalla {
+  margin-top:40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
@@ -534,7 +487,6 @@
   }
 
   .controles,
-  .losetas,
   .batalla {
     grid-template-columns: 1fr;
   }
@@ -543,14 +495,10 @@
     flex-direction: column;
     align-items: center;
   }
-
-  .flujo li + li::before {
-    content: "▼";
-    left: 50%;
-    top: -26px;
-    transform: translateX(-50%);
+  .pokemon-gif {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 40px;
   }
-
   .how-footer {
     flex-wrap: wrap;
     justify-content: center;
