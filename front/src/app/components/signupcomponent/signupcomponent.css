@@ -152,6 +152,10 @@
   font-size: 22px;
   font-family: "pixelise", sans-serif;
 }
+.login-text a{
+  color: #AB3126;
+}
+
 .avatar-panel {
   --avatar-size: 160px;
   flex: 0 0 var(--avatar-size);
@@ -161,14 +165,20 @@
 
 .avatar {
   display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .avatar img {
   display: block;
   width: var(--avatar-size);
   height: var(--avatar-size);
-  object-fit: cover;
-  object-position: center top;
+  object-fit: contain;
+  object-position: center center; /* Centra el sprite horizontal y verticalmente */
+  image-rendering: pixelated;
+  margin: 0 auto;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
@@ -182,6 +192,10 @@
 
 .avatar-default {
   display: block;
+}
+.avatar-hombre img, .avatar-mujer img{
+  padding-left: 12px;
+  box-sizing: border-box;
 }
 
 .signup-card:has(#genero-mujer:checked) .avatar-default,

@@ -73,7 +73,7 @@
   align-self: flex-end;
   font-family: "pixelise", sans-serif;
   font-size: 22px;
-  color: #C86209;
+  color: #AB3126;
   cursor: pointer;
 }
 
@@ -112,6 +112,10 @@
   text-align: center;
   font-size: 22px;
   font-family: "pixelise", sans-serif;
+}
+
+.register-text a{
+  color: #AB3126;
 }
 
 .sign-up {
