@@ -39,7 +39,6 @@
   width: 90%;
 }
 
-/* Asegura que cualquier div interno también ocupe el ancho y centre sus hijos */
 .menu-buttons > div {
   display: flex;
   flex-direction: column;
@@ -51,9 +50,9 @@
 .button-start,
 .button-option {
   display: block;
-  margin: 0 auto; /* Centra el bloque del botón horizontalmente */
-  text-align: center; /* Centra el texto dentro del botón */
-  padding: 0; /* Elimina el relleno por defecto de los navegadores que puede descentrar el texto */
+  margin: 0 auto;
+  text-align: center;
+  padding: 0;
 
   font-family: 'pixelise', sans-serif;
   font-size: clamp(26px, 4vw, 45px);
@@ -67,7 +66,6 @@
   transition: transform 0.15s ease, text-shadow 0.15s ease;
 }
 
-/* Efecto visual al pasar el mouse o navegar con teclado */
 .button-start:hover,
 .button-option:hover,
 .button-start:focus-visible,
@@ -77,7 +75,6 @@
   outline: none;
 }
 
-/* Efecto al hacer clic */
 .button-start:active,
 .button-option:active {
   transform: scale(0.98);
