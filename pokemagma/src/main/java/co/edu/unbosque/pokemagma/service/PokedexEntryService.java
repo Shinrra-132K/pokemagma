@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.PokedexEntryDTO;
 import co.edu.unbosque.pokemagma.model.PokedexEntry;
@@ -14,6 +15,7 @@ import co.edu.unbosque.pokemagma.repository.PokedexEntryRepository;
 /**
  * Servicio que gestiona las especies vistas y capturadas por los jugadores
  */
+@Service
 public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 
 	/**

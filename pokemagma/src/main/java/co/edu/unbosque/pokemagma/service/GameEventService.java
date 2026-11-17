@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.GameEventDTO;
 import co.edu.unbosque.pokemagma.model.GameEvent;
@@ -15,6 +16,7 @@ import co.edu.unbosque.pokemagma.repository.GameEventRepository;
 /**
  * Servicio que gestiona los eventos de sesion y juego usado para auditoria
  */
+@Service
 public class GameEventService implements CRUDOperation<GameEventDTO> {
 
 	/**

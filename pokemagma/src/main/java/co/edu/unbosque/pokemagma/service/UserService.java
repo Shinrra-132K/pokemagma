@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.UserDTO;
 import co.edu.unbosque.pokemagma.model.User;
@@ -17,6 +19,7 @@ import co.edu.unbosque.pokemagma.repository.UserRepository;
  * Implementa las operaciones CRUD definidas en CRUDOperation y proporciona
  * metodos para consultar usuarios y validar sus credenciales
  */
+@Service
 public class UserService implements CRUDOperation<UserDTO> {
 
 	@Autowired
@@ -25,8 +28,8 @@ public class UserService implements CRUDOperation<UserDTO> {
 	@Autowired
 	private ModelMapper modelMapper;
 
-	// @Autowired
-	// private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * Constructor vacio del servicio
@@ -43,21 +46,18 @@ public class UserService implements CRUDOperation<UserDTO> {
 	 */
 	@Override
 	public int create(UserDTO data) {
-		if (userRepo.existByUsername(data.getUsername())) {
+		if (userRepo.existsByUsername(data.getUsername())) {
 			return 1;
 		}
-		if (userRepo.existByEmail(data.getEmail())) {
+
+		if (userRepo.existsByEmail(data.getEmail())) {
 			return 2;
 		}
 
 		User entity = modelMapper.map(data, User.class);
-		// entity.setPassword(passwordEncoder.encode(data.getPassword()));
-
-		if (data.getRole() == null) {
-			entity.setRole(User.Role.PLAYER);
-		} else {
-			entity.setRole(data.getRole());
-		}
+		entity.setPassword(passwordEncoder.encode(data.getPassword()));
+		entity.setRole(User.Role.PLAYER);
+		entity.setEmailVerified(false);
 
 		userRepo.save(entity);
 		return 0;
@@ -98,7 +98,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 		if (found.isPresent() && !newFound.isPresent()) {
 			User temp = found.get();
 			temp.setUsername(newData.getUsername());
-			// temp.setPassword(passwordEncoder.encode(newData.getPassword()));
+			temp.setPassword(passwordEncoder.encode(newData.getPassword()));
 			userRepo.save(temp);
 			return 0;
 		}
@@ -202,9 +202,9 @@ public class UserService implements CRUDOperation<UserDTO> {
 
 		if (userOpt.isPresent()) {
 			User user = userOpt.get();
-			// if (passwordEncoder.matches(password, user.getPassword())) {
-			// return 0;
-			// }
+			if (passwordEncoder.matches(password, user.getPassword())) {
+			return 0;
+			}
 		}
 
 		return 1;

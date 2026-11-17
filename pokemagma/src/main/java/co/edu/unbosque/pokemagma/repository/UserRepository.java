@@ -35,7 +35,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	 * @param username nombre de usuario
 	 * @return true si existe
 	 */
-	public boolean existByUsername(String username);
+	public boolean existsByUsername(String username);
 
 	/**
 	 * Comprueba si el correo ya esta registrado sin distinguir entre mayusculas o
@@ -44,6 +44,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	 * @param email correo del usuario
 	 * @return true si existe
 	 */
-	public boolean existByEmail(String email);
+	public boolean existsByEmail(String email);
 
 }
