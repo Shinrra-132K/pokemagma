@@ -1,0 +1,29 @@
+<div class="login">
+  <img
+    class="login-background"
+    src="https://i.pinimg.com/1200x/86/b1/6c/86b16cf791258e89d3d768d82c78cf6f.jpg"
+    alt="fondo">
+
+  <div class="login-card">
+    <form class="login-form">
+      <h2 class="login-title">Iniciar Sesión</h2>
+
+      <input id="usuario" name="usuario" type="text" placeholder="Usuario o correo electrónico">
+
+      <input id="contrasena" name="contrasena" type="password" placeholder="Contraseña">
+
+      <a class="link-forgot" routerLink="/forgot-password">Olvidé mi contraseña</a>
+
+      <button type="button" class="button-login">Ingresar</button>
+
+      <p class="register-text">
+        ¿No tienes cuenta?
+        <a class="sign-up" routerLink="/signup">Regístrate</a>
+      </p>
+    </form>
+  </div>
+</div>
+<div class="admin-mode">
+  <button class="b-admin" routerLink="/admin">Entrar a admin</button>
+</div>
+<button class="b-volver" routerLink="/">Volver principal</button>
