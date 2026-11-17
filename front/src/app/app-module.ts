@@ -9,6 +9,11 @@ import { Admincomponent } from './components/admincomponent/admincomponent';
 import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
 import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
 
+/**
+ * @file app.module.ts
+ * @description Módulo raíz de la aplicación Angular. Agrupa todos los componentes,
+ * rutas y proveedores de servicios globales necesarios para el funcionamiento inicial del sistema.
+ */
 @NgModule({
   declarations: [
     App,

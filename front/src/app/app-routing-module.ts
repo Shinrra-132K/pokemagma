@@ -7,7 +7,11 @@ import { Admincomponent} from './components/admincomponent/admincomponent';
 import { Notfoundcomponent} from './components/notfoundcomponent/notfoundcomponent';
 import { Howtoplaycomponent } from'./components/howtoplaycomponent/howtoplaycomponent';
 
+/**
+ * Tabla de rutas principales de la aplicación.
+ */
 const routes: Routes = [
+  /*'' y 'home': Redirigen a la vista de inicio ('Startcomponent').*/
   {
     path: '',
     component: Startcomponent
@@ -16,32 +20,43 @@ const routes: Routes = [
     path: 'home',
     component: Startcomponent
   },
+    /*'login': Vista de inicio de sesión de usuarios.*/
   {
     path: 'login',
     component: Logincomponent
   },
+    /*'howtoplay': Vista con las instrucciones o reglas del juego.*/
   {
     path: 'howtoplay',
     component: Howtoplaycomponent
   },
+    /*'signup': Vista de registro de nuevos usuarios.*/
   {
     path: 'signup',
     component: Signupcomponent
   },
+    /*'admin': Panel de administración del sistema.*/
   {
     path: 'admin',
     component: Admincomponent
   },
+    /*'notfound': Vista de error para páginas no encontradas.*/
   {
     path: 'notfound',
     component: Notfoundcomponent
   },
+    /*'**': Redirige automáticamente cualquier ruta no encontrada a 'notfound'.*/
   {
     path: '**',
     redirectTo: 'notfound'
   }
 ];
 
+/**
+ * @file app-routing-module.ts
+ * @description Módulo de enrutamiento principal. Configura las rutas de navegación
+ * de la aplicación utilizando 'RouterModule.forRoot(routes)'.
+ */
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
