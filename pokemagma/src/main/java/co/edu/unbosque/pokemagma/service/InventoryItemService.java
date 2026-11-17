@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.InventoryItemDTO;
 import co.edu.unbosque.pokemagma.model.InventoryItem;
@@ -15,6 +16,7 @@ import co.edu.unbosque.pokemagma.repository.InventoryItemRepository;
  * Servicio que gestiona los objetos y cantidades del inventario de los
  * jugadores
  */
+@Service
 public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 
 	/**

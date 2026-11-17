@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.PlayerProfileDTO;
 import co.edu.unbosque.pokemagma.model.PlayerProfile;
@@ -16,6 +17,7 @@ import co.edu.unbosque.pokemagma.repository.UserRepository;
 /**
  * Servicio que gestiona los perfiles de entrenador asociados a las cuentas
  */
+@Service
 public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 	
 	/**

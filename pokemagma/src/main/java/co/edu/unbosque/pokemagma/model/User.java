@@ -2,7 +2,12 @@ package co.edu.unbosque.pokemagma.model;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,8 +27,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "useraccount")
-//implements userdetails
-public class User {
+public class User implements UserDetails{
 
 	// *Nombre de usuario uncio utilizado para iniciar sesion*/
 	@Id
@@ -105,12 +109,16 @@ public class User {
 		this.password = password;
 	}
 
-	/*
-	 * pendiente spring security
+	/**
+	 * Obtiene los roles asignados al usuario
+	 * Implementacion del metodo de la interfaz UserDetails
 	 * 
-	 * @Override public Collection<? extends GrantedAuthority> getAuthorities() {
-	 * return List.of(new SimpleGrantedAuthority("ROLE_" + role.name())); }
+	 * @return Coleccion de autoridades del usuario con el prefijo "ROLE_"
 	 */
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+	}
 
 	/** @return identificador de la cuenta */
 	public Long getId() {
@@ -131,6 +139,7 @@ public class User {
 	 *
 	 * @return nombre de usuario
 	 */
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -167,6 +176,7 @@ public class User {
 	 *
 	 * @return contraseña, que debería estar codificada
 	 */
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -203,6 +213,7 @@ public class User {
 	 *
 	 * @return true si la cuenta no ha expirado
 	 */
+	@Override
 	public boolean isAccountNonExpired() {
 		return accountNonExpired;
 	}
@@ -221,6 +232,7 @@ public class User {
 	 *
 	 * @return true si la cuenta no está bloqueada
 	 */
+	@Override
 	public boolean isAccountNonLocked() {
 		return accountNonLocked;
 	}
@@ -239,6 +251,7 @@ public class User {
 	 *
 	 * @return true si las credenciales no han expirado
 	 */
+	@Override
 	public boolean isCredentialsNonExpired() {
 		return credentialsNonExpired;
 	}
@@ -258,7 +271,7 @@ public class User {
 	 * @return true si la cuenta está habilitada
 	 */
 	public boolean isEnabled() {
-		return enabled;
+		return enabled && emailVerified;
 	}
 
 	/**
@@ -351,5 +364,6 @@ public class User {
 		return "User [id=" + id + ", username=" + username + ", email=" + email + ", role=" + role + ", emailVerified="
 				+ emailVerified + ", registeredAt=" + registeredAt + "]";
 	}
+
 
 }
