@@ -72,7 +72,7 @@ public class User implements UserDetails{
 	private boolean emailVerified;
 
 	/* Fecha y hora del registro de la cuenta */
-	@Column(nullable = false, updatable = false)
+	@Column(updatable = false)
 	private Instant registeredAt;
 
 	/* Roles disponibles de las cuentas */
