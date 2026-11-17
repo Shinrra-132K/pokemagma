@@ -8,6 +8,8 @@ import { Notfoundcomponent} from './components/notfoundcomponent/notfoundcompone
 import { Howtoplaycomponent } from'./components/howtoplaycomponent/howtoplaycomponent';
 import { Forgottenpasswordcomponent } from'./components/forgottenpasswordcomponent/forgottenpasswordcomponent'
 
+import { Changepasswordcomponent } from './components/changepasswordcomponent/changepasswordcomponent';
+
 /**
  * Tabla de rutas principales de la aplicación.
  */
@@ -16,6 +18,10 @@ const routes: Routes = [
   {
     path: '',
     component: Startcomponent
+  },
+  {
+    path: 'change',
+    component: Changepasswordcomponent
   },
   {
     path: 'home',

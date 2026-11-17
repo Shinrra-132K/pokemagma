@@ -9,6 +9,7 @@ import { Admincomponent } from './components/admincomponent/admincomponent';
 import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
 import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
 import { Forgottenpasswordcomponent } from './components/forgottenpasswordcomponent/forgottenpasswordcomponent';
+import { Changepasswordcomponent } from './components/changepasswordcomponent/changepasswordcomponent';
 
 /**
  * @file app.module.ts
@@ -25,6 +26,7 @@ import { Forgottenpasswordcomponent } from './components/forgottenpasswordcompon
     Notfoundcomponent,
     Howtoplaycomponent,
     Forgottenpasswordcomponent,
+    Changepasswordcomponent,
   ],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
