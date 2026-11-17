@@ -1,0 +1,558 @@
+:host {
+  display: block;
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.how {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1E195C;
+  font-family: "pixelise", sans-serif;
+  color: #1E195C;
+}
+
+.how-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  z-index: 0;
+}
+
+.how-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 780px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 30px);
+  overflow-y: auto;
+  padding: 22px 36px;
+  background-color: rgba(220, 217, 250, 0.50);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(7, 3, 48, 0.45);
+}
+
+.how-card > * {
+  flex-shrink: 0;
+}
+
+.how-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.how-title {
+  font-size: 40px;
+  margin: 0;
+}
+
+.how-counter {
+  font-size: 28px;
+  margin: 0;
+}
+
+.how-body {
+  /* altura fija para que la tarjeta no "salte" entre pasos */
+  min-height: 390px;
+}
+
+.paso {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.paso.activo {
+  display: flex;
+  animation: aparecer 0.25s steps(4);
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+.paso-titulo {
+  margin: 0;
+  font-size: 32px;
+  color: #AB3126;
+}
+
+.escena {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+}
+
+.dialogo {
+  position: relative;
+  box-sizing: border-box;
+  padding: 12px 38px 12px 16px;
+  font-size: 25px;
+  line-height: 1.1;
+  background-color: #fff;
+  border: 4px solid #1E195C;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px #DCD9FA;
+}
+
+.dialogo p {
+  margin: 0 0 6px;
+}
+
+.dialogo p:last-child {
+  margin-bottom: 0;
+}
+
+.dialogo::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 18px;
+  color: #F40B0B;
+  animation: parpadeo 0.8s steps(1) infinite;
+}
+
+@keyframes parpadeo {
+  50% { opacity: 0; }
+}
+
+.boton {
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 4px 14px;
+  font-family: "pixelise", sans-serif;
+  font-size: 25px;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  color: black;
+  background-color: #fff;
+  border: none;
+  border-radius: 8px;
+}
+
+.boton:hover:not(:disabled) {
+  background-color: #AB3126;
+  color: #fff;
+}
+
+.boton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.boton-rojo {
+  align-self: center;
+  color: #fff;
+  background-color: #D13B2E;
+}
+
+.how-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.puntos {
+  display: flex;
+  gap: 8px;
+}
+
+.punto {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  cursor: pointer;
+  background-color: #fff;
+  border: 2px solid #1E195C;
+}
+
+.punto-activo {
+  background-color: #F40B0B;
+}
+
+.sprite {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.figura {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+}
+
+.ball {
+  width: 30px;
+  height: 30px;
+  shape-rendering: crispEdges;
+}
+
+.ball-grande {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  animation: meneo 1.2s steps(1) infinite;
+}
+
+@keyframes meneo {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-18deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(18deg); }
+}
+
+.flujo {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flujo li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 24px;
+  text-align: center;
+  background-color: #fff;
+  border: 3px solid #F40B0B;
+  border-radius: 8px;
+}
+
+.flujo li + li::before {
+  content: "▶";
+  position: absolute;
+  left: -24px;
+  font-size: 18px;
+  color: #1E195C;
+}
+
+.controles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.control p {
+  margin: 0;
+  font-size: 25px;
+}
+
+.tecla {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 8px;
+  font-size: 28px;
+  color: #1E195C;
+  background-color: #fff;
+  border: 3px solid #1E195C;
+  border-radius: 6px;
+  box-shadow: 0 5px 0 #1E195C;
+  animation: pulsar 1.6s steps(1) infinite;
+}
+
+.tecla-ancha {
+  min-width: 96px;
+}
+
+@keyframes pulsar {
+  50% { transform: translateY(3px); box-shadow: 0 2px 0 #1E195C; }
+}
+
+.flechas {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(2, 44px);
+  gap: 8px 6px;
+  padding-bottom: 5px;
+}
+
+.f-arriba { grid-column: 2; grid-row: 1; }
+.f-izq    { grid-column: 1; grid-row: 2; }
+.f-abajo  { grid-column: 2; grid-row: 2; }
+.f-der    { grid-column: 3; grid-row: 2; }
+
+.losetas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.losetas li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.loseta {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #1E195C;
+}
+
+.l-suelo  { background-color: #78C878; }
+.l-arena  { background-color: #E6D278; }
+.l-hierba { background-color: #A0E678; background-image: repeating-linear-gradient(135deg, #3E9B3E 0 3px, transparent 3px 8px); }
+.l-arbol  { background-color: #14641E; }
+.l-agua   { background-color: #3C5ADC; }
+.l-casa   { background-color: #DC3C3C; }
+
+.escena-captura {
+  justify-content: flex-start;
+}
+
+.lista-pasos {
+  margin: 0;
+  padding-left: 28px;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.lista-pasos li {
+  margin-bottom: 6px;
+}
+
+.lista-pasos li::marker {
+  color: #AB3126;
+}
+
+.dex {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: #fff;
+  border: 4px solid #1E195C;
+  border-radius: 8px;
+}
+
+.dex-fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 14px;
+  font-size: 26px;
+  border-bottom: 2px dashed #B9B4E6;
+}
+
+.dex-fila:last-child {
+  border-bottom: none;
+}
+
+.dex-num {
+  color: #AB3126;
+}
+
+.dex-nombre {
+  flex: 1;
+}
+
+.dex-visto .dex-ojo {
+  font-size: 20px;
+  color: #1E195C;
+}
+
+.dex-nuevo {
+  opacity: 0.5;
+}
+
+.batalla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.batalla-enemigo,
+.batalla-menu {
+  box-sizing: border-box;
+  padding: 10px 14px;
+  background-color: #fff;
+  border: 4px solid #1E195C;
+  border-radius: 8px;
+}
+
+.batalla-nombre {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.batalla-nombre small {
+  font-size: 20px;
+}
+
+.hp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hp-label {
+  font-size: 20px;
+  color: #AB3126;
+}
+
+.hp-barra {
+  flex: 1;
+  height: 12px;
+  background-color: #DCD9FA;
+  border: 3px solid #1E195C;
+}
+
+.hp-relleno {
+  display: block;
+  height: 100%;
+  background-color: #E0B020;
+}
+
+.batalla-menu {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background-color: #1E195C;
+  border-color: #AB3126;
+  color: #fff;
+}
+
+.batalla-pregunta {
+  flex: 1;
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.batalla-opciones {
+  flex: 1.3;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  font-size: 20px;
+  color: #1E195C;
+  background-color: #fff;
+  border-radius: 6px;
+}
+
+.batalla-opciones li {
+  padding-left: 14px;
+  position: relative;
+}
+
+.batalla-opciones .sel::before,
+.bolsa .sel::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  font-size: 14px;
+  color: #F40B0B;
+}
+
+.escena-bolsa {
+  gap: 36px;
+}
+
+.bolsa {
+  min-width: 260px;
+  margin: 0;
+  padding: 8px 14px;
+  list-style: none;
+  background-color: #fff;
+  border: 4px solid #1E195C;
+  border-radius: 8px;
+  font-size: 26px;
+}
+
+.bolsa li {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0 3px 22px;
+}
+
+.bolsa .sel::before {
+  top: 9px;
+  font-size: 18px;
+}
+
+@media (max-width: 800px) {
+  .how-card {
+    padding: 18px 16px;
+  }
+
+  .how-title {
+    font-size: 30px;
+  }
+
+  .controles,
+  .losetas,
+  .batalla {
+    grid-template-columns: 1fr;
+  }
+
+  .flujo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flujo li + li::before {
+    content: "▼";
+    left: 50%;
+    top: -26px;
+    transform: translateX(-50%);
+  }
+
+  .how-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

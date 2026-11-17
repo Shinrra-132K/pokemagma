@@ -5,6 +5,7 @@ import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
 import { Admincomponent} from './components/admincomponent/admincomponent';
 import { Notfoundcomponent} from './components/notfoundcomponent/notfoundcomponent';
+import { Howtoplaycomponent } from'./components/howtoplaycomponent/howtoplaycomponent';
 
 const routes: Routes = [
   {
@@ -18,6 +19,10 @@ const routes: Routes = [
   {
     path: 'login',
     component: Logincomponent
+  },
+  {
+    path: 'howtoplay',
+    component: Howtoplaycomponent
   },
   {
     path: 'signup',

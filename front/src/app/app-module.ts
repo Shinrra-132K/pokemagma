@@ -7,6 +7,7 @@ import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
 import { Admincomponent } from './components/admincomponent/admincomponent';
 import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
+import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcompon
     Signupcomponent,
     Admincomponent,
     Notfoundcomponent,
+    Howtoplaycomponent,
   ],
   imports: [BrowserModule, AppRoutingModule],
   providers: [provideBrowserGlobalErrorListeners()],
