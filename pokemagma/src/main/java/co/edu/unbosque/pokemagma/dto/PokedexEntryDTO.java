@@ -3,25 +3,30 @@ package co.edu.unbosque.pokemagma.dto;
 import java.util.Objects;
 
 /**
- * DTO para transferir el profreso de una especie en la pokedex
+ * DTO para transferir el progreso de una especie en la pokedex
  */
 public class PokedexEntryDTO {
+	
 	/**
 	 * Identificador de la entrada persistida
 	 */
 	private Long id;
+	
 	/**
 	 * Identificador del jugador propietario
 	 */
 	private Long playerId;
+	
 	/**
 	 * Identificador de la especie pokemon
 	 */
 	private Integer speciesId;
+	
 	/**
 	 * Indica si la especie fue vista
 	 */
 	private boolean seen;
+	
 	/**
 	 * Indica si la especie fue capturada
 	 */

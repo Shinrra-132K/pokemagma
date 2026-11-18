@@ -27,7 +27,8 @@ public class GameEvent {
 		 * eventos de inicio de sesion, desconexion, pokemon capturado y evento de
 		 * batalla
 		 */
-		LOGIN, LOGOUT, POKEMON_CAUGHT, BATTLE
+		LOGIN, LOGOUT, STARTER_SELECTED, WILD_ENCOUNTER, BATTLE, POKEMON_CAUGHT, ITEM_ACQUIRED, ITEM_USED,
+		ACCOUNT_DISABLED
 	}
 
 	/**

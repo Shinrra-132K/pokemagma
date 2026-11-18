@@ -2,6 +2,7 @@ package co.edu.unbosque.pokemagma.model;
 
 import java.util.Objects;
 
+import co.edu.unbosque.pokemagma.exception.QuantityNotValidException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -137,27 +138,32 @@ public class InventoryItem {
 	}
 
 	/**
-	 * Añade unidades a la cantidad del objeto.
+	 * Añade unidades al inventario.
 	 *
-	 * @param amount cantidad que se desea añadir
+	 * @param amount cantidad que se añadirá
+	 * @throws QuantityNotValidException si la cantidad no es positiva
 	 */
-	// pendiente
-	public void add(int amount) {
-		if (amount <= 0) {
-			quantity += amount;
-		}
+	public void add(int amount) throws QuantityNotValidException {
+	    if (amount <= 0) {
+	        throw new QuantityNotValidException();
+	    }
+
+	    quantity += amount;
 	}
 
 	/**
-	 * Retira unidades de la cantidad del objeto.
+	 * Retira unidades del inventario.
 	 *
-	 * @param amount cantidad que se desea retirar
+	 * @param amount cantidad que se retirará
+	 * @throws QuantityNotValidException si la cantidad no es positiva
+	 *         o supera la cantidad disponible
 	 */
-	// pendiente
-	public void remove(int amount) {
-		if (amount <= 0 || amount > quantity) {
-			quantity -= amount;
-		}
+	public void remove(int amount) throws QuantityNotValidException {
+	    if (amount <= 0 || amount > quantity) {
+	        throw new QuantityNotValidException();
+	    }
+
+	    quantity -= amount;
 	}
 
 	/**

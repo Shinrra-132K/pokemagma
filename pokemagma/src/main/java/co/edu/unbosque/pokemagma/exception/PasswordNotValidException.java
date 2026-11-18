@@ -6,7 +6,7 @@ package co.edu.unbosque.pokemagma.exception;
 public class PasswordNotValidException extends Exception {
 
 	/**
-	 * 
+	 * Identificador de serialización de la excepción
 	 */
 	private static final long serialVersionUID = 1L;
 

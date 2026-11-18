@@ -12,21 +12,29 @@ import co.edu.unbosque.pokemagma.model.PlayerProfile.Gender;
  */
 public class RegisterRequestDTO {
 
-	/** Nombre de usuario solicitado para la cuenta. */
+	/**
+	 *  Nombre de usuario solicitado para la cuenta. 
+	 */
 	private String username;
 
-	/** Correo electrónico que se asociará a la cuenta. */
+	/**
+	 * Correo electrónico que se asociará a la cuenta. 
+	 */
 	private String email;
 
-	/** Contraseña recibida para crear la cuenta. */
+	/**
+	 * Contraseña recibida para crear la cuenta.
+	 */
 	private String password;
 
-	/** Género elegido para determinar la apariencia inicial del entrenador. */
+	/**
+	 * Género elegido para determinar la apariencia inicial del entrenador.
+	 */
 	private Gender gender;
 
 	/** Constructor vacío requerido para recibir el DTO desde la API. */
 	public RegisterRequestDTO() {
-		/**Contenido vacio del constructor */
+		// TODO Auto-generated constructor stub
 	}
 
 	/**

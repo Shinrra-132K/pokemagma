@@ -11,6 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.pokemagma.dto.UserDTO;
+import co.edu.unbosque.pokemagma.exception.EmailNotValidException;
+import co.edu.unbosque.pokemagma.exception.PasswordNotValidException;
+import co.edu.unbosque.pokemagma.exception.UsernameNotValidException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
 
@@ -59,6 +62,10 @@ public class UserService implements CRUDOperation<UserDTO> {
 		entity.setPassword(passwordEncoder.encode(data.getPassword()));
 		entity.setRole(User.Role.PLAYER);
 		entity.setEmailVerified(false);
+		entity.setAccountNonExpired(true);
+		entity.setAccountNonLocked(true);
+		entity.setCredentialsNonExpired(true);
+		entity.setEnabled(true);
 
 		userRepo.save(entity);
 		return 0;
@@ -204,7 +211,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 		if (userOpt.isPresent()) {
 			User user = userOpt.get();
 			if (passwordEncoder.matches(password, user.getPassword())) {
-			return 0;
+				return 0;
 			}
 		}
 
@@ -220,6 +227,34 @@ public class UserService implements CRUDOperation<UserDTO> {
 	public boolean findEmailAlreadyTaken(String email) {
 		Optional<User> found = userRepo.findByEmail(email);
 		return found.isPresent();
+	}
+
+	/**
+	 * Valida el formato de los datos antes de registrar la cuenta.
+	 *
+	 * @param data datos de usuario recibidos para el registro
+	 * @throws UsernameNotValidException si el nombre no cumple el formato
+	 * @throws EmailNotValidException    si el correo no tiene un formato válido
+	 * @throws PasswordNotValidException si la contraseña no cumple los requisitos
+	 */
+	public void validateRegistrationData(UserDTO data)
+			throws UsernameNotValidException, EmailNotValidException, PasswordNotValidException {
+		String username = data.getUsername();
+		String email = data.getEmail();
+		String password = data.getPassword();
+
+		if (username == null || !username.matches("(?=.*\\d)(?=.*[^\\p{L}\\p{N}\\s])\\S{15}")) {
+			throw new UsernameNotValidException();
+		}
+
+		if (email == null || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+			throw new EmailNotValidException();
+		}
+
+		if (password == null
+				|| !password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,}")) {
+			throw new PasswordNotValidException();
+		}
 	}
 
 }

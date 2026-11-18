@@ -4,10 +4,9 @@ package co.edu.unbosque.pokemagma.exception;
  * Se lanza cuando el genero no es seleccionado
  */
 public class GenderNotValidException extends Exception {
-	
-	
+
 	/**
-	 * 
+	 * Identificador de serialización de la excepción
 	 */
 	private static final long serialVersionUID = 1L;
 

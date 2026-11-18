@@ -1,14 +1,15 @@
 package co.edu.unbosque.pokemagma.exception;
+
 /**
  * Indica que el correo electronico no es valido
  */
 public class EmailNotValidException extends Exception {
 
 	/**
-	 * 
+	 * Identificador de serialización de la excepción
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Funcion que lanza el error y explica los parametros
 	 */
