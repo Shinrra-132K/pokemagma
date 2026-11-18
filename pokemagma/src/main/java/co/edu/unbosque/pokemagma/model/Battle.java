@@ -423,40 +423,6 @@ public class Battle {
 		this.finishedAt = finishedAt;
 	}
 
-	/**
-	 * Calcula el código hash de esta batalla.
-	 * 
-	 * @return respuesta generada
-	 */
-	@Override
-	public int hashCode() {
-		return Objects.hash(finishedAt, id, playerId, playerPokemonId, startedAt, status, Integer.valueOf(turnNumber),
-				Integer.valueOf(wildAttack), Integer.valueOf(wildCurrentHp), Integer.valueOf(wildDefense),
-				Integer.valueOf(wildLevel), Integer.valueOf(wildMaxHp), wildName, wildSpeciesId);
-	}
-
-	/**
-	 * Compara esta batalla con otro objeto.
-	 * 
-	 * @param obj objeto con el que se compara esta batalla
-	 * @return respuesta generada
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Battle other = (Battle) obj;
-		return Objects.equals(finishedAt, other.finishedAt) && Objects.equals(id, other.id)
-				&& Objects.equals(playerId, other.playerId) && Objects.equals(playerPokemonId, other.playerPokemonId)
-				&& Objects.equals(startedAt, other.startedAt) && status == other.status
-				&& turnNumber == other.turnNumber && wildAttack == other.wildAttack
-				&& wildCurrentHp == other.wildCurrentHp && wildDefense == other.wildDefense
-				&& wildLevel == other.wildLevel && wildMaxHp == other.wildMaxHp
-				&& Objects.equals(wildName, other.wildName) && Objects.equals(wildSpeciesId, other.wildSpeciesId);
-	}
+	
 
 }

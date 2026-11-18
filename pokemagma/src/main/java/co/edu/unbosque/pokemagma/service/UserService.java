@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import co.edu.unbosque.pokemagma.dto.UserDTO;
 import co.edu.unbosque.pokemagma.exception.EmailNotValidException;
 import co.edu.unbosque.pokemagma.exception.PasswordNotValidException;
+import co.edu.unbosque.pokemagma.exception.ResourceNotFoundException;
 import co.edu.unbosque.pokemagma.exception.UsernameNotValidException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
@@ -207,15 +208,22 @@ public class UserService implements CRUDOperation<UserDTO> {
 	 */
 	public int validateCredentials(String username, String password) {
 		Optional<User> userOpt = userRepo.findByUsername(username);
-
-		if (userOpt.isPresent()) {
-			User user = userOpt.get();
-			if (passwordEncoder.matches(password, user.getPassword())) {
-				return 0;
-			}
+		if (userOpt.isEmpty() || !passwordEncoder.matches(password, userOpt.get().getPassword())) {
+			return 1;
 		}
 
-		return 1;
+		User user = userOpt.get();
+
+		if (!user.isEmailVerified()) {
+			return 2;
+		}
+
+		if (!user.isEnabled() || !user.isAccountNonExpired() || !user.isAccountNonLocked()
+				|| !user.isCredentialsNonExpired()) {
+			return 3;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -255,6 +263,17 @@ public class UserService implements CRUDOperation<UserDTO> {
 				|| !password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,}")) {
 			throw new PasswordNotValidException();
 		}
+	}
+
+	/**
+	 * Busca el identificador del usuario asociado al nombre de usuario.
+	 *
+	 * @param username nombre del usuario autenticado
+	 * @return identificador del usuario
+	 * @throws ResourceNotFoundException si el usuario no existe
+	 */
+	public Long findIdByUsername(String username) throws ResourceNotFoundException {
+		return userRepo.findByUsername(username).map(User::getId).orElseThrow(() -> new ResourceNotFoundException());
 	}
 
 }
