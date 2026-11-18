@@ -85,6 +85,18 @@ public class PlayerGameService {
 	@Value("${pokemagma.game.encounter-chance:0.20}")
 	private double encounterChance;
 
+	/**
+	 * Construye el servicio con los repositorios y servicios requeridos.
+	 *
+	 * @param pokemonRepository     repositorio de los Pokémon del jugador
+	 * @param battleRepository      repositorio de los combates
+	 * @param starterOfferRepository repositorio de las ofertas iniciales
+	 * @param pokedexRepository     repositorio de la Pokédex
+	 * @param inventoryRepository   repositorio del inventario
+	 * @param eventRepository       repositorio de eventos
+	 * @param pokemonService        servicio de consulta de especies Pokémon
+	 * @param itemService           servicio de gestión de objetos
+	 */
 	public PlayerGameService(PlayerPokemonRepository pokemonRepository, BattleRepository battleRepository,
 			StarterOfferRepository starterOfferRepository, PokedexEntryRepository pokedexRepository,
 			InventoryItemRepository inventoryRepository, GameEventRepository eventRepository,

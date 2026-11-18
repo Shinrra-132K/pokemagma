@@ -134,7 +134,7 @@ public class AuthController {
 	/**
 	 * Comprueba el código de verificación enviado al correo.
 	 *
-	 * @param request dirección de correo y código recibido
+	 * @param req dirección de correo y código recibido
 	 * @return mensaje indicando el resultado de la verificación
 	 */
 	@PostMapping("/verify-email")
@@ -153,7 +153,7 @@ public class AuthController {
 	/**
 	 * Solicita el envío de un nuevo código de verificación.
 	 *
-	 * @param request dirección de correo a la que se enviará el código
+	 * @param req dirección de correo a la que se enviará el código
 	 * @return mensaje genérico para no revelar si el correo está registrado
 	 */
 	@PostMapping("/resend-code")
@@ -170,7 +170,7 @@ public class AuthController {
 	/**
 	 * Valida las credenciales y genera un JWT para una cuenta verificada.
 	 *
-	 * @param request nombre de usuario y contraseña
+	 * @param req nombre de usuario y contraseña
 	 * @return token Bearer si la autenticación fue exitosa; 401 si las credenciales
 	 *         son incorrectas; 403 si falta verificar el correo
 	 */

@@ -36,9 +36,9 @@ public class StarterOptionsDTO {
 	 /**
      * Crea la respuesta con las tres opciones y el estado de selección.
      *
-     * @param generationOneSpeciesId especie de generación I
-     * @param generationTwoSpeciesId especie de generación II
-     * @param generationThreeSpeciesId especie de generación III
+     * @param genOne especie de generación I
+     * @param genTwo especie de generación II
+     * @param genThree especie de generación III
      * @param selected indica si el jugador ya seleccionó una especie
      */
 	public StarterOptionsDTO(Integer genOne, Integer genTwo, Integer genThree, boolean selected) {

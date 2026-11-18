@@ -19,6 +19,10 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	private String from;
 
+	/**
+	 * Constructor con parametros
+	 * @param mailSender libreria encargada del envio de los correos
+	 */
 	public EmailService(JavaMailSender mailSender) {
 		super();
 		this.mailSender = mailSender;

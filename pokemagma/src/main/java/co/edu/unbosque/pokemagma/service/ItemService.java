@@ -28,6 +28,12 @@ public class ItemService {
 	 */
 	private final PlayerPokemonRepository pokemonRepository;
 
+	/**
+	 * Construye el servicio con los repositorios necesarios.
+	 *
+	 * @param inventoryRepository repositorio del inventario
+	 * @param pokemonRepository   repositorio de los Pokémon del jugador
+	 */
 	public ItemService(InventoryItemRepository inventoryRepository, PlayerPokemonRepository pokemonRepository) {
 		this.inventoryRepository = inventoryRepository;
 		this.pokemonRepository = pokemonRepository;

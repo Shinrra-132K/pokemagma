@@ -133,14 +133,14 @@ public class Battle {
 	 * Crea un combate contra un pokemon salvaje, el combate inicia con la salud del
 	 * salvaje llena, en estado actvio y en el primer turno
 	 * 
-	 * @param playerId
-	 * @param playerPokemonId
-	 * @param wildSpeciesId
-	 * @param wildName
-	 * @param wildLevel
-	 * @param wildMaxHp
-	 * @param wildAttack
-	 * @param wildDefense
+	 * @param playerId identificador del jugador
+	 * @param playerPokemonId identificador del pokemon del jugador
+	 * @param wildSpeciesId identificador del pokemon salvaje
+	 * @param wildName nombre del pokemon salvaje
+	 * @param wildLevel nivel del pokemon salvaje
+	 * @param wildMaxHp vida maxima del pokemon salvaje
+	 * @param wildAttack ataque del poquemon salvaje
+	 * @param wildDefense defensa del poquemon salvaje
 	 */
 	public Battle(Long playerId, Long playerPokemonId, Integer wildSpeciesId, String wildName, int wildLevel,
 			int wildMaxHp, int wildAttack, int wildDefense) {

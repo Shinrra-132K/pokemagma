@@ -65,10 +65,21 @@ public class StarterOffer {
 	@Column(name = "offered_at", nullable = false, updatable = false)
 	private Instant offeredAt;
 
+	/**
+	 * Constructor vacio
+	 */
 	public StarterOffer() {
 		// Constructor requerido por JPA.
 	}
 
+	/**
+	 * Constructor con cada atributo
+	 * 
+	 * @param playerId id del jugador
+	 * @param generationOneSpeciesId id de la especie pokemon de generacion uno
+	 * @param generationTwoSpeciesId id de la especie pokemon de generacion dos
+	 * @param generationThreeSpeciesId id de la especie pokemon de la generacion tres
+	 */
 	public StarterOffer(Long playerId, Integer generationOneSpeciesId, Integer generationTwoSpeciesId,
 			Integer generationThreeSpeciesId) {
 		this.playerId = playerId;
