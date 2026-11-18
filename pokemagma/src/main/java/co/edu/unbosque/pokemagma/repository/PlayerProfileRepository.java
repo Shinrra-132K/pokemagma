@@ -25,7 +25,7 @@ public interface PlayerProfileRepository extends JpaRepository<PlayerProfile, Lo
 	 * @param userId identificador del usuario 
 	 * @return true si el perfil existe
 	 */
-	public boolean existByUser_Id(Long userId);
+	public boolean existsByUser_Id(Long userId);
 	
 
 }

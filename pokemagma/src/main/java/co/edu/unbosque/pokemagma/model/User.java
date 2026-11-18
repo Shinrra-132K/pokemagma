@@ -21,13 +21,18 @@ import jakarta.persistence.Table;
 /**
  * Representa la cuenta en el sistema
  * 
- * Implementa {@UserDetails} para que Spring Security para cargar la cuenta,
+ * Implementa UserDetails para que Spring Security para cargar la cuenta,
  * revisar su estado y obtener sus permisos.
  */
 
 @Entity
 @Table(name = "useraccount")
-public class User implements UserDetails{
+public class User implements UserDetails {
+
+	/**
+	 * Identificador de la clase
+	 */
+	private static final long serialVersionUID = 1L;
 
 	// *Nombre de usuario uncio utilizado para iniciar sesion*/
 	@Id
@@ -72,7 +77,7 @@ public class User implements UserDetails{
 	private boolean emailVerified;
 
 	/* Fecha y hora del registro de la cuenta */
-	@Column(nullable = false, updatable = false)
+	@Column(updatable = false)
 	private Instant registeredAt;
 
 	/* Roles disponibles de las cuentas */
@@ -110,8 +115,8 @@ public class User implements UserDetails{
 	}
 
 	/**
-	 * Obtiene los roles asignados al usuario
-	 * Implementacion del metodo de la interfaz UserDetails
+	 * Obtiene los roles asignados al usuario Implementacion del metodo de la
+	 * interfaz UserDetails
 	 * 
 	 * @return Coleccion de autoridades del usuario con el prefijo "ROLE_"
 	 */
@@ -364,6 +369,5 @@ public class User implements UserDetails{
 		return "User [id=" + id + ", username=" + username + ", email=" + email + ", role=" + role + ", emailVerified="
 				+ emailVerified + ", registeredAt=" + registeredAt + "]";
 	}
-
 
 }

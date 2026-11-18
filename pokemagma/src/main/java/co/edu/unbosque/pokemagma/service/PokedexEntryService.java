@@ -23,20 +23,20 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	 */
 	@Autowired
 	private PokedexEntryRepository pokedexRepo;
-	
+
 	/**
 	 * Componente para convertir entre entidad y DTO
 	 */
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	/**
 	 * Constructor vacio del servicio
 	 */
 	public PokedexEntryService() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	/**
 	 * Crea una entrada si esa especie aun no aparece en la pokedex del jugador
 	 * 
@@ -49,8 +49,8 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 		if (found.isPresent()) {
 			return 1;
 		}
-		
-		PokedexEntry entity =  modelMapper.map(data, PokedexEntry.class);
+
+		PokedexEntry entity = modelMapper.map(data, PokedexEntry.class);
 		pokedexRepo.save(entity);
 		return 0;
 	}
@@ -64,39 +64,43 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	public List<PokedexEntryDTO> getAll() {
 		List<PokedexEntry> entityList = pokedexRepo.findAll();
 		List<PokedexEntryDTO> dtoList = new ArrayList<>();
-		
+
 		entityList.forEach((entity) -> {
 			dtoList.add(modelMapper.map(entity, PokedexEntryDTO.class));
 		});
-		
+
 		return dtoList;
 	}
 
 	/**
 	 * Actualiza el jugador, la especie y los estados de la entrada
 	 * 
-	 * @param id identificador de la entrada
+	 * @param id      identificador de la entrada
 	 * @param newData DTO con los nuevos datos
-	 * @return 0 si se aactualizo, 1 si esa especie ya tiene otra entrada para el jugador, 2 si la entrada no existe
+	 * @return 0 si se aactualizo, 1 si esa especie ya tiene otra entrada para el
+	 *         jugador, 2 si la entrada no existe
 	 */
 	@Override
 	public int updateById(Long id, PokedexEntryDTO newData) {
 		Optional<PokedexEntry> found = pokedexRepo.findById(id);
-		Optional<PokedexEntry> entryFound = pokedexRepo.findByPlayerIdAndSpeciesId(newData.getId(), newData.getSpeciesId());
-		
-		if (!found.isPresent()) {
+
+		Optional<PokedexEntry> entryFound = pokedexRepo.findByPlayerIdAndSpeciesId(newData.getPlayerId(),
+				newData.getSpeciesId());
+
+		if (found.isEmpty()) {
 			return 2;
 		}
+
 		if (entryFound.isPresent() && !entryFound.get().getId().equals(id)) {
 			return 1;
 		}
-		
+
 		PokedexEntry entity = found.get();
 		entity.setPlayerId(newData.getPlayerId());
 		entity.setSpeciesId(newData.getSpeciesId());
 		entity.setSeen(newData.isSeen());
 		entity.setCaught(newData.isCaught());
-		
+
 		pokedexRepo.save(entity);
 		return 0;
 	}
@@ -110,14 +114,14 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	@Override
 	public int deleteById(Long id) {
 		Optional<PokedexEntry> found = pokedexRepo.findById(id);
-		
+
 		if (found.isPresent()) {
 			pokedexRepo.delete(found.get());
 			return 0;
 		} else {
 			return 1;
 		}
-		
+
 	}
 
 	/**
@@ -134,13 +138,13 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	 * Comprueba si existe una entrada con el id indicado
 	 * 
 	 * @param id identificador de la entrada
-	 * @return true si existe 
+	 * @return true si existe
 	 */
 	@Override
 	public boolean exist(Long id) {
 		return pokedexRepo.existsById(id);
 	}
-	
+
 	/**
 	 * Busca una entrada por su ID
 	 * 
@@ -149,14 +153,14 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	 */
 	public PokedexEntryDTO getById(Long id) {
 		Optional<PokedexEntry> found = pokedexRepo.findById(id);
-		
+
 		if (found.isPresent()) {
 			return modelMapper.map(found.get(), PokedexEntryDTO.class);
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Obtiene las entradas de la pokedex de un jugador
 	 * 
@@ -166,14 +170,14 @@ public class PokedexEntryService implements CRUDOperation<PokedexEntryDTO> {
 	public List<PokedexEntryDTO> getByPlayerId(Long playerId) {
 		List<PokedexEntry> entityList = pokedexRepo.findAllByPlayerId(playerId);
 		List<PokedexEntryDTO> dtoList = new ArrayList<>();
-		
+
 		entityList.forEach((entity) -> {
 			dtoList.add(modelMapper.map(entity, PokedexEntryDTO.class));
 		});
-		
+
 		return dtoList;
 	}
-	
+
 	/**
 	 * Cuenta cuantas especies han capturado un jugador
 	 * 

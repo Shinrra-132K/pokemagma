@@ -19,4 +19,10 @@ public interface GameEventRepository extends JpaRepository<GameEvent, Long> {
 	 */
 	public List<GameEvent> findAllByPlayerIdOrderByCreatedAtDesc(Long playerId);
 
+	/**
+	 * Obtiene los eventos desde el mas reciente hasta el mas antiguo
+	 * @return eventos ordenados por fechas descendentes
+	 */
+	public List<GameEvent> findAllByOrderByCreatedAtDesc();
+
 }

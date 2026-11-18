@@ -19,52 +19,58 @@ import co.edu.unbosque.pokemagma.repository.UserRepository;
  */
 @Service
 public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
-	
+
 	/**
 	 * Repositorio de perfiles de jugador
 	 */
 	@Autowired
 	private PlayerProfileRepository profileRepo;
-	
+
 	/**
 	 * Repositorio para buscar la cuenta relacionada con el perfil
 	 */
 	@Autowired
 	private UserRepository userRepo;
-	
+
 	/**
 	 * Mapeador para convertir entre entidades PlayerProfile y DTOs PlayerProfileDTO
 	 */
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	/**
 	 * Constructor vacio del servico
 	 */
 	public PlayerProfileService() {
 		// TODO Auto-generated constructor stub
 	}
-	
-	
+
 	/**
 	 * Crea un perfil para el usuario indicado
 	 * 
 	 * @param data DTO con el ususario, genero y apariencia
-	 * @return 0 si se creo, 1 si el ususario ya cuenta con un perfil, 2 si el usuario no existe
+	 * @return 0 si se creo, 1 si el ususario ya cuenta con un perfil, 2 si el
+	 *         usuario no existe
 	 */
 	@Override
 	public int create(PlayerProfileDTO data) {
-		Optional<User> userFound = userRepo.findById(data.getId());
-		if (!userFound.isPresent()) {
+		if (data.getUserId() == null) {
 			return 2;
 		}
-		Optional<PlayerProfile> profileFound = profileRepo.findByUser_Id(data.getUserId());
-		if (profileFound.isPresent()) {
+
+		Optional<User> userFound = userRepo.findById(data.getUserId());
+
+		if (userFound.isEmpty()) {
+			return 2;
+		}
+
+		if (profileRepo.existsByUser_Id(data.getUserId())) {
 			return 1;
 		}
-		
-		PlayerProfile entity = new PlayerProfile(userFound.get(), data.getGender(), data.getTrainerAppearance());
-		profileRepo.save(entity);
+
+		PlayerProfile profile = new PlayerProfile(userFound.get(), data.getGender(), data.getTrainerAppearance());
+
+		profileRepo.save(profile);
 		return 0;
 	}
 
@@ -81,43 +87,37 @@ public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 			PlayerProfileDTO dto = modelMapper.map(entity, PlayerProfileDTO.class);
 			dtoList.add(dto);
 		});
-		
+
 		return dtoList;
 	}
 
 	/**
 	 * Actualiza el ususario asociado, el genero y la apariencia del perfil
 	 * 
-	 * @param id identificador del perfil
+	 * @param id      identificador del perfil
 	 * @param newData DTO con los nuevos datos
-	 * @return 0 si se actualizo, 1 si el usuario ya tiene otro perfil, 2 si el perfil no existe, si el ususario no existe
+	 * @return 0 si se actualizo, 1 si el usuario ya tiene otro perfil, 2 si el
+	 *         perfil no existe, si el ususario no existe
 	 */
 	@Override
 	public int updateById(Long id, PlayerProfileDTO newData) {
 		Optional<PlayerProfile> found = profileRepo.findById(id);
-		Optional<PlayerProfile> newFound = profileRepo.findByUser_Id(newData.getId());
-		
-		if (found.isPresent() && newFound.isPresent() && newFound.get().getId().equals(id)) {
-			
-			PlayerProfile temp = found.get();
-			PlayerProfile updatedData = modelMapper.map(newData, PlayerProfile.class);
-			
-			temp.setGender(updatedData.getGender());
-			temp.setTrainerApparance(newData.getTrainerAppearance());
-			
-			profileRepo.save(temp);
-			return 0;
-		}
-		
-		if (found.isPresent() && newFound.isPresent()) {
-			return 1;
-		}
-		if (!found.isPresent()) {
+
+		if (found.isEmpty()) {
 			return 2;
-		} else {
+		}
+
+		PlayerProfile profile = found.get();
+
+		if (newData.getUserId() == null || !profile.getUser().getId().equals(newData.getUserId())) {
 			return 3;
 		}
-		
+
+		profile.setGender(newData.getGender());
+		profile.setTrainerApparance(newData.getTrainerAppearance());
+
+		profileRepo.save(profile);
+		return 0;
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 	public boolean exist(Long id) {
 		return profileRepo.existsById(id);
 	}
-	
+
 	/**
 	 * Busca un perfil por su ID
 	 * 
@@ -166,14 +166,14 @@ public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 	 */
 	public PlayerProfileDTO getById(Long id) {
 		Optional<PlayerProfile> found = profileRepo.findById(id);
-		
+
 		if (found.isPresent()) {
 			return modelMapper.map(found.get(), PlayerProfileDTO.class);
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Busca el perfil asociado a una cuenta de usuario
 	 * 
@@ -181,12 +181,16 @@ public class PlayerProfileService implements CRUDOperation<PlayerProfileDTO> {
 	 * @returnDTO del perfil
 	 */
 	public PlayerProfileDTO getByUserId(Long userId) {
-		Optional<PlayerProfile> found = profileRepo.findById(userId);
-		if (found.isPresent()) {
-			return modelMapper.map(found.get(), PlayerProfileDTO.class);
-		} else {
+		Optional<PlayerProfile> found = profileRepo.findByUser_Id(userId);
+
+		if (found.isEmpty()) {
 			return null;
 		}
+
+		PlayerProfile profile = found.get();
+
+		return new PlayerProfileDTO(profile.getId(), profile.getUser().getId(), profile.getGender(),
+				profile.getTrainerApparance());
 	}
 
 }

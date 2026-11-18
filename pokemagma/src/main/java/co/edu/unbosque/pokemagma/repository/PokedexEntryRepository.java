@@ -36,7 +36,7 @@ public interface PokedexEntryRepository extends JpaRepository<PokedexEntry, Long
 	 * @param speciesId identificador de la especie pokemon
 	 * @return
 	 */
-	public boolean existByPlayerIdAndSpeciesId(Long playerId, Integer speciesId);
+	public boolean existsByPlayerIdAndSpeciesId(Long playerId, Integer speciesId);
 	
 	/**
 	 * Cuenta cuantas especies capturo el jugador

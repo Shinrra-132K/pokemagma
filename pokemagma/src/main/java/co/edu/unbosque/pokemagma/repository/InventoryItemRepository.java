@@ -36,6 +36,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
 	 * @param itemCode codigo del objeto
 	 * @return true si la fila existe
 	 */
-	public boolean existByPlayerIdAndItemCode(Long playerId, String itemCode);
+	public boolean existsByPlayerIdAndItemCode(Long playerId, String itemCode);
 
 }

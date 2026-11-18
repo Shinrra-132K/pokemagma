@@ -12,46 +12,57 @@ import co.edu.unbosque.pokemagma.model.User.Role;
  * aplicacion
  */
 public class UserDTO {
+
 	/**
 	 * Identificador unico de ususario
 	 */
 	private Long id;
+
 	/**
 	 * Nombre de usuario
 	 */
 	private String username;
+
 	/**
 	 * Correo electronico del usuario
 	 */
 	private String email;
+
 	/**
 	 * Contraseña recibida o codificada dependiendo de laoperacion
 	 */
 	private String password;
+
 	/**
 	 * Rol del usuario
 	 */
 	private Role role;
+
 	/**
 	 * Estado de expiracion de la cuenta
 	 */
 	private boolean accountNonExpired;
+
 	/**
 	 * Estado de bloqueo de la cuenta
 	 */
 	private boolean accountNonLocked;
+
 	/**
 	 * Estado de expiracion de las credenciales
 	 */
 	private boolean credentialsNonExpired;
+
 	/**
 	 * Estado de habilitacion de la cuenta
 	 */
 	private boolean enable;
+
 	/**
 	 * Estado de verificacion del correo
 	 */
 	private boolean emailVerified;
+
 	/**
 	 * Fecha de registro
 	 */
@@ -188,7 +199,6 @@ public class UserDTO {
 		this.registeredAt = registeredAt;
 	}
 
-	
 	/**
 	 * Calcula el hash del DTO a partir de sus campos
 	 * 

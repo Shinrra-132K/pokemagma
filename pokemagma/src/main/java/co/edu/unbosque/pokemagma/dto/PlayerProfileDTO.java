@@ -5,9 +5,9 @@ import java.util.Objects;
 import co.edu.unbosque.pokemagma.model.PlayerProfile.Gender;
 
 /**
- * DTO para transferir los datos del perfil del entrenador
- * 
- * la relacion con el ususario se representa mediante su ID
+ * Datos de transferencia del perfil del entrenador.
+ *
+ * La relación con la cuenta se representa mediante su identificador.
  */
 public class PlayerProfileDTO {
 	/**
@@ -89,7 +89,6 @@ public class PlayerProfileDTO {
 	public void setTrainerAppearance(String trainerAppearance) {
 		this.trainerApparence = trainerAppearance;
 	}
-	
 
 	/**
 	 * @return codigo has del DTO

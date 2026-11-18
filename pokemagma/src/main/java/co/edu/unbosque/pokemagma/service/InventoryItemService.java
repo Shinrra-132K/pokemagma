@@ -83,24 +83,25 @@ public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 	@Override
 	public int updateById(Long id, InventoryItemDTO newData) {
 		Optional<InventoryItem> found = inventoryRepo.findById(id);
+
 		Optional<InventoryItem> itemFound = inventoryRepo.findByPlayerIdAndItemCode(newData.getPlayerId(),
 				newData.getItemCode());
 
-		if (!found.isPresent()) {
+		if (found.isEmpty()) {
 			return 2;
 		}
+
 		if (itemFound.isPresent() && !itemFound.get().getId().equals(id)) {
 			return 1;
 		}
 
 		InventoryItem entity = found.get();
-		entity.setPlayerId(newData.getId());
+		entity.setPlayerId(newData.getPlayerId());
 		entity.setItemCode(newData.getItemCode());
 		entity.setQuantity(newData.getQuantity());
 
 		inventoryRepo.save(entity);
 		return 0;
-
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 	public boolean exist(Long id) {
 		return inventoryRepo.existsById(id);
 	}
-	
+
 	/**
 	 * Busca una fila de inventario por si ID
 	 * 
@@ -150,14 +151,14 @@ public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 	 */
 	public InventoryItemDTO getById(Long id) {
 		Optional<InventoryItem> found = inventoryRepo.findById(id);
-		
+
 		if (found.isPresent()) {
-			 return modelMapper.map(found.get(), InventoryItemDTO.class);
+			return modelMapper.map(found.get(), InventoryItemDTO.class);
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Obtiene los objetos del inventario de un jugador
 	 * 
@@ -167,13 +168,13 @@ public class InventoryItemService implements CRUDOperation<InventoryItemDTO> {
 	public List<InventoryItemDTO> getByPlayerId(Long playerId) {
 		List<InventoryItem> entityList = inventoryRepo.findAllByPlayerId(playerId);
 		List<InventoryItemDTO> dtoList = new ArrayList<>();
-		
+
 		entityList.forEach((entity) -> {
 			dtoList.add(modelMapper.map(entity, InventoryItemDTO.class));
 		});
-		
+
 		return dtoList;
-		
+
 	}
 
 }

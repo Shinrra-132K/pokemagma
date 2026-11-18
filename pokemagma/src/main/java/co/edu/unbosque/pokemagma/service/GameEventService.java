@@ -24,22 +24,23 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	 */
 	@Autowired
 	private GameEventRepository gameRepo;
-	
+
 	/**
 	 * Componente para convertir entre entidad y DTO
 	 */
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	/**
 	 * Consutructor vacio del servicio
 	 */
 	public GameEventService() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	/**
-	 * Registra un evento, si el DTO  no contiene fecha este se le asiganra la fecha actual
+	 * Registra un evento, si el DTO no contiene fecha este se le asiganra la fecha
+	 * actual
 	 * 
 	 * @param data DTO con los datos del evento
 	 * @return 0 cuando se guarda el evento
@@ -47,11 +48,11 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	@Override
 	public int create(GameEventDTO data) {
 		GameEvent entity = modelMapper.map(data, GameEvent.class);
-		
+
 		if (entity.getCreatedAt() == null) {
 			entity.setCreatedAt(Instant.now());
 		}
-		
+
 		gameRepo.save(entity);
 		return 0;
 	}
@@ -63,36 +64,35 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	 */
 	@Override
 	public List<GameEventDTO> getAll() {
-		List<GameEvent> entityList = gameRepo.findAll();
+		List<GameEvent> entityList = gameRepo.findAllByOrderByCreatedAtDesc();
+
 		List<GameEventDTO> dtoList = new ArrayList<>();
-		
-		entityList.forEach((entity) -> {
-			dtoList.add(modelMapper.map(entity, GameEventDTO.class));
-		});
-		
+
+		entityList.forEach(entity -> dtoList.add(modelMapper.map(entity, GameEventDTO.class)));
+
 		return dtoList;
 	}
 
 	/**
 	 * Actualiza los datos descriptivos del evento conservando su fecha original
 	 * 
-	 * @param id identificador del evento
+	 * @param id      identificador del evento
 	 * @param newData DTO con los nuevos datos
 	 * @return 0 si se actualizo, 1 si el evento no existe
 	 */
 	@Override
 	public int updateById(Long id, GameEventDTO newData) {
 		Optional<GameEvent> found = gameRepo.findById(id);
-		
+
 		if (!found.isPresent()) {
 			return 1;
 		}
-		
+
 		GameEvent entity = found.get();
 		entity.setPlayerId(newData.getPlayerId());
 		entity.setType(newData.getType());
 		entity.setDescription(newData.getDescription());
-		
+
 		gameRepo.save(entity);
 		return 0;
 	}
@@ -106,7 +106,7 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	@Override
 	public int deleteById(Long id) {
 		Optional<GameEvent> found = gameRepo.findById(id);
-		
+
 		if (found.isPresent()) {
 			gameRepo.delete(found.get());
 			return 0;
@@ -129,13 +129,13 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	 * Comprueba si existe un evento en el ID indicado
 	 * 
 	 * @param id identificador del evento
-	 * @return true si existe 
+	 * @return true si existe
 	 */
 	@Override
 	public boolean exist(Long id) {
 		return gameRepo.existsById(id);
 	}
-	
+
 	/**
 	 * Busca un evento por su ID
 	 * 
@@ -144,14 +144,14 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	 */
 	public GameEventDTO getById(Long id) {
 		Optional<GameEvent> found = gameRepo.findById(id);
-		
+
 		if (found.isPresent()) {
 			return modelMapper.map(found.get(), GameEventDTO.class);
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Obtiene los eventos de un jugador, del mas reciente al mas antiguo
 	 * 
@@ -161,11 +161,11 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 	public List<GameEventDTO> getByPlayerId(Long playerId) {
 		List<GameEvent> entityList = gameRepo.findAllByPlayerIdOrderByCreatedAtDesc(playerId);
 		List<GameEventDTO> dtoList = new ArrayList<>();
-		
+
 		entityList.forEach((entity) -> {
 			dtoList.add(modelMapper.map(entity, GameEventDTO.class));
 		});
-		
+
 		return dtoList;
 	}
 

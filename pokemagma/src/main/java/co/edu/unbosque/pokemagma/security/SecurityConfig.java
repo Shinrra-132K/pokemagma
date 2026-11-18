@@ -45,7 +45,8 @@ public class SecurityConfig {
 	}
 
 	/**
-	 * Configura la cadena de filtros de seguridad HTTP. Define las reglas de acceso, manejo de sesiones y filtros de autenticacion
+	 * Configura la cadena de filtros de seguridad HTTP. Define las reglas de
+	 * acceso, manejo de sesiones y filtros de autenticacion
 	 * 
 	 * @param http Configuracion de seguridad HTTP
 	 * @return Cadena de filtros de seguridad configurada
@@ -60,11 +61,13 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
 		return http.build();
 	}
-	
+
 	/**
-	 * Configura el proveedor de autenticacion. Establece el servicio de detalles de usuario y el codificador de contraseñas
+	 * Configura el proveedor de autenticacion. Establece el servicio de detalles de
+	 * usuario y el codificador de contraseñas
 	 * 
 	 * @return Proveedor de autenticacion configurado
 	 */
@@ -74,7 +77,7 @@ public class SecurityConfig {
 		authProvider.setPasswordEncoder(passwordEncoder());
 		return authProvider;
 	}
-	
+
 	/**
 	 * Configura el gestor de autenticacion
 	 * 
@@ -85,10 +88,11 @@ public class SecurityConfig {
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 		return config.getAuthenticationManager();
-}
-	
+	}
+
 	/**
-	 * Configura el codificador de contraseñas. Utiliza BCrypt para el hash de contraseñas
+	 * Configura el codificador de contraseñas. Utiliza BCrypt para el hash de
+	 * contraseñas
 	 * 
 	 * @return Codificador de contraseñas BCrypt
 	 */
@@ -96,7 +100,6 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
-	
 
 }
+

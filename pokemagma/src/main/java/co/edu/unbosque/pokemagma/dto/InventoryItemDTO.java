@@ -6,18 +6,22 @@ import java.util.Objects;
  * DTO para transferir los datos de una fila del inventario
  */
 public class InventoryItemDTO {
+	
 	/**
 	 * Identificador de la fila de inventario
 	 */
 	private Long id;
+	
 	/**
 	 * Identificador del jugador propietario
 	 */
 	private Long playerId;
+	
 	/**
 	 * Codigo del sujeto
 	 */
 	private String itemCode;
+	
 	/*
 	 * Cantidad del objeto
 	 */
