@@ -1,0 +1,20 @@
+<div class="intro" [class.saliendo]="saliendo()" (click)="avanzar()">
+  <div class="escenario">
+    @if (mostrarImagen()) {
+      <img class="profesor" src="/assets/sprites/normal/abedul.png" alt="Profesor Abedul"
+           (error)="mostrarImagen.set(false)">
+    }
+    @if (mostrarPokemon()) {
+      <img class="pokemon" src="/assets/sprites/normal/001.png" alt="Pokémon"
+           (error)="mostrarPokemon.set(false)">
+    }
+  </div>
+
+  <div class="dialogo">
+    <span class="nombre">Prof. Abedul</span>
+    <p>{{ textoMostrado() }}</p>
+    @if (!escribiendo()) {
+      <span class="flecha">▼</span>
+    }
+  </div>
+</div>
