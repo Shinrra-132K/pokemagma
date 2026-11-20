@@ -88,14 +88,14 @@ public class PlayerGameService {
 	/**
 	 * Construye el servicio con los repositorios y servicios requeridos.
 	 *
-	 * @param pokemonRepository     repositorio de los Pokémon del jugador
-	 * @param battleRepository      repositorio de los combates
+	 * @param pokemonRepository      repositorio de los Pokémon del jugador
+	 * @param battleRepository       repositorio de los combates
 	 * @param starterOfferRepository repositorio de las ofertas iniciales
-	 * @param pokedexRepository     repositorio de la Pokédex
-	 * @param inventoryRepository   repositorio del inventario
-	 * @param eventRepository       repositorio de eventos
-	 * @param pokemonService        servicio de consulta de especies Pokémon
-	 * @param itemService           servicio de gestión de objetos
+	 * @param pokedexRepository      repositorio de la Pokédex
+	 * @param inventoryRepository    repositorio del inventario
+	 * @param eventRepository        repositorio de eventos
+	 * @param pokemonService         servicio de consulta de especies Pokémon
+	 * @param itemService            servicio de gestión de objetos
 	 */
 	public PlayerGameService(PlayerPokemonRepository pokemonRepository, BattleRepository battleRepository,
 			StarterOfferRepository starterOfferRepository, PokedexEntryRepository pokedexRepository,
@@ -112,7 +112,12 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Devuelve la oferta inicial, creando una sola opción aleatoria por generación.
+	 * Obtiene la oferta inicial del jugador. Si aún no existe, crea tres opciones
+	 * aleatorias: una de cada una de las tres primeras generaciones.
+	 *
+	 * @param playerId identificador del jugador
+	 * @return opciones iniciales disponibles y estado de selección
+	 * @throws GameRuleException si el jugador ya tiene Pokémon
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public StarterOptionsDTO getStarterOptions(Long playerId) throws GameRuleException {
@@ -131,11 +136,17 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Guarda la elección del Pokémon inicial y entrega los objetos de inicio.
-	 * 
+	 * Guarda el Pokémon inicial elegido, actualiza la Pokédex y entrega los objetos
+	 * iniciales al jugador.
+	 *
 	 * @param playerId  identificador del jugador
-	 * @param speciesId identificador de especie
-	 * @return respuesta generada
+	 * @param speciesId identificador de la especie elegida
+	 * @return datos del Pokémon inicial creado
+	 * @throws ResourceNotFoundException si el jugador no tiene una oferta inicial
+	 * @throws GameRuleException         si ya eligió un inicial o la especie no
+	 *                                   pertenece a su oferta
+	 * @throws ExternalServiceException  si falla la consulta de datos de la especie
+	 * @throws QuantityNotValidException si no se pueden entregar los objetos
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public PlayerPokemonDTO selectStarter(Long playerId, Integer speciesId)
@@ -168,8 +179,16 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Comprueba si un arbusto produce un encuentro y crea el combate si
-	 * corresponde.
+	 * Procesa el paso del jugador por un arbusto y, según la probabilidad
+	 * configurada, crea un encuentro con un Pokémon salvaje.
+	 *
+	 * @param playerId identificador del jugador
+	 * @param request  identificadores del mapa y del arbusto
+	 * @return resultado de la exploración y datos del encuentro, si ocurrió
+	 * @throws ResourceNotFoundException si falta un recurso requerido
+	 * @throws GameRuleException         si el jugador no puede explorar en su
+	 *                                   estado actual
+	 * @throws ExternalServiceException  si falla la consulta del Pokémon salvaje
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public EncounterDTO explore(Long playerId, ExploreRequestDTO request)
@@ -191,9 +210,18 @@ public class PlayerGameService {
 		}
 
 		List<PlayerPokemon> team = pokemonRepository.findAllByPlayerIdOrderByIdAsc(playerId);
-		PlayerPokemon activePokemon = team.get(0);
-		if (activePokemon.getCurrentHp() <= 0) {
+		PlayerPokemon activePokemon = null;
+
+		for (PlayerPokemon pokemon : team) {
+			if (pokemon.getCurrentHp() > 0) {
+				activePokemon = pokemon;
+				break;
+			}
+		}
+
+		if (activePokemon == null) {
 			throw new GameRuleException();
+
 		}
 
 		int speciesId = randomId(1, THIRD_GENERATION_MAX);
@@ -204,6 +232,7 @@ public class PlayerGameService {
 		Battle battle = new Battle(playerId, activePokemon.getId(), speciesId, wild.name(), level, wildStats.getMaxHp(),
 				wildStats.getAttack(), wildStats.getDefense());
 		battle = battleRepository.save(battle);
+
 		markSeen(playerId, speciesId);
 		logEvent(playerId, GameEvent.EventType.WILD_ENCOUNTER,
 				"Encuentro salvaje en " + request.getMapId() + ", arbusto " + request.getBushId() + ": " + wild.name());
@@ -212,12 +241,13 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Obtiene el estado de un combate perteneciente al jugador.
-	 * 
+	 * Obtiene el estado de un combate que pertenece al jugador indicado.
+	 *
 	 * @param playerId identificador del jugador
 	 * @param battleId identificador del combate
-	 * @return battle
-	 * @throws ResourceNotFoundException si la operación no puede completarse
+	 * @return estado del combate y estadísticas del Pokémon del jugador
+	 * @throws ResourceNotFoundException si el combate no existe o pertenece a otro
+	 *                                   jugador
 	 */
 	@Transactional(readOnly = true)
 	public BattleDTO getBattle(Long playerId, Long battleId) throws ResourceNotFoundException {
@@ -227,11 +257,17 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Ejecuta un ataque básico y la respuesta del Pokémon salvaje.
-	 * 
+	 * Ejecuta un ataque básico del Pokémon del jugador y, si el combate continúa,
+	 * procesa el contraataque del Pokémon salvaje.
+	 *
 	 * @param playerId identificador del jugador
 	 * @param battleId identificador del combate
-	 * @return respuesta generada
+	 * @return estado actualizado del combate
+	 * @throws ResourceNotFoundException si el combate o el Pokémon no existen para
+	 *                                   el jugador
+	 * @throws GameRuleException         si el combate no está activo
+	 * @throws QuantityNotValidException si no se puede entregar el objeto de
+	 *                                   recompensa
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public BattleDTO attack(Long playerId, Long battleId)
@@ -259,11 +295,18 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Consume una Poké Ball e intenta capturar al Pokémon salvaje.
-	 * 
+	 * Consume una Poké Ball e intenta capturar al Pokémon salvaje. Si falla la
+	 * captura, el Pokémon salvaje contraataca.
+	 *
 	 * @param playerId identificador del jugador
 	 * @param battleId identificador del combate
-	 * @return respuesta generada
+	 * @return estado actualizado del combate y del Pokémon activo
+	 * @throws ResourceNotFoundException si el combate o el Pokémon del jugador no
+	 *                                   existen
+	 * @throws GameRuleException         si el combate no está activo
+	 * @throws QuantityNotValidException si el jugador no tiene Poké Balls
+	 * @throws ExternalServiceException  si falla la consulta necesaria para guardar
+	 *                                   el Pokémon capturado
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public BattleDTO capture(Long playerId, Long battleId)
@@ -295,13 +338,14 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Finaliza el combate activo por huida.
-	 * 
+	 * Finaliza el combate activo marcándolo como huida.
+	 *
 	 * @param playerId identificador del jugador
 	 * @param battleId identificador del combate
-	 * @return respuesta generada
-	 * @throws ResourceNotFoundException si la operación no puede completarse
-	 * @throws GameRuleException         si la operación no puede completarse
+	 * @return estado final del combate
+	 * @throws ResourceNotFoundException si el combate o el Pokémon del jugador no
+	 *                                   existen
+	 * @throws GameRuleException         si el combate no está activo
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public BattleDTO run(Long playerId, Long battleId) throws ResourceNotFoundException, GameRuleException {
@@ -314,12 +358,17 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Valida y aplica un objeto sobre un Pokémon del jugador.
-	 * 
+	 * Usa una poción sobre un Pokémon del jugador y registra el evento.
+	 *
 	 * @param playerId  identificador del jugador
-	 * @param itemCode  código del objeto
-	 * @param pokemonId identificador del Pokémon
-	 * @return respuesta generada
+	 * @param itemCode  código del objeto que se usará
+	 * @param pokemonId identificador del Pokémon objetivo
+	 * @return datos actualizados del Pokémon
+	 * @throws ResourceNotFoundException si el Pokémon no pertenece al jugador o no
+	 *                                   existe
+	 * @throws QuantityNotValidException si el jugador no tiene pociones disponibles
+	 * @throws GameRuleException         si el objeto no puede usarse en el estado
+	 *                                   actual
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public PlayerPokemonDTO useItem(Long playerId, String itemCode, Long pokemonId)
@@ -333,10 +382,10 @@ public class PlayerGameService {
 	}
 
 	/**
-	 * Obtiene los Pokémon capturados por el jugador.
-	 * 
+	 * Obtiene los Pokémon del jugador ordenados por identificador.
+	 *
 	 * @param playerId identificador del jugador
-	 * @return team
+	 * @return lista de Pokémon del jugador; estará vacía si no tiene Pokémon
 	 */
 	@Transactional(readOnly = true)
 	public List<PlayerPokemonDTO> getTeam(Long playerId) {

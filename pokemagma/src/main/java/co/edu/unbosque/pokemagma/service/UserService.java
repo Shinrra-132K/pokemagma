@@ -92,34 +92,60 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Actualiza un usuario existente
+	 * Actualiza los datos de un usuario existente.
 	 *
-	 * @param id      identificador del usuario
-	 * @param newData DTO con los datos nuevos
-	 * @return 0 si se actualizo, 1 si el nombre esta ocupado, 2 si el corroe esta
-	 *         ocupado, 3 si no existe
+	 * @param id      identificador del usuario que se actualizará
+	 * @param newData DTO con el nuevo nombre, correo y contraseña
+	 * @return 0 si se actualizó; 1 si el nombre pertenece a otro usuario; 2 si el
+	 *         correo pertenece a otro usuario; 3 si el usuario no existe
 	 */
 	@Override
 	public int updateById(Long id, UserDTO newData) {
 		Optional<User> found = userRepo.findById(id);
 		Optional<User> newFound = userRepo.findByUsername(newData.getUsername());
+		Optional<User> emailFound = userRepo.findByEmail(newData.getEmail());
 
-		if (found.isPresent() && !newFound.isPresent()) {
+		if (found.isPresent() && !belongsToAnotherUser(newFound, id) && !belongsToAnotherUser(emailFound, id)) {
 			User temp = found.get();
 			temp.setUsername(newData.getUsername());
-			temp.setPassword(passwordEncoder.encode(newData.getPassword()));
+			temp.setEmail(newData.getEmail());
+
+			if (newData.getPassword() != null && !newData.getPassword().isBlank()) {
+				temp.setPassword(passwordEncoder.encode(newData.getPassword()));
+			}
+
 			userRepo.save(temp);
 			return 0;
 		}
-		if (found.isPresent() && newFound.isPresent()) {
+
+		if (found.isPresent() && belongsToAnotherUser(newFound, id)) {
 			return 1;
 		}
-		if (!found.isPresent()) {
+
+		if (found.isPresent() && belongsToAnotherUser(emailFound, id)) {
 			return 2;
+		}
+
+		if (!found.isPresent()) {
+			return 3;
 		} else {
 			return 3;
 		}
+	}
 
+	/**
+	 * Comprueba si el nombre o correo encontrado pertenece a otra cuenta.
+	 *
+	 * @param found usuario encontrado por nombre o correo
+	 * @param id    identificador del usuario que se está actualizando
+	 * @return true si pertenece a otro usuario; false si no existe o es el mismo
+	 */
+	public boolean belongsToAnotherUser(Optional<User> found, Long id) {
+		if (!found.isPresent()) {
+			return false;
+		}
+
+		return !found.get().getId().equals(id);
 	}
 
 	/**
@@ -142,10 +168,10 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Busca un usuasrio por su ID y lo convierte en DTO
-	 * 
-	 * @param id identificador del usuario
-	 * @return DTO del susario sin contraseña o null si no existe
+	 * Busca una cuenta por su identificador y la convierte en DTO.
+	 *
+	 * @param id identificador de la cuenta
+	 * @return DTO de la cuenta sin contraseña, o null si no existe
 	 */
 	public UserDTO getById(Long id) {
 		Optional<User> found = userRepo.findById(id);
@@ -200,11 +226,14 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Comprueba si la contraseña recibida coincide con la contraseña almacenada
-	 * 
-	 * @param username nombre de ususario
-	 * @param password contraseña recibida
-	 * @return 0 si las credenciales coinciden, 1 si son incorrectos
+	 * Comprueba las credenciales y el estado de la cuenta.
+	 *
+	 * @param username nombre de usuario
+	 * @param password contraseña recibida sin codificar
+	 * @return 0 si las credenciales son válidas y la cuenta está habilitada, 1 si
+	 *         el usuario no existe o la contraseña no coincide, 2 si el correo aún
+	 *         no está verificado, 3 si la cuenta está deshabilitada, expirada o
+	 *         bloqueada
 	 */
 	public int validateCredentials(String username, String password) {
 		Optional<User> userOpt = userRepo.findByUsername(username);
@@ -274,6 +303,17 @@ public class UserService implements CRUDOperation<UserDTO> {
 	 */
 	public Long findIdByUsername(String username) throws ResourceNotFoundException {
 		return userRepo.findByUsername(username).map(User::getId).orElseThrow(() -> new ResourceNotFoundException());
+	}
+
+	/**
+	 * Actualiza la contraseña de una cuenta y la guarda codificada.
+	 *
+	 * @param user        cuenta cuya contraseña se actualizará
+	 * @param newPassword contraseña nueva sin codificar
+	 */
+	public void updatePassword(User user, String newPassword) {
+		user.setPassword(passwordEncoder.encode(newPassword));
+		userRepo.save(user);
 	}
 
 }

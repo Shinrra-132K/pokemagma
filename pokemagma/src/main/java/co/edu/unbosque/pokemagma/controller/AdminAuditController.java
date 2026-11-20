@@ -11,13 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.pokemagma.dto.GameEventDTO;
 import co.edu.unbosque.pokemagma.dto.UserDTO;
+import co.edu.unbosque.pokemagma.dto.UserPresenceDTO;
 import co.edu.unbosque.pokemagma.service.GameEventService;
+import co.edu.unbosque.pokemagma.service.PresenceService;
 import co.edu.unbosque.pokemagma.service.UserService;
 
 /**
  * Controlador de consulta de auditoría para el administrador.
  *
- *Las rutas bajo {@code /admin} deben estar protegidas para el rol
+ * Las rutas bajo {@code /admin} deben estar protegidas para el rol
  * administrativo en SecurityConfig
  */
 @RestController
@@ -26,16 +28,20 @@ public class AdminAuditController {
 
 	private final GameEventService eventService;
 	private final UserService userService;
+	private final PresenceService presenceService;
 
 	/**
-     * Crea el controlador de auditoría.
-     *
-     * @param eventService servicio de consulta de eventos
-     * @param userService servicio de consulta de cuentas
-     */
-	public AdminAuditController(GameEventService eventService, UserService userService) {
+	 * Crea el controlador de auditoría.
+	 *
+	 * @param eventService    servicio de consulta de eventos
+	 * @param userService     servicio de consulta de cuentas
+	 * @param presenceService servicio que consulta la conexión de los jugadores
+	 */
+	public AdminAuditController(GameEventService eventService, UserService userService,
+			PresenceService presenceService) {
 		this.eventService = eventService;
 		this.userService = userService;
+		this.presenceService = presenceService;
 	}
 
 	/**
@@ -89,14 +95,14 @@ public class AdminAuditController {
 	}
 
 	/**
-     * Devuelve las cuentas que no están habilitadas.
-     *
-     * La contraseña se elimina de los DTO antes de responder. Según la
-     * implementación de User.isEnabled , una cuenta sin verificar
-     * también puede aparecer en este resultado
-     *
-     * @return cuentas no habilitadas o 204 si no hay ninguna
-     */
+	 * Devuelve las cuentas que no están habilitadas.
+	 *
+	 * La contraseña se elimina de los DTO antes de responder. Según la
+	 * implementación de User.isEnabled , una cuenta sin verificar también puede
+	 * aparecer en este resultado
+	 *
+	 * @return cuentas no habilitadas o 204 si no hay ninguna
+	 */
 	@GetMapping("/users/disabled")
 	public ResponseEntity<List<UserDTO>> getDisabledUsers() {
 		List<UserDTO> users = userService.getAll().stream().filter(user -> !user.isEnabled()).toList();
@@ -112,10 +118,10 @@ public class AdminAuditController {
 	}
 
 	/**
-     * Cuenta las cuentas que no están habilitadas.
-     *
-     * @return objeto JSON con la propiedad {@code count}
-     */
+	 * Cuenta las cuentas que no están habilitadas.
+	 *
+	 * @return objeto JSON con la propiedad {@code count}
+	 */
 	@GetMapping("/users/disabled/count")
 	public ResponseEntity<Map<String, Long>> countDisabledUsers() {
 		long count = userService.getAll().stream().filter(user -> !user.isEnabled()).count();
@@ -123,5 +129,14 @@ public class AdminAuditController {
 		return ResponseEntity.ok(Map.of("count", count));
 	}
 
-}
+	/**
+	 * Devuelve la conexión actual de los jugadores.
+	 *
+	 * @return jugadores activos o desconectados y la hora de su último heartbeat
+	 */
+	@GetMapping("/users/presence")
+	public ResponseEntity<List<UserPresenceDTO>> getPlayerPresence() {
+		return ResponseEntity.ok(presenceService.getAllPlayerPresence());
+	}
 
+}

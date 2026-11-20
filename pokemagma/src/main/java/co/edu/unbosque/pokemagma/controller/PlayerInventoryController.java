@@ -35,14 +35,13 @@ public class PlayerInventoryController {
 		this.inventoryService = inventoryService;
 		this.userService = userService;
 	}
-	
 
 	/**
-	 * Devuelve los objetos del usuario autenticado.
+	 * Obtiene los objetos del inventario del jugador autenticado.
 	 *
-	 * @param principal usuario obtenido del JWT
-	 * @return objetos del jugador o 204 si el inventario está vacío
-	 * @throws ResourceNotFoundException 
+	 * @param principal identidad del jugador autenticado
+	 * @return objetos del inventario, o respuesta 204 si está vacío
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@GetMapping("/getall")
 	public ResponseEntity<List<InventoryItemDTO>> getAll(Principal principal) throws ResourceNotFoundException {
@@ -55,6 +54,5 @@ public class PlayerInventoryController {
 
 		return ResponseEntity.ok(items);
 	}
-
 
 }

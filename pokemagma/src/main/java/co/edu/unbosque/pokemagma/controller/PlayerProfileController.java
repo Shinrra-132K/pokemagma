@@ -43,11 +43,11 @@ public class PlayerProfileController {
 	}
 
 	/**
-	 * Busca el perfil asociado al jugador autenticado.
+	 * Obtiene el perfil del jugador autenticado.
 	 *
-	 * @param principal usuario del contexto de seguridad
-	 * @return perfil encontrado o 404 si aún no existe
-	 * @throws ResourceNotFoundException 
+	 * @param principal identidad del jugador autenticado
+	 * @return perfil del jugador, o respuesta 404 si todavía no existe
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@GetMapping("/get")
 	public ResponseEntity<PlayerProfileDTO> get(Principal principal) throws ResourceNotFoundException {
@@ -62,15 +62,17 @@ public class PlayerProfileController {
 	}
 
 	/**
-	 * Crea el perfil del usuario autenticado.
+	 * Crea el perfil del jugador autenticado usando los datos recibidos.
 	 *
-	 * @param principal usuario obtenido del contexto de seguridad
-	 * @param request     género y apariencia seleccionados
-	 * @return 201 si se creó; 409 si ya tenía perfil
-	 * @throws ResourceNotFoundException 
+	 * @param principal identidad del jugador autenticado
+	 * @param request   datos iniciales del perfil
+	 * @return respuesta 201 si se creó, 409 si ya existe un perfil o 400 si no se
+	 *         pudo crear
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@PostMapping(path = "/createjson", consumes = "application/json")
-	public ResponseEntity<String> create(Principal principal, @RequestBody PlayerProfileDTO request) throws ResourceNotFoundException {
+	public ResponseEntity<String> create(Principal principal, @RequestBody PlayerProfileDTO request)
+			throws ResourceNotFoundException {
 
 		Long playerId = userService.findIdByUsername(principal.getName());
 		request.setUserId(playerId);
@@ -86,15 +88,17 @@ public class PlayerProfileController {
 	}
 
 	/**
-	 * Actualiza género y apariencia del perfil propio.
+	 * Actualiza el género y la apariencia del perfil del jugador autenticado.
 	 *
-	 * @param principal usuario obtenido del contexto de seguridad
-	 * @param request     nuevos datos del perfil
-	 * @return 204 si se actualizó; 404 si no existe
-	 * @throws ResourceNotFoundException 
+	 * @param principal identidad del jugador autenticado
+	 * @param request   nuevos datos del perfil
+	 * @return respuesta 204 si se actualizó, 404 si el perfil no existe o 400 si no
+	 *         se pudo actualizar
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@PutMapping(path = "/updatejson", consumes = "application/json")
-	public ResponseEntity<String> update(Principal principal, @RequestBody PlayerProfileDTO request) throws ResourceNotFoundException {
+	public ResponseEntity<String> update(Principal principal, @RequestBody PlayerProfileDTO request)
+			throws ResourceNotFoundException {
 
 		Long playerId = userService.findIdByUsername(principal.getName());
 		PlayerProfileDTO existing = profileService.getByUserId(playerId);
