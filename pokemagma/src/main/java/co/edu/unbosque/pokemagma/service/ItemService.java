@@ -15,8 +15,12 @@ import co.edu.unbosque.pokemagma.repository.PlayerPokemonRepository;
 @Service
 public class ItemService {
 
+	/** Código usado para identificar una Poké Ball en el inventario. */
 	public static final String POKEBALL = "POKEBALL";
+
+	/** Código usado para identificar una poción en el inventario. */
 	public static final String POTION = "POTION";
+
 	private static final int POTION_HEAL = 20;
 
 	/**

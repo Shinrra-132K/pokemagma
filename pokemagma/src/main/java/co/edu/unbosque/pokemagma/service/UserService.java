@@ -132,12 +132,12 @@ public class UserService implements CRUDOperation<UserDTO> {
 			return 3;
 		}
 	}
-	
+
 	/**
 	 * Comprueba si el nombre o correo encontrado pertenece a otra cuenta.
 	 *
 	 * @param found usuario encontrado por nombre o correo
-	 * @param id identificador del usuario que se está actualizando
+	 * @param id    identificador del usuario que se está actualizando
 	 * @return true si pertenece a otro usuario; false si no existe o es el mismo
 	 */
 	public boolean belongsToAnotherUser(Optional<User> found, Long id) {
@@ -168,10 +168,10 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Busca un usuasrio por su ID y lo convierte en DTO
-	 * 
-	 * @param id identificador del usuario
-	 * @return DTO del susario sin contraseña o null si no existe
+	 * Busca una cuenta por su identificador y la convierte en DTO.
+	 *
+	 * @param id identificador de la cuenta
+	 * @return DTO de la cuenta sin contraseña, o null si no existe
 	 */
 	public UserDTO getById(Long id) {
 		Optional<User> found = userRepo.findById(id);
@@ -226,11 +226,14 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Comprueba si la contraseña recibida coincide con la contraseña almacenada
-	 * 
-	 * @param username nombre de ususario
-	 * @param password contraseña recibida
-	 * @return 0 si las credenciales coinciden, 1 si son incorrectos
+	 * Comprueba las credenciales y el estado de la cuenta.
+	 *
+	 * @param username nombre de usuario
+	 * @param password contraseña recibida sin codificar
+	 * @return 0 si las credenciales son válidas y la cuenta está habilitada, 1 si
+	 *         el usuario no existe o la contraseña no coincide, 2 si el correo aún
+	 *         no está verificado, 3 si la cuenta está deshabilitada, expirada o
+	 *         bloqueada
 	 */
 	public int validateCredentials(String username, String password) {
 		Optional<User> userOpt = userRepo.findByUsername(username);

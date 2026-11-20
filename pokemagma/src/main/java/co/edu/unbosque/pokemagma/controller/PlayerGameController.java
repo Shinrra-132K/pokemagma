@@ -57,11 +57,13 @@ public class PlayerGameController {
 	}
 
 	/**
-	 * Obtiene la oferta inicial asignada al jugador.
+	 * Obtiene las opciones de Pokémon inicial del jugador autenticado.
 	 *
-	 * @param principal usuario autenticado
-	 * @return opciones iniciales disponibles
-	 * @throws GameRuleException si el jugador ya tiene Pokémon
+	 * @param principal identidad del jugador autenticado
+	 * @return opciones de Pokémon inicial disponibles
+	 * @throws GameRuleException         si el jugador ya tiene Pokémon y no puede
+	 *                                   elegir un inicial
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@GetMapping("/starters/getoptions")
 	public ResponseEntity<StarterOptionsDTO> getStarterOptions(Principal principal)
@@ -74,7 +76,7 @@ public class PlayerGameController {
 	 * Guarda la elección del Pokémon inicial y entrega los objetos de inicio.
 	 *
 	 * @param principal usuario autenticado
-	 * @param request     especie elegida
+	 * @param request   especie elegida
 	 * @return Pokémon inicial creado
 	 * @throws ResourceNotFoundException si la oferta no existe
 	 * @throws GameRuleException         si la especie no pertenece a la oferta o ya
@@ -84,8 +86,7 @@ public class PlayerGameController {
 	 *                                   iniciales
 	 */
 	@PostMapping("/starters/select")
-	public ResponseEntity<PlayerPokemonDTO> selectStarter(Principal principal,
-			@RequestBody StarterChoiceDTO request)
+	public ResponseEntity<PlayerPokemonDTO> selectStarter(Principal principal, @RequestBody StarterChoiceDTO request)
 			throws ResourceNotFoundException, GameRuleException, ExternalServiceException, QuantityNotValidException {
 		Long playerId = userService.findIdByUsername(principal.getName());
 		PlayerPokemonDTO pokemon = gameService.selectStarter(playerId, request.getSpeciesId());
@@ -96,7 +97,7 @@ public class PlayerGameController {
 	 * Procesa el paso por un arbusto y puede iniciar un encuentro salvaje.
 	 *
 	 * @param principal usuario autenticado
-	 * @param request     identificadores del mapa y del arbusto
+	 * @param request   identificadores del mapa y del arbusto
 	 * @return resultado de la exploración y, si aplica, datos del encuentro
 	 * @throws ResourceNotFoundException si falta un recurso requerido
 	 * @throws GameRuleException         si el jugador no puede explorar en su
@@ -104,8 +105,7 @@ public class PlayerGameController {
 	 * @throws ExternalServiceException  si falla la consulta de datos Pokémon
 	 */
 	@PostMapping("/explore")
-	public ResponseEntity<EncounterDTO> explore(Principal principal,
-			@RequestBody ExploreRequestDTO request)
+	public ResponseEntity<EncounterDTO> explore(Principal principal, @RequestBody ExploreRequestDTO request)
 			throws ResourceNotFoundException, GameRuleException, ExternalServiceException {
 		Long playerId = userService.findIdByUsername(principal.getName());
 		return ResponseEntity.ok(gameService.explore(playerId, request));
@@ -114,9 +114,9 @@ public class PlayerGameController {
 	/**
 	 * Obtiene el equipo Pokémon del jugador autenticado.
 	 *
-	 * @param principal usuario autenticado
-	 * @return Pokémon del jugador o 204 si el equipo está vacío
-	 * @throws ResourceNotFoundException 
+	 * @param principal identidad del jugador autenticado
+	 * @return lista de Pokémon del jugador, o respuesta 204 si el equipo está vacío
+	 * @throws ResourceNotFoundException si no se encuentra la cuenta autenticada
 	 */
 	@GetMapping("/team/getall")
 	public ResponseEntity<List<PlayerPokemonDTO>> getTeam(Principal principal) throws ResourceNotFoundException {
@@ -132,7 +132,7 @@ public class PlayerGameController {
 	 * Consulta el estado de un combate perteneciente al jugador.
 	 *
 	 * @param principal usuario autenticado
-	 * @param battleId    identificador del combate
+	 * @param battleId  identificador del combate
 	 * @return estado actual del combate
 	 * @throws ResourceNotFoundException si el combate no existe o pertenece a otro
 	 *                                   jugador
@@ -148,7 +148,7 @@ public class PlayerGameController {
 	 * Ejecuta un ataque básico y la respuesta del Pokémon salvaje.
 	 *
 	 * @param principal usuario autenticado
-	 * @param battleId    identificador del combate
+	 * @param battleId  identificador del combate
 	 * @return estado actualizado del combate
 	 * @throws ResourceNotFoundException si el combate no existe o no pertenece al
 	 *                                   jugador
@@ -167,7 +167,7 @@ public class PlayerGameController {
 	 * Consume una Poké Ball e intenta capturar al Pokémon salvaje.
 	 *
 	 * @param principal usuario autenticado
-	 * @param battleId    identificador del combate
+	 * @param battleId  identificador del combate
 	 * @return estado actualizado del combate
 	 * @throws ResourceNotFoundException si el combate no existe o no pertenece al
 	 *                                   jugador
@@ -183,14 +183,15 @@ public class PlayerGameController {
 	}
 
 	/**
-     * Finaliza el combate activo por huida.
-     *
-     * @param principal usuario autenticado
-     * @param battleId identificador del combate
-     * @return estado actualizado del combate
-     * @throws ResourceNotFoundException si el combate no existe o no pertenece al jugador
-     * @throws GameRuleException si el combate no está activo
-     */
+	 * Finaliza el combate activo por huida.
+	 *
+	 * @param principal usuario autenticado
+	 * @param battleId  identificador del combate
+	 * @return estado actualizado del combate
+	 * @throws ResourceNotFoundException si el combate no existe o no pertenece al
+	 *                                   jugador
+	 * @throws GameRuleException         si el combate no está activo
+	 */
 	@PostMapping("/battles/{battleId}/run")
 	public ResponseEntity<BattleDTO> run(Principal principal, @PathVariable Long battleId)
 			throws ResourceNotFoundException, GameRuleException {
@@ -202,7 +203,7 @@ public class PlayerGameController {
 	 * Valida y aplica un objeto sobre un Pokémon del jugador.
 	 *
 	 * @param principal usuario autenticado
-	 * @param request     código de objeto e identificador del Pokémon objetivo
+	 * @param request   código de objeto e identificador del Pokémon objetivo
 	 * @return Pokémon con sus datos actualizados
 	 * @throws ResourceNotFoundException si el Pokémon no existe o no pertenece al
 	 *                                   jugador
@@ -211,11 +212,9 @@ public class PlayerGameController {
 	 *                                   estado actual
 	 */
 	@PostMapping("/items/use")
-	public ResponseEntity<PlayerPokemonDTO> useItem(Principal principal,
-			@RequestBody UseItemDTO request)
+	public ResponseEntity<PlayerPokemonDTO> useItem(Principal principal, @RequestBody UseItemDTO request)
 			throws ResourceNotFoundException, QuantityNotValidException, GameRuleException {
 		Long playerId = userService.findIdByUsername(principal.getName());
-		return ResponseEntity
-				.ok(gameService.useItem(playerId, request.getItemCode(), request.getPlayerPokemonId()));
+		return ResponseEntity.ok(gameService.useItem(playerId, request.getItemCode(), request.getPlayerPokemonId()));
 	}
 }

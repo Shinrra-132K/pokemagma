@@ -25,8 +25,11 @@ import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
 import co.edu.unbosque.pokemagma.security.JwtUtil;
 import co.edu.unbosque.pokemagma.service.EmailVerificationService;
+import co.edu.unbosque.pokemagma.service.GameEventService;
+import co.edu.unbosque.pokemagma.service.IpGeolocationService;
 import co.edu.unbosque.pokemagma.service.PasswordResetService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -74,6 +77,8 @@ public class AuthController {
 	private final UserRepository userRepo;
 	private final EmailVerificationService verificationService;
 	private final JwtUtil jwtUtil;
+	private final GameEventService eventService;
+	private final IpGeolocationService geolocationService;
 
 	/**
 	 * Crea el controlador de autenticación.
@@ -85,12 +90,15 @@ public class AuthController {
 	 * @param passwordResetService servicio de recuperación de contraseñas
 	 */
 	public AuthController(UserService userService, UserRepository userRepo,
-			EmailVerificationService verificationService, JwtUtil jwtUtil, PasswordResetService passwordResetService) {
+			EmailVerificationService verificationService, JwtUtil jwtUtil, PasswordResetService passwordResetService,
+			GameEventService eventService, IpGeolocationService geolocationService) {
 		this.userService = userService;
 		this.userRepo = userRepo;
 		this.verificationService = verificationService;
 		this.jwtUtil = jwtUtil;
 		this.passwordResetService = passwordResetService;
+		this.eventService = eventService;
+		this.geolocationService = geolocationService;
 	}
 
 	/**
@@ -183,15 +191,20 @@ public class AuthController {
 	}
 
 	/**
-	 * Valida las credenciales y genera un JWT para una cuenta verificada.
+	 * Valida las credenciales, registra el inicio de sesión y genera un JWT para
+	 * una cuenta verificada.
 	 *
-	 * @param req nombre de usuario y contraseña
-	 * @return token Bearer si la autenticación fue exitosa; 401 si las credenciales
-	 *         son incorrectas; 403 si falta verificar el correo
+	 * @param req         datos de usuario y contraseña
+	 * @param httpRequest solicitud HTTP, usada para obtener la IP observada por el
+	 *                    servidor
+	 * @return token Bearer si la autenticación fue exitosa
+	 * @throws InvalidCredentialException si las credenciales son incorrectas
+	 * @throws EmailNotVerifiedException  si la cuenta no verificó su correo
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest req)
-			throws InvalidCredentialException, EmailNotVerifiedException {
+	public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest req,
+			HttpServletRequest httpRequest) throws InvalidCredentialException, EmailNotVerifiedException {
+
 		int validationResult = userService.validateCredentials(req.username(), req.password());
 
 		if (validationResult == 2) {
@@ -207,6 +220,11 @@ public class AuthController {
 		}
 
 		User user = userRepo.findByUsername(req.username()).get();
+
+		String ipAddress = httpRequest.getRemoteAddr();
+		String location = geolocationService.findLocation(ipAddress);
+
+		eventService.recordLogin(user.getId(), ipAddress, location);
 
 		return ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(user), "type", "Bearer"));
 	}
