@@ -10,24 +10,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EmailService {
-	
+
 	/**
 	 * Cliente de Spring para enviar correos
 	 */
 	private final JavaMailSender mailSender;
-	
+
 	@Value("${spring.mail.username}")
 	private String from;
 
 	/**
 	 * Constructor con parametros
+	 * 
 	 * @param mailSender libreria encargada del envio de los correos
 	 */
 	public EmailService(JavaMailSender mailSender) {
 		super();
 		this.mailSender = mailSender;
 	}
-	
+
 	/**
 	 * Envia el codigo de verificacion al correo del usuario
 	 */
@@ -36,9 +37,26 @@ public class EmailService {
 		message.setFrom(from);
 		message.setTo(to);
 		message.setSubject("Pokemagma - Codigo de verificacion");
-		message.setText("Hola " + username + ",\n\n" 
-				+ "Tu codigo de verificacion es: " + code + "\n\n"
+		message.setText("Hola " + username + ",\n\n" + "Tu codigo de verificacion es: " + code + "\n\n"
 				+ "Es valido por 10 minutos. Si no creaste esta cuenta, ignora este mensaje.");
+		mailSender.send(message);
+	}
+
+	/**
+	 * Envía el código de restablecimiento de contraseña.
+	 *
+	 * @param to       correo del destinatario
+	 * @param username nombre del usuario
+	 * @param code     código temporal
+	 */
+	public void sendPasswordResetCode(String to, String username, String code) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom(from);
+		message.setTo(to);
+		message.setSubject("Pokemagma - Restablecimiento de contraseña");
+		message.setText("Hola " + username + ",\n\n" + "Tu código para restablecer la contraseña es: " + code + "\n\n"
+				+ "Es válido por 10 minutos. Si no solicitaste el cambio, ignora este mensaje.");
+
 		mailSender.send(message);
 	}
 
