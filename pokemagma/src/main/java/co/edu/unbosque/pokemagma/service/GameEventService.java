@@ -169,4 +169,19 @@ public class GameEventService implements CRUDOperation<GameEventDTO> {
 		return dtoList;
 	}
 
+	/**
+	 * Guarda el evento de inicio de sesión de un jugador.
+	 *
+	 * @param playerId  identificador del jugador
+	 * @param ipAddress IP detectada por el servidor
+	 * @param location  ubicación aproximada asociada a la IP
+	 */
+	public void recordLogin(Long playerId, String ipAddress, String location) {
+		String description = "Inicio de sesión; IP=" + ipAddress + "; ubicación aproximada=" + location;
+
+		GameEvent event = new GameEvent(playerId, GameEvent.EventType.LOGIN, description);
+
+		gameRepo.save(event);
+	}
+
 }

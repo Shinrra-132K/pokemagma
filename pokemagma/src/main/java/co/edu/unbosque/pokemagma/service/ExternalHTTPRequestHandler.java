@@ -72,4 +72,26 @@ public class ExternalHTTPRequestHandler {
 		JsonElement element = JsonParser.parseString(json);
 		return gson.toJson(element);
 	}
+
+	/**
+	 * Realiza una solicitud GET y devuelve el cuerpo de la respuesta.
+	 *
+	 * @param url dirección del servicio externo
+	 * @return cuerpo de la respuesta
+	 * @throws IOException          si falla la conexión o el servicio devuelve un
+	 *                              error HTTP
+	 * @throws InterruptedException si se interrumpe la solicitud
+	 */
+	public static String doGet(String url) throws IOException, InterruptedException {
+		HttpRequest request = HttpRequest.newBuilder().GET().uri(URI.create(url)).timeout(Duration.ofSeconds(5))
+				.header("Accept", "application/json").build();
+
+		HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+		if (response.statusCode() < 200 || response.statusCode() >= 300) {
+			throw new IOException("El servicio externo respondió con estado HTTP " + response.statusCode());
+		}
+
+		return response.body();
+	}
 }
