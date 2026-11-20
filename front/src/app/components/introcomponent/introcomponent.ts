@@ -235,6 +235,8 @@ export class Introcomponent implements OnInit, OnDestroy {
       }
       case 'despedida':
         return this.lineaDespedida;
+      default:
+        return null;
     }
   }
 
