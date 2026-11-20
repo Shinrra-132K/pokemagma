@@ -27,12 +27,12 @@ public class JwtUtil {
 	/** Duración del token: 24 horas en milisegundos. */
 	private static final long JWT_TOKEN_VALIDITY = 24 * 60 * 60 * 1000;
 
-	/** Clave secreta codificada en Base64, leída desde la configuración. */
+	/** Clave secreta leída desde el propperties y usada como texto. */
 	@Value("${jwt.secret}")
 	private String secret;
 
 	/**
-	 * Convierte la clave configurada en una clave de firma.
+	 * Convierte los bytes del texto configurado en una clave HMAC.
 	 *
 	 * @return clave para firmar y verificar tokens
 	 */

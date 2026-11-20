@@ -276,7 +276,7 @@ public class User implements UserDetails {
 	 * @return true si la cuenta está habilitada
 	 */
 	public boolean isEnabled() {
-		return enabled && emailVerified;
+		return enabled;
 	}
 
 	/**

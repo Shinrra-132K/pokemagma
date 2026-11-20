@@ -88,14 +88,14 @@ public class PlayerGameService {
 	/**
 	 * Construye el servicio con los repositorios y servicios requeridos.
 	 *
-	 * @param pokemonRepository     repositorio de los Pokémon del jugador
-	 * @param battleRepository      repositorio de los combates
+	 * @param pokemonRepository      repositorio de los Pokémon del jugador
+	 * @param battleRepository       repositorio de los combates
 	 * @param starterOfferRepository repositorio de las ofertas iniciales
-	 * @param pokedexRepository     repositorio de la Pokédex
-	 * @param inventoryRepository   repositorio del inventario
-	 * @param eventRepository       repositorio de eventos
-	 * @param pokemonService        servicio de consulta de especies Pokémon
-	 * @param itemService           servicio de gestión de objetos
+	 * @param pokedexRepository      repositorio de la Pokédex
+	 * @param inventoryRepository    repositorio del inventario
+	 * @param eventRepository        repositorio de eventos
+	 * @param pokemonService         servicio de consulta de especies Pokémon
+	 * @param itemService            servicio de gestión de objetos
 	 */
 	public PlayerGameService(PlayerPokemonRepository pokemonRepository, BattleRepository battleRepository,
 			StarterOfferRepository starterOfferRepository, PokedexEntryRepository pokedexRepository,
@@ -191,9 +191,18 @@ public class PlayerGameService {
 		}
 
 		List<PlayerPokemon> team = pokemonRepository.findAllByPlayerIdOrderByIdAsc(playerId);
-		PlayerPokemon activePokemon = team.get(0);
-		if (activePokemon.getCurrentHp() <= 0) {
+		PlayerPokemon activePokemon = null;
+
+		for (PlayerPokemon pokemon : team) {
+			if (pokemon.getCurrentHp() > 0) {
+				activePokemon = pokemon;
+				break;
+			}
+		}
+
+		if (activePokemon == null) {
 			throw new GameRuleException();
+
 		}
 
 		int speciesId = randomId(1, THIRD_GENERATION_MAX);
@@ -204,6 +213,7 @@ public class PlayerGameService {
 		Battle battle = new Battle(playerId, activePokemon.getId(), speciesId, wild.name(), level, wildStats.getMaxHp(),
 				wildStats.getAttack(), wildStats.getDefense());
 		battle = battleRepository.save(battle);
+
 		markSeen(playerId, speciesId);
 		logEvent(playerId, GameEvent.EventType.WILD_ENCOUNTER,
 				"Encuentro salvaje en " + request.getMapId() + ", arbusto " + request.getBushId() + ": " + wild.name());

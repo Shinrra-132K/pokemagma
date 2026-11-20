@@ -92,34 +92,46 @@ public class UserService implements CRUDOperation<UserDTO> {
 	}
 
 	/**
-	 * Actualiza un usuario existente
+	 * Actualiza los datos de un usuario existente.
 	 *
-	 * @param id      identificador del usuario
-	 * @param newData DTO con los datos nuevos
-	 * @return 0 si se actualizo, 1 si el nombre esta ocupado, 2 si el corroe esta
-	 *         ocupado, 3 si no existe
+	 * @param id      identificador del usuario que se actualizará
+	 * @param newData DTO con el nuevo nombre de usuario, correo y contraseña
+	 * @return 0 si se actualizó, 1 si el nombre ya pertenece a otro usuario, 2 si
+	 *         el correo ya pertenece a otro usuario, 3 si el usuario no existe
 	 */
 	@Override
 	public int updateById(Long id, UserDTO newData) {
 		Optional<User> found = userRepo.findById(id);
 		Optional<User> newFound = userRepo.findByUsername(newData.getUsername());
+		Optional<User> emailFound = userRepo.findByEmail(newData.getEmail());
 
-		if (found.isPresent() && !newFound.isPresent()) {
+		if (found.isPresent() && (!newFound.isPresent() || newFound.get().getId().equals(id))
+				&& (!emailFound.isPresent() || emailFound.get().getId().equals(id))) {
 			User temp = found.get();
 			temp.setUsername(newData.getUsername());
-			temp.setPassword(passwordEncoder.encode(newData.getPassword()));
+			temp.setEmail(newData.getEmail());
+
+			if (newData.getPassword() != null && !newData.getPassword().isBlank()) {
+				temp.setPassword(passwordEncoder.encode(newData.getPassword()));
+			}
+
 			userRepo.save(temp);
 			return 0;
 		}
-		if (found.isPresent() && newFound.isPresent()) {
+
+		if (found.isPresent() && newFound.isPresent() && !newFound.get().getId().equals(id)) {
 			return 1;
 		}
-		if (!found.isPresent()) {
+
+		if (found.isPresent() && emailFound.isPresent() && !emailFound.get().getId().equals(id)) {
 			return 2;
+		}
+
+		if (!found.isPresent()) {
+			return 3;
 		} else {
 			return 3;
 		}
-
 	}
 
 	/**
@@ -274,6 +286,17 @@ public class UserService implements CRUDOperation<UserDTO> {
 	 */
 	public Long findIdByUsername(String username) throws ResourceNotFoundException {
 		return userRepo.findByUsername(username).map(User::getId).orElseThrow(() -> new ResourceNotFoundException());
+	}
+
+	/**
+	 * Actualiza la contraseña de una cuenta y la guarda codificada.
+	 *
+	 * @param user cuenta cuya contraseña se actualizará
+	 * @param newPassword contraseña nueva sin codificar
+	 */
+	public void updatePassword(User user, String newPassword) {
+		user.setPassword(passwordEncoder.encode(newPassword));
+		userRepo.save(user);
 	}
 
 }
