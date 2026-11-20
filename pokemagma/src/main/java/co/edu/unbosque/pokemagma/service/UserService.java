@@ -95,9 +95,9 @@ public class UserService implements CRUDOperation<UserDTO> {
 	 * Actualiza los datos de un usuario existente.
 	 *
 	 * @param id      identificador del usuario que se actualizará
-	 * @param newData DTO con el nuevo nombre de usuario, correo y contraseña
-	 * @return 0 si se actualizó, 1 si el nombre ya pertenece a otro usuario, 2 si
-	 *         el correo ya pertenece a otro usuario, 3 si el usuario no existe
+	 * @param newData DTO con el nuevo nombre, correo y contraseña
+	 * @return 0 si se actualizó; 1 si el nombre pertenece a otro usuario; 2 si el
+	 *         correo pertenece a otro usuario; 3 si el usuario no existe
 	 */
 	@Override
 	public int updateById(Long id, UserDTO newData) {
@@ -105,8 +105,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 		Optional<User> newFound = userRepo.findByUsername(newData.getUsername());
 		Optional<User> emailFound = userRepo.findByEmail(newData.getEmail());
 
-		if (found.isPresent() && (!newFound.isPresent() || newFound.get().getId().equals(id))
-				&& (!emailFound.isPresent() || emailFound.get().getId().equals(id))) {
+		if (found.isPresent() && !belongsToAnotherUser(newFound, id) && !belongsToAnotherUser(emailFound, id)) {
 			User temp = found.get();
 			temp.setUsername(newData.getUsername());
 			temp.setEmail(newData.getEmail());
@@ -119,11 +118,11 @@ public class UserService implements CRUDOperation<UserDTO> {
 			return 0;
 		}
 
-		if (found.isPresent() && newFound.isPresent() && !newFound.get().getId().equals(id)) {
+		if (found.isPresent() && belongsToAnotherUser(newFound, id)) {
 			return 1;
 		}
 
-		if (found.isPresent() && emailFound.isPresent() && !emailFound.get().getId().equals(id)) {
+		if (found.isPresent() && belongsToAnotherUser(emailFound, id)) {
 			return 2;
 		}
 
@@ -132,6 +131,21 @@ public class UserService implements CRUDOperation<UserDTO> {
 		} else {
 			return 3;
 		}
+	}
+	
+	/**
+	 * Comprueba si el nombre o correo encontrado pertenece a otra cuenta.
+	 *
+	 * @param found usuario encontrado por nombre o correo
+	 * @param id identificador del usuario que se está actualizando
+	 * @return true si pertenece a otro usuario; false si no existe o es el mismo
+	 */
+	public boolean belongsToAnotherUser(Optional<User> found, Long id) {
+		if (!found.isPresent()) {
+			return false;
+		}
+
+		return !found.get().getId().equals(id);
 	}
 
 	/**
@@ -291,7 +305,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 	/**
 	 * Actualiza la contraseña de una cuenta y la guarda codificada.
 	 *
-	 * @param user cuenta cuya contraseña se actualizará
+	 * @param user        cuenta cuya contraseña se actualizará
 	 * @param newPassword contraseña nueva sin codificar
 	 */
 	public void updatePassword(User user, String newPassword) {
