@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { Musicservice } from '../../services/musicservice';
 
 @Component({
   selector: 'app-startcomponent',
@@ -6,7 +7,12 @@ import { Component } from '@angular/core';
   styleUrl: './startcomponent.css',
   templateUrl: './startcomponent.html',
 })
-export class Startcomponent {
+export class Startcomponent implements OnInit {
+  private musica = inject(Musicservice);
+
+  ngOnInit(): void {
+    this.musica.reproducirCuandoSePueda('/assets/music/introductions.mp3');
+  }
   mostrarOpciones = false;
 
   cambiarOpciones(){

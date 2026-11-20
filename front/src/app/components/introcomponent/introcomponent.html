@@ -1,0 +1,81 @@
+<img
+  src="https://i.pinimg.com/1200x/f4/11/44/f41144ca503d98d02631e345293321a4.jpg"
+  class="gif-background-pokemon"
+  alt="background-gif">
+<div class="intro" [class.saliendo]="saliendo()" (click)="avanzar()">
+  <div class="escenario">
+    @if (mostrarImagen()) {
+      <img
+        class="profesor"
+        src="/assets/sprites/normal/abedul.png"
+        alt="Profesor Abedul"
+        (error)="mostrarImagen.set(false)"
+      >
+    }
+
+    @if (fase() === 'pokedex') {
+      <div class="pokedex-entrega">
+        <img
+          class="pokedex-img"
+          src="/assets/sprites/normal/pokedex.png"
+          alt="Pokédex"
+        >
+      </div>
+    }
+
+    @if (fase() === 'seleccion') {
+      <div class="maleta-escena" (click)="$event.stopPropagation()">
+        <div class="pokebolas-selector">
+          @for (op of iniciales; track op.id; let idx = $index) {
+            <button
+              type="button"
+              class="pokeball-btn"
+              [style.animation-delay]="(idx * 0.14) + 's'"
+              [class.activa]="inicialSeleccionado()?.id === op.id"
+              (click)="seleccionarInicial(op, $event)"
+              [attr.aria-label]="'Elegir a ' + op.nombre"
+            >
+              <img
+                class="pokeball-img"
+                [src]="op.pokeball"
+                [alt]="op.nombre"
+              >
+              <span class="pokeball-label">???</span>
+            </button>
+          }
+        </div>
+
+        @if (mostrarMaleta()) {
+          <img
+            class="maleta-img"
+            src="/assets/sprites/normal/bag.png"
+            alt="Maleta del Profesor Abedul"
+            (error)="mostrarMaleta.set(false)"
+          >
+        }
+      </div>
+    }
+
+    @if (mostrarPokemon() && fase() !== 'seleccion') {
+      <div
+        class="pokemon-entrega"
+        [class.pokemon-revelado]="!!inicialSeleccionado()"
+      >
+        <img
+          class="pokemon-img"
+          [src]="pokemonActualSprite()"
+          [alt]="inicialSeleccionado()?.nombre ?? 'Pokémon'"
+          (error)="mostrarPokemon.set(false)"
+        >
+      </div>
+    }
+  </div>
+
+  <div class="dialogo">
+    <span class="nombre">Prof. Abedul</span>
+    <p>{{ textoMostrado() }}</p>
+    @if (!escribiendo() && fase() !== 'seleccion') {
+      <span class="flecha">▼</span>
+    }
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<div class="juego">
+  <canvas #lienzo width="240" height="160"></canvas>
+
+  @if (dialogoActivo) {
+    <div class="dialogo">
+      <span class="dialogo-nombre">{{ dialogoActivo.nombre }}</span>
+      <p>{{ textoMostrado }}</p>
+    </div>
+  }
+</div>

@@ -26,3 +26,13 @@
   font-style: normal;
   font-display: swap;
 }
+
+.mensaje {
+  margin: 8px 0;
+  font-size: 0.8rem;
+  text-align: center;
+  color: #2e7d32;
+}
+.mensaje.error {
+  color: #c62828;
+}

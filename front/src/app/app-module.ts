@@ -10,7 +10,12 @@ import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcompon
 import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
 import { Forgottenpasswordcomponent } from './components/forgottenpasswordcomponent/forgottenpasswordcomponent';
 import { Changepasswordcomponent } from './components/changepasswordcomponent/changepasswordcomponent';
+import { Verifyemailcomponent } from './components/verifyemailcomponent/verifyemailcomponent';
 
+import { FormsModule } from '@angular/forms';
+import { provideHttpClient } from '@angular/common/http';
+import { Mapcomponent } from './components/mapcomponent/mapcomponent';
+import { Introcomponent } from './components/introcomponent/introcomponent';
 /**
  * @file app.module.ts
  * @description Módulo raíz de la aplicación Angular. Agrupa todos los componentes,
@@ -27,9 +32,12 @@ import { Changepasswordcomponent } from './components/changepasswordcomponent/ch
     Howtoplaycomponent,
     Forgottenpasswordcomponent,
     Changepasswordcomponent,
+    Verifyemailcomponent,
+    Mapcomponent,
+    Introcomponent,
   ],
-  imports: [BrowserModule, AppRoutingModule],
-  providers: [provideBrowserGlobalErrorListeners()],
+  imports: [BrowserModule, AppRoutingModule, FormsModule],
+  providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],
   bootstrap: [App],
 })
 export class AppModule {}

@@ -5,16 +5,24 @@
     alt="fondo">
 
   <div class="login-card">
-    <form class="login-form">
+    <form class="login-form" #f="ngForm" (ngSubmit)="ingresar()">
       <h2 class="login-title">Iniciar Sesión</h2>
 
-      <input id="usuario" name="usuario" type="text" placeholder="Usuario o correo electrónico">
+      <input id="usuario" name="usuario" type="text" placeholder="Nombre de usuario"
+             [(ngModel)]="usuario" required>
 
-      <input id="contrasena" name="contrasena" type="password" placeholder="Contraseña">
+      <input id="contrasena" name="contrasena" type="password" placeholder="Contraseña"
+             [(ngModel)]="contrasena" required>
 
-      <a class="link-forgot" routerLink="/forgottenpassword">Olvidé mi contraseña</a>
+      <a class="link-forgot" routerLink="/forgot-password">Olvidé mi contraseña</a>
 
-      <button type="button" class="button-login">Ingresar</button>
+      @if (mensaje) {
+        <p class="mensaje" [class.error]="esError">{{ mensaje }}</p>
+      }
+
+      <button type="submit" class="button-login" [disabled]="f.invalid || cargando">
+        Ingresar
+      </button>
 
       <p class="register-text">
         ¿No tienes cuenta?
@@ -26,4 +34,4 @@
 <div class="admin-mode">
   <button class="b-admin" routerLink="/admin">Entrar a admin</button>
 </div>
-<button class="b-volver" routerLink="/">Volver principal</button>
+<button class="b-volver" routerLink="/intro">Volver principal</button>

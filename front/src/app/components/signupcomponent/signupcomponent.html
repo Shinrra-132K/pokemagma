@@ -5,33 +5,45 @@
     alt="fondo">
 
   <div class="signup-card">
-    <form class="signup-form">
+    <form class="signup-form" #f="ngForm" (ngSubmit)="crearCuenta()">
       <h2 class="signup-title">¡Conviértete en entrenador Pokemon!</h2>
 
       <label for="usuario">Nombre de usuario</label>
-      <input id="usuario" name="usuario" type="text" placeholder="Pika_chuu">
+      <input id="usuario" name="usuario" type="text" placeholder="Pika_chuu"
+             [(ngModel)]="usuario" required>
 
       <label for="correo">Correo electrónico</label>
-      <input id="correo" name="correo" type="email" placeholder="pikachu@gmail.com">
+      <input id="correo" name="correo" type="email" placeholder="pikachu@gmail.com"
+             [(ngModel)]="correo" required email>
 
       <label for="contrasena">Contraseña</label>
-      <input id="contrasena" name="contrasena" type="password" placeholder="p1KacHHu2!">
+      <input id="contrasena" name="contrasena" type="password" placeholder="p1KacHHu2!"
+             [(ngModel)]="contrasena" required>
 
       <fieldset class="gender-group">
         <legend>Género</legend>
         <div class="gender-options">
-          <input type="radio" id="genero-mujer" name="genero" value="mujer">
+          <input type="radio" id="genero-mujer" name="genero" value="mujer"
+                 [(ngModel)]="genero" required>
           <label for="genero-mujer" title="Mujer">
             <p>Mujer</p>
           </label>
 
-          <input type="radio" id="genero-hombre" name="genero" value="hombre">
+          <input type="radio" id="genero-hombre" name="genero" value="hombre"
+                 [(ngModel)]="genero" required>
           <label for="genero-hombre" title="Hombre">
             <p>Hombre</p>
           </label>
         </div>
       </fieldset>
-      <button type="button" class="button-create">Crear cuenta</button>
+
+      @if (mensaje) {
+        <p class="mensaje" [class.error]="esError">{{ mensaje }}</p>
+      }
+
+      <button type="submit" class="button-create" [disabled]="f.invalid || cargando">
+        Crear cuenta
+      </button>
 
       <p class="login-text">
         ¿Ya tienes cuenta?
@@ -52,6 +64,5 @@
         <img src="https://archives.bulbagarden.net/media/upload/6/68/Spr_RS_Brendan.png?20061120214210" alt="Avatar de hombre">
       </div>
     </aside>
-
   </div>
 </div>

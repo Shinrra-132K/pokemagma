@@ -1,0 +1,31 @@
+<div class="login">
+  <img
+    class="login-background"
+    src="https://i.pinimg.com/1200x/2a/5b/23/2a5b23f93f5b34fe2580171018f54f98.jpg"
+    alt="fondo">
+
+  <div class="login-card">
+    <form class="login-form" #f="ngForm" (ngSubmit)="verificar()">
+      <h2 class="login-title">Verifica tu correo</h2>
+
+      <input id="correo" name="correo" type="email" placeholder="Correo electrónico"
+             [(ngModel)]="correo" required email>
+
+      <input id="codigo" name="codigo" type="text" placeholder="Código de 6 dígitos"
+             maxlength="6" pattern="\d{6}" [(ngModel)]="codigo" required>
+
+      @if (mensaje) {
+        <p class="mensaje" [class.error]="esError">{{ mensaje }}</p>
+      }
+
+      <button type="submit" class="button-login" [disabled]="f.invalid || cargando">
+        Verificar
+      </button>
+
+      <p class="register-text">
+        ¿No te llegó el código?
+        <a class="sign-up" (click)="reenviar()" style="cursor: pointer;">Reenviar</a>
+      </p>
+    </form>
+  </div>
+</div>

@@ -3,13 +3,15 @@ import { RouterModule, Routes } from '@angular/router';
 import { Startcomponent } from './components/startcomponent/startcomponent';
 import { Logincomponent } from './components/logincomponent/logincomponent';
 import { Signupcomponent } from './components/signupcomponent/signupcomponent';
-import { Admincomponent} from './components/admincomponent/admincomponent';
-import { Notfoundcomponent} from './components/notfoundcomponent/notfoundcomponent';
-import { Howtoplaycomponent } from'./components/howtoplaycomponent/howtoplaycomponent';
-import { Forgottenpasswordcomponent } from'./components/forgottenpasswordcomponent/forgottenpasswordcomponent'
-
+import { Admincomponent } from './components/admincomponent/admincomponent';
+import { Notfoundcomponent } from './components/notfoundcomponent/notfoundcomponent';
+import { Howtoplaycomponent } from './components/howtoplaycomponent/howtoplaycomponent';
+import { Forgottenpasswordcomponent } from './components/forgottenpasswordcomponent/forgottenpasswordcomponent';
 import { Changepasswordcomponent } from './components/changepasswordcomponent/changepasswordcomponent';
 
+import { Verifyemailcomponent } from './components/verifyemailcomponent/verifyemailcomponent';
+import { Mapcomponent } from './components/mapcomponent/mapcomponent';
+import { Introcomponent } from './components/introcomponent/introcomponent';
 /**
  * Tabla de rutas principales de la aplicación.
  */
@@ -17,51 +19,63 @@ const routes: Routes = [
   /*'' y 'home': Redirigen a la vista de inicio ('Startcomponent').*/
   {
     path: '',
-    component: Startcomponent
+    component: Startcomponent,
   },
   {
     path: 'change',
-    component: Changepasswordcomponent
+    component: Changepasswordcomponent,
   },
   {
     path: 'home',
-    component: Startcomponent
+    component: Startcomponent,
   },
-    /*'login': Vista de inicio de sesión de usuarios.*/
+  /*'login': Vista de inicio de sesión de usuarios.*/
   {
     path: 'login',
-    component: Logincomponent
+    component: Logincomponent,
   },
-    /*'howtoplay': Vista con las instrucciones o reglas del juego.*/
+  /*'howtoplay': Vista con las instrucciones o reglas del juego.*/
   {
     path: 'howtoplay',
-    component: Howtoplaycomponent
+    component: Howtoplaycomponent,
   },
-    /*'signup': Vista de registro de nuevos usuarios.*/
+  /*'signup': Vista de registro de nuevos usuarios.*/
   {
     path: 'signup',
-    component: Signupcomponent
+    component: Signupcomponent,
   },
-    /*'admin': Panel de administración del sistema.*/
+  {
+    path: 'verifyemail',
+    component: Verifyemailcomponent,
+  },
+  /*'admin': Panel de administración del sistema.*/
   {
     path: 'admin',
-    component: Admincomponent
+    component: Admincomponent,
   },
-    /*'forgottenpassword': Vista para enviar correo electrónico y poder reestablecer la contraseña */
+  {
+    path: 'intro',
+    component: Introcomponent
+  },
+  /*'forgottenpassword': Vista para enviar correo electrónico y poder reestablecer la contraseña */
   {
     path: 'forgottenpassword',
-    component: Forgottenpasswordcomponent
+    component: Forgottenpasswordcomponent,
   },
-    /*'notfound': Vista de error para páginas no encontradas.*/
+  /*'notfound': Vista de error para páginas no encontradas.*/
   {
     path: 'notfound',
-    component: Notfoundcomponent
+    component: Notfoundcomponent,
   },
-    /*'**': Redirige automáticamente cualquier ruta no encontrada a 'notfound'.*/
+  {
+    path: 'game',
+    component: Mapcomponent,
+  },
+  /*'**': Redirige automáticamente cualquier ruta no encontrada a 'notfound'.*/
   {
     path: '**',
-    redirectTo: 'notfound'
-  }
+    redirectTo: 'notfound',
+  },
 ];
 
 /**
@@ -71,6 +85,6 @@ const routes: Routes = [
  */
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
