@@ -1,13 +1,25 @@
 import { Component, HostListener, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+/**
+ * Representa una opción de Pokémon inicial disponible para seleccionar en el maletín.
+ */
 export interface InicialOpcion {
+  /** Número de la Pokédex nacional o regional del Pokémon. */
   id: number;
+  /** Nombre visible del Pokémon inicial. */
   nombre: string;
+  /** Ruta del sprite normal del Pokémon que se mostrará al ser elegido. */
   sprite: string;
+  /** Ruta del ícono de Pokébola mostrado en el selector. */
   pokeball: string;
 }
 
+/**
+ * Componente de introducción narrativa del juego.
+ * Gestiona los diálogos iniciales del Profesor Abedul, la entrega de la Pokédex,
+ * la selección de uno de los tres Pokémon iniciales y la transición hacia `/game`.
+ */
 @Component({
   selector: 'app-introcomponent',
   standalone: false,
@@ -15,8 +27,10 @@ export interface InicialOpcion {
   styleUrl: './introcomponent.css'
 })
 export class Introcomponent implements OnInit, OnDestroy {
+  /** Servicio de enrutamiento para redirigir al escenario principal al finalizar la intro. */
   private router = inject(Router);
 
+  /** Diálogos introductorios del Profesor Abedul antes de entregar la Pokédex. */
   lineasAntesPokedex: string[] = [
     '¡Hola! ¡Bienvenido al mundo de los Pokémon!',
     'Me llamo Abedul, aunque todos me conocen como el Profesor Abedul.',
@@ -27,10 +41,16 @@ export class Introcomponent implements OnInit, OnDestroy {
     'Yo me dedico a investigar cómo viven y cómo se relacionan con las personas.'
   ];
 
+  /** Texto mostrado cuando el profesor entrega la Pokédex. */
   lineaPokedex = 'Toma, esta es una Pokédex. Registrará automáticamente los datos de los Pokémon que veas o captures.';
+
+  /** Texto mostrado durante la selección de Pokébolas desde el maletín. */
   lineaPedirInicial = 'Ahora, dentro de este maletín tengo tres Pokébolas. ¡Elige al Pokémon que te acompañará!';
+
+  /** Última línea de diálogo antes de iniciar la transición de salida hacia `/game`. */
   lineaDespedida = '¡Muchas aventuras pokemón te están esperando! ¡Mucha suerte!';
 
+  /** Catálogo de Pokémon iniciales (Treecko, Torchic y Mudkip) disponibles para elegir. */
   iniciales: InicialOpcion[] = [
     {
       id: 252,
@@ -52,31 +72,67 @@ export class Introcomponent implements OnInit, OnDestroy {
     }
   ];
 
-  /** 'previo' -> 'pokedex' -> 'seleccion' -> 'confirmado' -> 'despedida' */
+  /**
+   * Estado actual de la secuencia de introducción:
+   * `'previo' -> 'pokedex' -> 'seleccion' -> 'confirmado' -> 'despedida'`.
+   */
   fase = signal<'previo' | 'pokedex' | 'seleccion' | 'confirmado' | 'despedida'>('previo');
+
+  /** Índice de la línea actual dentro de `lineasAntesPokedex` (cuando `fase` es `'previo'`). */
   indice = signal(0);
+
+  /** Fragmento o línea completa de texto que se renderiza en el cuadro de diálogo. */
   textoMostrado = signal('');
+
+  /** Indica si actualmente está corriendo el efecto de escritura letra por letra. */
   escribiendo = signal(false);
+
+  /** Controla si se muestra el sprite del Profesor Abedul (se oculta si falla la carga). */
   mostrarImagen = signal(true);
+
+  /** Controla si se muestra el sprite del Pokémon en escena. */
   mostrarPokemon = signal(true);
+
+  /** Controla si se muestra la imagen del maletín en la fase de selección. */
   mostrarMaleta = signal(true);
+
+  /** Activa la animación de desvanecimiento de salida antes de navegar a `/game`. */
   saliendo = signal(false);
 
+  /** Almacena el Pokémon inicial elegido por el jugador, o `null` si aún no se ha elegido. */
   inicialSeleccionado = signal<InicialOpcion | null>(null);
+
+  /** Ruta del sprite del Pokémon mostrado actualmente (inicialmente un sprite base, luego el elegido). */
   pokemonActualSprite = signal('/assets/sprites/normal/001.png');
 
+  /** Identificador del intervalo usado para el efecto de máquina de escribir. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
+
+  /** Identificador del temporizador que ejecuta la navegación tras la animación de salida. */
   private salida: ReturnType<typeof setTimeout> | undefined;
 
+  /**
+   * Inicializa el componente comenzando a escribir la primera línea introductoria.
+   */
   ngOnInit(): void {
     this.escribirTexto(this.lineasAntesPokedex[0]);
   }
 
+  /**
+   * Limpia intervalos y temporizadores activos al destruir el componente para evitar fugas de memoria.
+   */
   ngOnDestroy(): void {
     clearInterval(this.temporizador);
     clearTimeout(this.salida);
   }
 
+  /**
+   * Escucha pulsaciones de teclas a nivel de `window`.
+   * Permite avanzar con `x` o `Espacio` (ignorando repetición al mantener presionada),
+   * excepto durante la fase `'seleccion'`, donde la elección se realiza en una Pokébola.
+   *
+   * @param e Evento de teclado capturado.
+   */
   @HostListener('window:keydown', ['$event'])
   alPresionar(e: KeyboardEvent): void {
     if ((e.key === 'x' || e.key === ' ') && !e.repeat) {
@@ -88,6 +144,13 @@ export class Introcomponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Registra el Pokémon inicial seleccionado, actualiza su sprite en escena,
+   * cambia a la fase `'confirmado'` y muestra el mensaje de confirmación.
+   *
+   * @param opcion Opción de Pokémon inicial elegida por el jugador.
+   * @param event Evento de clic para detener la propagación hacia el contenedor padre.
+   */
   seleccionarInicial(opcion: InicialOpcion, event: MouseEvent): void {
     event.stopPropagation();
     if (this.fase() !== 'seleccion') return;
@@ -99,6 +162,11 @@ export class Introcomponent implements OnInit, OnDestroy {
     this.escribirTexto(`¡Has elegido a ${opcion.nombre}! Es un gran compañero.`);
   }
 
+  /**
+   * Avanza el flujo de la introducción.
+   * Si el texto aún se está escribiendo, lo completa de inmediato;
+   * de lo contrario, pasa a la siguiente línea o cambia de `fase` hasta navegar a `/game`.
+   */
   avanzar(): void {
     if (this.saliendo()) return;
 
@@ -147,6 +215,12 @@ export class Introcomponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Obtiene el texto completo correspondiente a la `fase` activa.
+   * Útil para autocompletar el diálogo si el usuario interrumpe la animación de escritura.
+   *
+   * @returns La cadena esperada para la fase actual o `null` si no aplica.
+   */
   private obtenerTextoObjetivoActual(): string | null {
     switch (this.fase()) {
       case 'previo':
@@ -164,6 +238,12 @@ export class Introcomponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Inicia el efecto progresivo de máquina de escribir para una línea de texto.
+   * Cancela cualquier intervalo previo antes de comenzar.
+   *
+   * @param linea Texto completo que se irá revelando carácter por carácter.
+   */
   private escribirTexto(linea: string): void {
     clearInterval(this.temporizador);
     this.textoMostrado.set('');
