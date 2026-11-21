@@ -113,7 +113,7 @@ public class PasswordResetService {
 	@Transactional
 	public int resetPassword(String email, String code, String newPassword) throws PasswordNotValidException {
 		if (newPassword == null
-				|| !newPassword.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,}")) {
+				|| !newPassword.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,15}")) {
 			throw new PasswordNotValidException();
 		}
 
