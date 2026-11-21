@@ -15,7 +15,13 @@ import com.google.gson.Strictness;
 
 import co.edu.unbosque.pokemagma.exception.ExternalServiceException;
 
-/** Cliente HTTP común para consultar y procesar respuestas JSON externas. */
+/**
+ * Agrupa operaciones HTTP GET usadas para consultar servicios externos que
+ * devuelven respuestas JSON.
+ *
+ * Ofrece una operación que valida la respuesta y la procesa como JSON, y otra
+ * que devuelve directamente el cuerpo recibido
+ */
 public class ExternalHTTPRequestHandler {
 
 	/**
@@ -32,12 +38,13 @@ public class ExternalHTTPRequestHandler {
 	}
 
 	/**
-	 * Ejecuta una solicitud GET a un servicio JSON.
+	 * Envía una solicitud GET y devuelve el cuerpo de la respuesta.
 	 *
-	 * @param url dirección que se consulta
-	 * @return cuerpo JSON formateado
-	 * @throws ExternalServiceException si falla la conexión o el servicio responde
-	 *                                  con error
+	 * @param url dirección del servicio externo
+	 * @return cuerpo de la respuesta cuando el estado HTTP es exitoso
+	 * @throws IOException          si ocurre un error de conexión o el servicio
+	 *                              devuelve un estado HTTP fuera del rango 200–299
+	 * @throws InterruptedException si se interrumpe la solicitud
 	 */
 	public static String doGetAndParse(String url) throws ExternalServiceException {
 		try {

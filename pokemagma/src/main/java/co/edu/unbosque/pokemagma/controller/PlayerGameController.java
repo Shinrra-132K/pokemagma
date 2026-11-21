@@ -27,6 +27,7 @@ import co.edu.unbosque.pokemagma.exception.ResourceNotFoundException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.service.PlayerGameService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * Controlador para las acciones principales de juego del jugador.
@@ -34,6 +35,7 @@ import co.edu.unbosque.pokemagma.service.UserService;
  * El jugador se obtiene del contexto de seguridad mediante el JWT; el cliente
  * no puede indicar el identificador de otra cuenta.
  */
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/player/game")
 public class PlayerGameController {

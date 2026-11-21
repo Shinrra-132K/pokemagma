@@ -17,6 +17,7 @@ import co.edu.unbosque.pokemagma.exception.ResourceNotFoundException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.service.PlayerProfileService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * Controlador para consultar y modificar el perfil del jugador autenticado.
@@ -26,6 +27,7 @@ import co.edu.unbosque.pokemagma.service.UserService;
  */
 @RestController
 @RequestMapping("/player/profile")
+@SecurityRequirement(name = "bearerAuth")
 public class PlayerProfileController {
 
 	private final PlayerProfileService profileService;

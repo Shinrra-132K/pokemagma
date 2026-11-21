@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.pokemagma.exception.ResourceNotFoundException;
 import co.edu.unbosque.pokemagma.service.PresenceService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * Recibe los heartbeats de actividad de los jugadores autenticados.
  */
 @RestController
 @RequestMapping("/player/presence")
+@SecurityRequirement(name = "bearerAuth")
 public class PlayerPresenceController {
 
 	/** Servicio que registra la actividad de los jugadores. */
