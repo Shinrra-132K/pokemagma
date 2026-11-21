@@ -14,12 +14,14 @@ import co.edu.unbosque.pokemagma.exception.ResourceNotFoundException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.service.PokedexEntryService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * Controlador de consulta de la Pokédex del jugador autenticado.
  */
 @RestController
 @RequestMapping("/player/pokedex")
+@SecurityRequirement(name = "bearerAuth")
 public class PlayerPokedexController {
 
 	private final PokedexEntryService pokedexService;

@@ -29,3 +29,4 @@ yarn-error.log*
 pokemagma/src/main/resources/application.properties
 *.properties
 pokemagma/src/main/resources/application.properties
+pokemagma/src/main/resources/application.properties

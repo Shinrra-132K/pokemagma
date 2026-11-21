@@ -15,6 +15,7 @@ import co.edu.unbosque.pokemagma.dto.UserPresenceDTO;
 import co.edu.unbosque.pokemagma.service.GameEventService;
 import co.edu.unbosque.pokemagma.service.PresenceService;
 import co.edu.unbosque.pokemagma.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * Controlador de consulta de auditoría para el administrador.
@@ -24,6 +25,7 @@ import co.edu.unbosque.pokemagma.service.UserService;
  */
 @RestController
 @RequestMapping("/admin/audit")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminAuditController {
 
 	private final GameEventService eventService;
