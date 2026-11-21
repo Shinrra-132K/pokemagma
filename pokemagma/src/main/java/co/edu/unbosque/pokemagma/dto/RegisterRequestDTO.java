@@ -3,6 +3,7 @@ package co.edu.unbosque.pokemagma.dto;
 import java.util.Objects;
 
 import co.edu.unbosque.pokemagma.model.PlayerProfile.Gender;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * DTO para recibir los datos necesarios al registrar una cuenta de jugador.
@@ -30,6 +31,7 @@ public class RegisterRequestDTO {
 	/**
 	 * Género elegido para determinar la apariencia inicial del entrenador.
 	 */
+	@NotNull
 	private Gender gender;
 
 	/** Constructor vacío requerido para recibir el DTO desde la API. */

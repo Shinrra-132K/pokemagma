@@ -2,35 +2,79 @@
   <img
     class="signup-background"
     src="https://i.pinimg.com/1200x/2a/5b/23/2a5b23f93f5b34fe2580171018f54f98.jpg"
-    alt="fondo">
+    alt="Fondo">
 
   <div class="signup-card">
-    <form class="signup-form" #f="ngForm" (ngSubmit)="crearCuenta()">
-      <h2 class="signup-title">¡Conviértete en entrenador Pokemon!</h2>
+    <form
+      class="signup-form"
+      #f="ngForm"
+      (ngSubmit)="crearCuenta()">
+
+      <h2 class="signup-title">¡Conviértete en entrenador Pokémon!</h2>
 
       <label for="usuario">Nombre de usuario</label>
-      <input id="usuario" name="usuario" type="text" placeholder="Pika_chuu"
-             [(ngModel)]="usuario" required>
+      <input
+        id="usuario"
+        name="usuario"
+        type="text"
+        placeholder="Pika_chuu123456"
+        minlength="15"
+        maxlength="15"
+        [(ngModel)]="usuario"
+        required>
 
       <label for="correo">Correo electrónico</label>
-      <input id="correo" name="correo" type="email" placeholder="pikachu@gmail.com"
-             [(ngModel)]="correo" required email>
+      <input
+        id="correo"
+        name="correo"
+        type="email"
+        placeholder="pikachu@gmail.com"
+        [(ngModel)]="correo"
+        required
+        email>
 
       <label for="contrasena">Contraseña</label>
-      <input id="contrasena" name="contrasena" type="password" placeholder="p1KacHHu2!"
-             [(ngModel)]="contrasena" required>
+      <input
+        id="contrasena"
+        name="contrasena"
+        type="password"
+        placeholder="P1kachu123!"
+        minlength="8"
+        maxlength="15"
+        [(ngModel)]="contrasena"
+        required>
+
+      <label for="confirmarContrasena">Confirmar contraseña</label>
+      <input
+        id="confirmarContrasena"
+        name="confirmarContrasena"
+        type="password"
+        placeholder="Repite tu contraseña"
+        [(ngModel)]="confirmarContrasena"
+        required>
 
       <fieldset class="gender-group">
         <legend>Género</legend>
+
         <div class="gender-options">
-          <input type="radio" id="genero-mujer" name="genero" value="mujer"
-                 [(ngModel)]="genero" required>
+          <input
+            type="radio"
+            id="genero-mujer"
+            name="genero"
+            value="mujer"
+            [(ngModel)]="genero"
+            required>
           <label for="genero-mujer" title="Mujer">
             <p>Mujer</p>
           </label>
 
-          <input type="radio" id="genero-hombre" name="genero" value="hombre"
-                 [(ngModel)]="genero" required>
+          <input
+            type="radio"
+            id="genero-hombre"
+            name="genero"
+            value="hombre"
+            [(ngModel)]="genero"
+            required>
           <label for="genero-hombre" title="Hombre">
             <p>Hombre</p>
           </label>
@@ -38,11 +82,16 @@
       </fieldset>
 
       @if (mensaje) {
-        <p class="mensaje" [class.error]="esError">{{ mensaje }}</p>
+        <p class="mensaje" [class.error]="esError">
+          {{ mensaje }}
+        </p>
       }
 
-      <button type="submit" class="button-create" [disabled]="f.invalid || cargando">
-        Crear cuenta
+      <button
+        type="submit"
+        class="button-create"
+        [disabled]="f.invalid || cargando">
+        {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
       </button>
 
       <p class="login-text">
@@ -57,11 +106,11 @@
       </div>
 
       <div class="avatar avatar-mujer">
-        <img src="https://archives.bulbagarden.net/media/upload/3/38/Spr_RS_May.png?20061120214202" alt="Avatar de mujer">
+        <img src="/assets/sprites/normal/may.png" alt="Avatar de mujer">
       </div>
 
       <div class="avatar avatar-hombre">
-        <img src="https://archives.bulbagarden.net/media/upload/6/68/Spr_RS_Brendan.png?20061120214210" alt="Avatar de hombre">
+        <img src="/assets/sprites/normal/brendan.png" alt="Avatar de hombre">
       </div>
     </aside>
   </div>
