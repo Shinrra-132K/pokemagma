@@ -3,6 +3,10 @@ import { Authservice } from '../../services/authservice';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
+/**
+ * Gestiona el formulario para cambiar la contraseña usando el correo
+ * y el código de recuperación.
+ */
 @Component({
   selector: 'app-changepasswordcomponent',
   standalone: false,
@@ -10,23 +14,50 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './changepasswordcomponent.html',
 })
 export class Changepasswordcomponent implements OnInit {
+  /** Servicio que realiza las solicitudes de autenticación al back. */
   private authservice = inject(Authservice);
+
+  /** Ruta activa, usada para leer el correo enviado desde la pantalla anterior. */
   private route = inject(ActivatedRoute);
+
+  /** Servicio para navegar a otra ruta después de cambiar la contraseña. */
   private router = inject(Router);
 
+  /** Correo asociado a la solicitud de recuperación. */
   correo = '';
+
+  /** Código de recuperación recibido por correo. */
   codigo = '';
+
+  /** Nueva contraseña que se enviará al back. */
   nuevaContrasena = '';
+
+  /** Confirmación de la nueva contraseña para validarla en el formulario. */
   confirmarContrasena = '';
 
+  /** Mensaje informativo o de error que se muestra en la pantalla. */
   mensaje = '';
+
+  /** Indica si el mensaje mostrado corresponde a un error. */
   esError = false;
+
+  /** Indica si hay una solicitud de cambio de contraseña en curso. */
   cargando = false;
 
+  /**
+   * Lee el correo enviado como parámetro de consulta en la ruta.
+   * Si no existe, asigna una cadena vacía.
+   */
   ngOnInit(): void {
     this.correo = this.route.snapshot.queryParamMap.get('correo') ?? '';
   }
 
+  /**
+   * Valida que las contraseñas coincidan y cumplan los requisitos.
+   * Envía el correo, el código y la contraseña nueva al back.
+   * Si el cambio es exitoso, muestra la respuesta y navega al login;
+   * si ocurre un error, muestra el mensaje correspondiente.
+   */
   cambiarContrasena(): void {
     this.mensaje = '';
     this.esError = false;
