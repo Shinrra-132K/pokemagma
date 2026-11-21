@@ -289,7 +289,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 		}
 
 		if (password == null
-				|| !password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,}")) {
+				|| !password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" + "(?=.*[^\\p{L}\\p{N}\\s]).{8,15}")) {
 			throw new PasswordNotValidException();
 		}
 	}

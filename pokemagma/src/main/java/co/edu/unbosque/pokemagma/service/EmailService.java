@@ -10,7 +10,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 /**
- * Envia correos electronicos a las cuentas del juego
+ * Construye y envía correos relacionados con las cuentas de Pokemagma,
+ * como verificación de correo y recuperación de contraseña.
  */
 @Service
 public class EmailService {
@@ -33,6 +34,13 @@ public class EmailService {
 		this.mailSender = mailSender;
 	}
 
+	/**
+     * Envía al destinatario el código temporal para verificar su correo.
+     *
+     * @param to dirección de correo del destinatario
+     * @param username nombre de usuario que se muestra en el mensaje
+     * @param code código de verificación generado para la cuenta
+     */
 	public void sendVerificationCode(String to, String username, String code) {
 		MimeMessage message = mailSender.createMimeMessage();
 
@@ -132,12 +140,12 @@ public class EmailService {
 	}
 
 	/**
-	 * Envía el código de restablecimiento de contraseña.
-	 *
-	 * @param to       correo del destinatario
-	 * @param username nombre del usuario
-	 * @param code     código temporal
-	 */
+     * Envía al destinatario el código temporal para restablecer su contraseña.
+     *
+     * @param to dirección de correo asociada a la cuenta
+     * @param username nombre de usuario que se muestra en el mensaje
+     * @param code código de recuperación generado
+     */
 	public void sendPasswordResetCode(String to, String username, String code) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(from);

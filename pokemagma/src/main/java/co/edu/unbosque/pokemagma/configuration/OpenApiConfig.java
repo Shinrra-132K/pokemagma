@@ -8,9 +8,20 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
+/**
+ * Configura la documentación OpenAPI de la API Pokemagma.
+ *
+ * Define el título, la versión, la descripción general y el esquema Bearer
+ * JWT que Swagger UI utiliza para autorizar solicitudes a rutas protegidas
+ */
 @Configuration
 public class OpenApiConfig {
 
+	/**
+     * Construye la definición OpenAPI de la aplicación.
+     *
+     * @return definición OpenAPI con información general y autenticación JWT
+     */
 	@Bean
 	public OpenAPI customOpenAPI() {
 		SecurityScheme bearerScheme = new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer")

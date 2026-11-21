@@ -10,11 +10,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
 
+/**
+ * Inicializa datos necesarios para la aplicación al arrancar.
+ *
+ * Comprueba si existe la cuenta administrativa configurada y, si no existe,
+ * la crea con el rol ADMIN y la contraseña codificada mediante el
+ * {@link PasswordEncoder} de Spring Security
+ */
 @Configuration
 public class LoadDatabase {
 	
 	private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 	
+	/**
+     * Crea la cuenta administrativa inicial cuando todavía no está registrada.
+     *
+     * @param userRepository repositorio para consultar y guardar cuentas
+     * @param passwordEncoder codificador usado para proteger la contraseña
+     * @return tarea que Spring ejecuta al iniciar la aplicación
+     */
 	@Bean
 	CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		
