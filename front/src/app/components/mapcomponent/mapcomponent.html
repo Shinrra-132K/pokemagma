@@ -1,10 +1,23 @@
-<div class="juego">
-  <canvas #lienzo width="240" height="160"></canvas>
+<div class="escenario-pantalla">
+  <div class="juego">
+    <canvas #lienzo width="240" height="160"></canvas>
 
-  @if (dialogoActivo) {
-    <div class="dialogo">
-      <span class="dialogo-nombre">{{ dialogoActivo.nombre }}</span>
-      <p>{{ textoMostrado }}</p>
-    </div>
-  }
+    <app-wildencountercomponent
+      [pokemon]="pokemonSalvaje"
+      (accionElegida)="alElegirAccionEncuentro($event)"
+    />
+
+    <app-bagcomponent
+      [abierta]="mochilaAbierta"
+      (objetoSeleccionado)="alSeleccionarObjetoMochila($event)"
+      (cerrar)="alCerrarMochila()"
+    />
+
+    @if (dialogoActivo) {
+      <div class="dialogo">
+        <span class="dialogo-nombre">{{ dialogoActivo.nombre }}</span>
+        <p>{{ textoMostrado }}</p>
+      </div>
+    }
+  </div>
 </div>

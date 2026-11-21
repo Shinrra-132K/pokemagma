@@ -1,0 +1,61 @@
+@if (pokemon) {
+  <section class="encuentro-overlay" aria-label="Encuentro Pokémon salvaje">
+    <div class="escena-encuentro">
+      <img
+        src="https://i.pinimg.com/736x/b7/b9/c9/b7b9c92af134f983b726a75519bbcd8e.jpg"
+        class="gif-background-pokemon"
+        alt="background-gif"
+      />
+
+      <div class="hud-rival">
+        <div class="hud-cabecera">
+          <span class="pokemon-nombre">{{ pokemon.nombre }}</span>
+          <span class="pokemon-nivel">Nv. {{ pokemon.nivel }}</span>
+        </div>
+
+        <div class="barra-hp-contenedor" aria-label="Vida del Pokémon">
+          <span class="etiqueta-hp">HP</span>
+          <div class="barra-hp-fondo">
+            <div
+              class="barra-hp-relleno"
+              [class]="obtenerClaseHp()"
+              [style.width.%]="obtenerPorcentajeHp()"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="zona-rival">
+        <img
+          class="sprite-rival"
+          [src]="obtenerSpritePokemon()"
+          [alt]="pokemon.nombre"
+        />
+        <div class="sombra-rival"></div>
+      </div>
+
+      <div class="panel-inferior">
+        <div class="caja-dialogo">
+          <p class="texto-dialogo">{{ textoDialogo() }}</p>
+        </div>
+
+        @if (mostrarOpciones()) {
+          <nav class="menu-opciones" aria-label="Opciones de encuentro">
+            @for (item of accionesMenu; track item.accion; let i = $index) {
+              <button
+                type="button"
+                class="opcion-btn"
+                [class.seleccionada]="i === indiceSeleccionado()"
+                (mouseenter)="indiceSeleccionado.set(i)"
+                (click)="elegirAccion(item.accion)"
+              >
+                <span class="flecha">▶</span>
+                <span>{{ item.etiqueta }}</span>
+              </button>
+            }
+          </nav>
+        }
+      </div>
+    </div>
+  </section>
+}

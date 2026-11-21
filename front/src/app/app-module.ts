@@ -16,6 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { Mapcomponent } from './components/mapcomponent/mapcomponent';
 import { Introcomponent } from './components/introcomponent/introcomponent';
+import { Wildencountercomponent } from './components/wildencountercomponent/wildencountercomponent';
+import { Bagcomponent } from './components/bagcomponent/bagcomponent';
 /**
  * @file app.module.ts
  * @description Módulo raíz de la aplicación Angular. Agrupa todos los componentes,
@@ -35,6 +37,8 @@ import { Introcomponent } from './components/introcomponent/introcomponent';
     Verifyemailcomponent,
     Mapcomponent,
     Introcomponent,
+    Wildencountercomponent,
+    Bagcomponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],
