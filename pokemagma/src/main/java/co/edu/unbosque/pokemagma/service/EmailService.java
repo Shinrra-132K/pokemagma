@@ -10,8 +10,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 /**
- * Construye y envía correos relacionados con las cuentas de Pokemagma,
- * como verificación de correo y recuperación de contraseña.
+ * Construye y envía correos relacionados con las cuentas de Pokemagma, como
+ * verificación de correo y recuperación de contraseña.
  */
 @Service
 public class EmailService {
@@ -35,12 +35,12 @@ public class EmailService {
 	}
 
 	/**
-     * Envía al destinatario el código temporal para verificar su correo.
-     *
-     * @param to dirección de correo del destinatario
-     * @param username nombre de usuario que se muestra en el mensaje
-     * @param code código de verificación generado para la cuenta
-     */
+	 * Envía al destinatario el código temporal para verificar su correo.
+	 *
+	 * @param to       dirección de correo del destinatario
+	 * @param username nombre de usuario que se muestra en el mensaje
+	 * @param code     código de verificación generado para la cuenta
+	 */
 	public void sendVerificationCode(String to, String username, String code) {
 		MimeMessage message = mailSender.createMimeMessage();
 
@@ -130,6 +130,16 @@ public class EmailService {
 		}
 	}
 
+	/**
+	 * Escapa los caracteres especiales de HTML en un valor de texto.
+	 *
+	 * Convierte caracteres como {@code &}, {@code <}, {@code >}, comillas dobles y
+	 * comillas simples en sus entidades HTML, para que se muestren como texto y no
+	 * se interpreten como etiquetas o atributos.
+	 *
+	 * @param value texto que se insertará en el contenido HTML; puede ser code = null
+	 * @return texto escapado, o una cadena vacía si el valor es {@code null}
+	 */
 	private String escapeHtml(String value) {
 		if (value == null) {
 			return "";
@@ -140,12 +150,12 @@ public class EmailService {
 	}
 
 	/**
-     * Envía al destinatario el código temporal para restablecer su contraseña.
-     *
-     * @param to dirección de correo asociada a la cuenta
-     * @param username nombre de usuario que se muestra en el mensaje
-     * @param code código de recuperación generado
-     */
+	 * Envía al destinatario el código temporal para restablecer su contraseña.
+	 *
+	 * @param to       dirección de correo asociada a la cuenta
+	 * @param username nombre de usuario que se muestra en el mensaje
+	 * @param code     código de recuperación generado
+	 */
 	public void sendPasswordResetCode(String to, String username, String code) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(from);
