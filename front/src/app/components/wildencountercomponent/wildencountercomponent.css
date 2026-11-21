@@ -1,0 +1,232 @@
+.encuentro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.escena-encuentro {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  font-family: pixelise, "sans-serif";
+}
+
+.gif-background-pokemon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.75);
+  image-rendering: pixelated;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hud-rival {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  margin: 18px 0 0 20px;
+  padding: 10px 14px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8f9e8;
+  color: #1f2421;
+  border: 3px solid #2b302c;
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 #2b302c;
+}
+
+.hud-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.pokemon-nombre {
+  font-weight: 700;
+  font-size: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pokemon-nivel {
+  font-weight: 700;
+  font-size: 18px;
+  color: #3b423c;
+}
+
+.barra-hp-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: #393e3a;
+  border: 2px solid #232724;
+  border-radius: 2px;
+}
+
+.etiqueta-hp {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f7c948;
+  letter-spacing: 0.5px;
+}
+
+.barra-hp-fondo {
+  flex: 1;
+  height: 10px;
+  background: #1d211e;
+  border: 2px solid #141715;
+  overflow: hidden;
+}
+
+.barra-hp-relleno {
+  height: 100%;
+  transition: width 0.25s steps(8), background-color 0.2s ease;
+}
+
+.hp-alta {
+  background-color: #48c75c;
+}
+
+.hp-media {
+  background-color: #ecc94b;
+}
+
+.hp-baja {
+  background-color: #e53e3e;
+}
+
+.zona-rival {
+  position: relative;
+  z-index: 2;
+  align-self: flex-end;
+  margin-right: 16%;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sprite-rival {
+  position: relative;
+  z-index: 2;
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.sombra-rival {
+  width: 104px;
+  height: 22px;
+  margin-top: -12px;
+  border-radius: 50%;
+  background: rgba(20, 46, 28, 0.38);
+}
+
+.panel-inferior {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  background: #23272e;
+  border-top: 3px solid #14171c;
+}
+
+.caja-dialogo {
+  background: #fafaf0;
+  color: #1c1f24;
+  border: 3px solid #4a525d;
+  border-radius: 4px;
+  padding: 14px 16px;
+  min-height: 92px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.texto-dialogo {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.menu-opciones {
+  background: #fafaf0;
+  border: 3px solid #4a525d;
+  border-radius: 4px;
+  padding: 3px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.opcion-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 2px 3px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #1c1f24;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.flecha {
+  opacity: 0;
+  color: #c83e37;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.opcion-btn.seleccionada,
+.opcion-btn:hover,
+.opcion-btn:focus-visible {
+  background: #ececd9;
+  outline: none;
+}
+
+.opcion-btn.seleccionada .flecha,
+.opcion-btn:hover .flecha,
+.opcion-btn:focus-visible .flecha {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+@media (max-width: 600px) {
+  .escena-encuentro {
+    width: 100%;
+    max-height: 92vh;
+  }
+
+  .panel-inferior {
+    grid-template-columns: 1fr;
+  }
+
+  .sprite-rival {
+    width: 88px;
+    height: 88px;
+  }
+}

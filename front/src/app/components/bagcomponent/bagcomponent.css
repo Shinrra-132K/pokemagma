@@ -1,0 +1,225 @@
+.mochila-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: pixelise, "sans-serif";
+  user-select: none;
+
+  --franja-a: #4f98be;
+  --franja-b: #2e6f94;
+  --borde-oscuro: #242930;
+  --barra-dorada: #f5cb68;
+  --borde-dorado: #b88328;
+  --panel-crema: #f7e6ad;
+  --flecha-roja: #d6362e;
+}
+
+.mochila-overlay.tema-emerald {
+  --franja-a: #c676b2;
+  --franja-b: #9b5089;
+}
+
+.mochila-pantalla {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 45.5% 54.5%;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--franja-a) 0px,
+    var(--franja-a) 4px,
+    var(--franja-b) 4px,
+    var(--franja-b) 8px
+  );
+  image-rendering: pixelated;
+}
+
+.columna-izquierda {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 0 10px 10px;
+}
+
+.zona-superior-izq {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 0 12px;
+}
+
+.imagen-mochila {
+  width: clamp(92px, 18vw, 152px);
+  height: auto;
+  max-height: 56%;
+  margin-top: 20%;
+  margin-bottom: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.indicadores-bolsillo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.punto-bolsillo {
+  width: 8px;
+  height: 8px;
+  background: var(--barra-dorada);
+  border: 2px solid var(--borde-oscuro);
+}
+
+.punto-bolsillo.activo {
+  background: var(--flecha-roja);
+}
+
+.barra-bolsillo {
+  position: relative;
+  width: 82%;
+  max-width: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 44px;
+  margin-top: 0;
+  padding: 0 10px;
+  background: var(--barra-dorada);
+  border: 3px solid var(--borde-oscuro);
+  border-radius: 6px;
+  box-shadow: inset 0 -3px 0 var(--borde-dorado);
+}
+
+.emblema-bolsillo {
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e8b84b 45%, #b88328 100%);
+  border: 2px solid var(--borde-oscuro);
+}
+
+.flecha-bolsillo {
+  background: transparent;
+  border: none;
+  color: var(--flecha-roja);
+  font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.titulo-bolsillo {
+  flex: 1;
+  text-align: center;
+  color: #1e2228;
+  font-size: clamp(0.95rem, 2vw, 3.45rem);
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caja-descripcion {
+  height: 33%;
+  min-height: 96px;
+  background: #f9f9f3;
+  border: 3px solid #6a707a;
+  border-radius: 10px 10px 4px 4px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.texto-descripcion {
+  margin: 0;
+  color: #20242a;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.panel-derecho {
+  padding: 10px 12px 10px 6px;
+  display: flex;
+}
+
+.panel-crema {
+  width: 100%;
+  height: 100%;
+  background: var(--panel-crema);
+  border: 4px solid var(--borde-oscuro);
+  box-shadow: inset 0 0 0 4px var(--barra-dorada);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.fila-mochila {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  color: #1e2228;
+  font-size: clamp(0.95rem, 2vw, 3.45rem);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flecha-fila {
+  opacity: 0;
+  color: var(--flecha-roja);
+  font-size: 0.85em;
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+.nombre-objeto {
+  flex: 1;
+}
+
+.cantidad-objeto {
+  color: #3a4048;
+  font-weight: 800;
+}
+
+.fila-cerrar {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fila-mochila.fila-activa,
+.fila-mochila:hover,
+.fila-mochila:focus-visible {
+  background: rgba(255, 250, 224, 0.7);
+  border-color: #e06a5a;
+  outline: none;
+}
+
+.fila-mochila.fila-activa .flecha-fila,
+.fila-mochila:hover .flecha-fila,
+.fila-mochila:focus-visible .flecha-fila {
+  opacity: 1;
+  transform: translateX(2px);
+}

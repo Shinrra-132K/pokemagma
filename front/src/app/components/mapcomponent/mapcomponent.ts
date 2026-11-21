@@ -2,6 +2,8 @@ import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChi
 import { Mapaservice } from '../../services/mapaservice';
 import { Mapadatosmodel } from '../../models/mapadatosmodel';
 import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel } from '../../models/npcmodel';
+import { EncounterAction, Wildpokemonmodel } from '../../models/wildpokemonmodel';
+import { BagItemModel } from '../../models/bagmodel';
 
 /**
  * Componente principal del mapa jugable estilo Game Boy Advance.
@@ -30,9 +32,6 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
   /** Alto lógico del lienzo estilo GBA en píxeles (escalado posteriormente por CSS). */
   private readonly ALTO = 160;
-
-  /** Duración en milisegundos de cada paso entre celdas adyacentes. */
-  private readonly DURACION_PASO = 250;
 
   /** Ruta del spritesheet del personaje principal. */
   private readonly RUTA_SPRITE_JUGADOR = '/assets/sprites/normal/men.png';
@@ -64,6 +63,21 @@ export class Mapcomponent implements OnInit, OnDestroy {
   /** Temporizador para el efecto de máquina de escribir en diálogos. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
+  /** Pokémon salvaje activo en pantalla; cuando no es `null`, pausa el movimiento en el mapa. */
+  pokemonSalvaje: Wildpokemonmodel | null = null;
+
+  /** Duración en ms de cada paso al caminar normal. */
+  private readonly DURACION_PASO_NORMAL = 250;
+
+  /** Duración en ms de cada paso al mantener presionada la tecla Z. */
+  private readonly DURACION_PASO_CORRER = 120;
+
+  /** Indica si el jugador está corriendo con la tecla Z. */
+  private corriendo = false;
+
+  /** Controla si la mochila está abierta en pantalla. */
+  mochilaAbierta = false;
+
   /** Estado actual del jugador en la cuadrícula del mapa. */
   jugador: Jugadormodel = {
     col: 128,
@@ -71,7 +85,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     direccion: 'abajo',
     moviendo: false,
     progreso: 0,
-    paso: 0
+    paso: 0,
   };
 
   /** NPCs presentes en el mapa con los que el jugador puede interactuar. */
@@ -87,14 +101,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private indiceLinea = 0;
 
   /**
-   * Inicializa el contexto del lienzo, carga la hoja de sprites del jugador (`/assets/sprites/normal/men.png`)
+   * Inicializa el contexto del lienzo, carga la hoja de sprites del jugador
    * y los NPCs, y arranca el bucle del juego una vez cargados el mapa y su imagen de fondo.
    */
   ngOnInit(): void {
     this.ctx = this.lienzo.nativeElement.getContext('2d')!;
     this.cargarSprites();
 
-    this.mapaservice.cargarMapa('/assets/maps/mapapokemon.tmj').subscribe(datos => {
+    this.mapaservice.cargarMapa('/assets/maps/mapapokemon.tmj').subscribe((datos) => {
       this.datos = datos;
       this.fondo.onload = () => {
         this.zone.runOutsideAngular(() => {
@@ -125,8 +139,6 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  // ---------- entrada ----------
-
   /**
    * Captura teclas direccionales para mover al jugador y teclas de acción para interactuar.
    *
@@ -134,15 +146,42 @@ export class Mapcomponent implements OnInit, OnDestroy {
    */
   @HostListener('window:keydown', ['$event'])
   alPresionar(e: KeyboardEvent): void {
+    const tecla = e.key.toLowerCase();
+
     const dir = this.teclaADireccion(e.key);
     if (dir) {
       e.preventDefault();
       if (!this.teclas.includes(dir)) this.teclas.push(dir);
       return;
     }
-    if (e.key === 'Enter' || e.key === ' ' || e.key.toLowerCase() === 'z') {
+
+    if (tecla === 'z') {
+      e.preventDefault();
+      this.corriendo = true;
+      return;
+    }
+
+    if (e.key === 'Enter' && !e.repeat) {
+      e.preventDefault();
+      this.alternarMochila();
+      return;
+    }
+
+    if (tecla === 'x' && !e.repeat) {
+      e.preventDefault();
+      this.aceptarConTeclaX();
+      return;
+    }
+
+    if (e.key === ' ') {
       e.preventDefault();
       this.interactuar();
+      return;
+    }
+
+    if (tecla === 'e' && !e.repeat && !this.pokemonSalvaje && !this.dialogoActivo && !this.mochilaAbierta) {
+      e.preventDefault();
+      this.abrirEncuentroPrueba();
     }
   }
 
@@ -153,8 +192,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
    */
   @HostListener('window:keyup', ['$event'])
   alSoltar(e: KeyboardEvent): void {
+    const tecla = e.key.toLowerCase();
+
+    if (tecla === 'z') {
+      this.corriendo = false;
+    }
+
     const dir = this.teclaADireccion(e.key);
-    if (dir) this.teclas = this.teclas.filter(t => t !== dir);
+    if (dir) this.teclas = this.teclas.filter((t) => t !== dir);
   }
 
   /**
@@ -165,15 +210,18 @@ export class Mapcomponent implements OnInit, OnDestroy {
    */
   private teclaADireccion(tecla: string): Direccionmodel | null {
     switch (tecla.toLowerCase()) {
-      case 'arrowup': case 'w': return 'arriba';
-      case 'arrowdown': case 's': return 'abajo';
-      case 'arrowleft': case 'a': return 'izquierda';
-      case 'arrowright': case 'd': return 'derecha';
-      default: return null;
+      case 'arrowup':
+        return 'arriba';
+      case 'arrowdown':
+        return 'abajo';
+      case 'arrowleft':
+        return 'izquierda';
+      case 'arrowright':
+        return 'derecha';
+      default:
+        return null;
     }
   }
-
-  // ---------- bucle del juego ----------
 
   /**
    * Bucle principal de actualización y dibujado del mapa.
@@ -196,10 +244,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
    */
   private vector(dir: Direccionmodel): { dc: number; df: number } {
     switch (dir) {
-      case 'arriba': return { dc: 0, df: -1 };
-      case 'abajo': return { dc: 0, df: 1 };
-      case 'izquierda': return { dc: -1, df: 0 };
-      default: return { dc: 1, df: 0 };
+      case 'arriba':
+        return { dc: 0, df: -1 };
+      case 'abajo':
+        return { dc: 0, df: 1 };
+      case 'izquierda':
+        return { dc: -1, df: 0 };
+      default:
+        return { dc: 1, df: 0 };
     }
   }
 
@@ -211,7 +263,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
    * @returns El NPC encontrado o `undefined`.
    */
   private npcEn(col: number, fila: number): Npcmodel | undefined {
-    return this.npcs.find(n => n.col === col && n.fila === fila);
+    return this.npcs.find((n) => n.col === col && n.fila === fila);
   }
 
   /**
@@ -223,8 +275,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private actualizar(dt: number): void {
     const j = this.jugador;
 
+    if (this.dialogoActivo || this.pokemonSalvaje || this.mochilaAbierta) {
+      return;
+    }
+
     if (j.moviendo) {
-      j.progreso += dt / this.DURACION_PASO;
+      const duracionActual = this.corriendo ? this.DURACION_PASO_CORRER : this.DURACION_PASO_NORMAL;
+      j.progreso += dt / duracionActual;
       if (j.progreso >= 1) {
         const v = this.vector(j.direccion);
         j.col += v.dc;
@@ -234,9 +291,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
         j.paso = (j.paso + 1) % 2;
         this.evaluarSucesosTile(j.col, j.fila);
       }
+      return;
     }
 
-    if (!j.moviendo && !this.dialogoActivo && this.teclas.length > 0) {
+    if (this.teclas.length > 0) {
       j.direccion = this.teclas[this.teclas.length - 1];
       const v = this.vector(j.direccion);
       const c = j.col + v.dc;
@@ -248,7 +306,55 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  // ---------- sucesos del mapa ----------
+  /**
+   * Abre un encuentro salvaje de prueba para verificar la UI de `Wildencountercomponent`.
+   */
+  abrirEncuentroPrueba(): void {
+    this.teclas = [];
+    this.pokemonSalvaje = {
+      id: 263,
+      nombre: 'Zigzagoon',
+      nivel: 3,
+    };
+  }
+
+  /**
+   * Maneja la opción elegida dentro de `Wildencountercomponent`.
+   *
+   * @param accion Acción seleccionada (`battle`, `bag` o `run`).
+   */
+  alElegirAccionEncuentro(accion: EncounterAction): void {
+    if (accion === 'bag') {
+      this.mochilaAbierta = true;
+      return;
+    }
+
+    if (accion === 'run') {
+      this.mochilaAbierta = false;
+      this.pokemonSalvaje = null;
+      return;
+    }
+
+    // Por ahora cerramos el encuentro al elegir 'battle' hasta conectar la lógica de combate
+    this.mochilaAbierta = false;
+    this.pokemonSalvaje = null;
+  }
+
+  /**
+   * Cierra la mochila y regresa al estado anterior (encuentro salvaje o mapa).
+   */
+  alCerrarMochila(): void {
+    this.mochilaAbierta = false;
+  }
+
+  /**
+   * Reacciona al seleccionar un objeto dentro de la mochila (sin lógica de uso aún).
+   *
+   * @param item Objeto seleccionado en `Bagcomponent`.
+   */
+  alSeleccionarObjetoMochila(item: BagItemModel): void {
+    void item;
+  }
 
   /**
    * Punto de extensión para gestionar eventos al pisar una celda del mapa
@@ -260,10 +366,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private evaluarSucesosTile(col: number, fila: number): void {
     void col;
     void fila;
-    // Aquí se conectarán los eventos de tile (hierba/captura, curación, batallas, etc.)
   }
-
-  // ---------- dibujo ----------
 
   /**
    * Dibuja el segmento visible del mapa centrado en el jugador y renderiza NPCs y jugador
@@ -286,16 +389,16 @@ export class Mapcomponent implements OnInit, OnDestroy {
     ctx.drawImage(this.fondo, camX, camY, this.ANCHO, this.ALTO, 0, 0, this.ANCHO, this.ALTO);
 
     const entidades = [
-      ...this.npcs.map(n => ({ y: n.fila * T, dibujar: () => this.dibujarNpc(n, camX, camY) })),
-      { y: py, dibujar: () => this.dibujarJugador(px, py, camX, camY) }
+      ...this.npcs.map((n) => ({ y: n.fila * T, dibujar: () => this.dibujarNpc(n, camX, camY) })),
+      { y: py, dibujar: () => this.dibujarJugador(px, py, camX, camY) },
     ].sort((a, b) => a.y - b.y);
-    entidades.forEach(e => e.dibujar());
+    entidades.forEach((e) => e.dibujar());
   }
 
   /**
    * Dibuja al jugador desde su hoja de 4x4 (`men.png`):
-   * - Filas: `0` abajo, `1` izquierda, `2` derecha, `3` arriba[cite: 6].
-   * - Columnas: `0` quieto, `1` y `3` alternando al caminar[cite: 6].
+   * - Filas: `0` abajo, `1` izquierda, `2` derecha, `3` arriba.
+   * - Columnas: `0` quieto, `1` y `3` alternando al caminar.
    *
    * @param px Posición X del jugador en píxeles dentro del mapa.
    * @param py Posición Y del jugador en píxeles dentro del mapa.
@@ -354,7 +457,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
    * @param x Coordenada horizontal en el lienzo.
    * @param y Coordenada vertical base del tile en el lienzo.
    */
-  private dibujarSprite(img: HTMLImageElement, dir: Direccionmodel, moviendo: boolean, paso: number, x: number, y: number): void {
+  private dibujarSprite(
+    img: HTMLImageElement,
+    dir: Direccionmodel,
+    moviendo: boolean,
+    paso: number,
+    x: number,
+    y: number
+  ): void {
     if (!img.complete || img.naturalWidth === 0) return;
     let cuadro = 0;
     if (dir === 'abajo') cuadro = moviendo ? 3 + paso : 0;
@@ -373,8 +483,6 @@ export class Mapcomponent implements OnInit, OnDestroy {
       ctx.drawImage(img, cuadro * 16, 0, 16, 16, x, destY, 16, 16);
     }
   }
-
-  // ---------- diálogos e interacciones ----------
 
   /**
    * Avanza el diálogo activo o inicia conversación si hay un NPC frente al jugador.
@@ -437,5 +545,61 @@ export class Mapcomponent implements OnInit, OnDestroy {
     } else {
       this.dialogoActivo = null;
     }
+  }
+
+  /**
+   * Abre o cierra la mochila con Enter (si no hay un encuentro salvaje ni diálogo).
+   */
+  private alternarMochila(): void {
+    if (this.mochilaAbierta) {
+      this.mochilaAbierta = false;
+      return;
+    }
+    if (!this.pokemonSalvaje && !this.dialogoActivo) {
+      this.teclas = [];
+      this.mochilaAbierta = true;
+    }
+  }
+
+  /**
+   * Simula una confirmación ("aceptar") al presionar X:
+   * avanza diálogos o hace clic en el botón activo/enfocado.
+   */
+  private aceptarConTeclaX(): void {
+    if (this.dialogoActivo) {
+      this.avanzarDialogo();
+      return;
+    }
+
+    if (this.mochilaAbierta) {
+      const filaMochila = document.querySelector<HTMLButtonElement>(
+        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])'
+      );
+      filaMochila?.click();
+      return;
+    }
+
+    if (this.pokemonSalvaje && !this.mochilaAbierta) {
+      const opcionActiva = document.querySelector<HTMLButtonElement>(
+        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])'
+      );
+      opcionActiva?.click();
+      return;
+    }
+
+    const elementoActivo = document.activeElement as HTMLElement | null;
+    if (
+      elementoActivo &&
+      elementoActivo.tagName === 'BUTTON' &&
+      !(elementoActivo as HTMLButtonElement).disabled
+    ) {
+      elementoActivo.click();
+      return;
+    }
+
+    const botonVisible = document.querySelector<HTMLButtonElement>(
+      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])'
+    );
+    botonVisible?.click();
   }
 }

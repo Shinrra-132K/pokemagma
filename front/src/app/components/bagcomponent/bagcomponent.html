@@ -1,0 +1,83 @@
+@if (abierta) {
+  <div class="mochila-overlay" [class.tema-emerald]="tema === 'emerald'">
+    <div class="mochila-pantalla">
+      <div class="columna-izquierda">
+        <div class="zona-superior-izq">
+          <img
+            class="imagen-mochila"
+            [src]="obtenerImagenMochila()"
+            [alt]="'Mochila - ' + (obtenerBolsilloActual()?.titulo ?? '')"
+          />
+
+          <div class="indicadores-bolsillo" aria-hidden="true">
+            @for (bolsillo of bolsillos; track bolsillo.tipo; let i = $index) {
+              <span
+                class="punto-bolsillo"
+                [class.activo]="i === indiceBolsillo()"
+              ></span>
+            }
+          </div>
+
+          <div class="barra-bolsillo">
+            <span class="emblema-bolsillo" aria-hidden="true"></span>
+
+            <button
+              type="button"
+              class="flecha-bolsillo"
+              (click)="cambiarBolsillo(-1)"
+              aria-label="Bolsillo anterior"
+            >
+              ◀
+            </button>
+
+            <span class="titulo-bolsillo">
+              {{ obtenerBolsilloActual()?.titulo ?? 'Items' }}
+            </span>
+
+            <button
+              type="button"
+              class="flecha-bolsillo"
+              (click)="cambiarBolsillo(1)"
+              aria-label="Siguiente bolsillo"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+
+        <div class="caja-descripcion">
+          <p class="texto-descripcion">{{ obtenerDescripcionActual() }}</p>
+        </div>
+      </div>
+
+      <div class="panel-derecho">
+        <div class="panel-crema">
+          @for (item of obtenerObjetosActuales(); track item.id; let idx = $index) {
+            <button
+              type="button"
+              class="fila-mochila"
+              [class.fila-activa]="idx === indiceFila()"
+              (mouseenter)="indiceFila.set(idx)"
+              (click)="confirmarFila(idx)"
+            >
+              <span class="flecha-fila">▶</span>
+              <span class="nombre-objeto">{{ item.nombre }}</span>
+              <span class="cantidad-objeto">x{{ item.cantidad }}</span>
+            </button>
+          }
+
+          <button
+            type="button"
+            class="fila-mochila fila-cerrar"
+            [class.fila-activa]="esFilaCerrarBag()"
+            (mouseenter)="indiceFila.set(obtenerObjetosActuales().length)"
+            (click)="cerrar.emit()"
+          >
+            <span class="flecha-fila">▶</span>
+            <span>CLOSE BAG</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
