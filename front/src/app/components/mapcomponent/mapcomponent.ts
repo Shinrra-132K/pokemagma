@@ -5,9 +5,9 @@ import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel } from '../../mode
 
 /**
  * Componente principal del mapa jugable estilo Game Boy Advance.
- * Renderiza el escenario de Pueblo Raíz en un `<canvas>` de `240x160`, gestiona
- * el movimiento por cuadrícula (tiles), las colisiones, la cámara, los NPCs
- * y el sistema de diálogos interactivos.
+ * Gestiona el renderizado del mapa en `<canvas>` (`240x160`), el desplazamiento por tiles,
+ * las colisiones, la cámara, los NPCs, los diálogos y los sucesos del entorno
+ * (encuentros/capturas, curación, batallas y otros eventos).
  */
 @Component({
   selector: 'app-mapcomponent',
@@ -16,64 +16,68 @@ import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel } from '../../mode
   templateUrl: './mapcomponent.html',
 })
 export class Mapcomponent implements OnInit, OnDestroy {
-  /** Referencia al elemento `<canvas>` donde se dibuja el mapa y las entidades. */
+  /** Referencia al elemento `<canvas>` donde se dibuja el escenario y las entidades. */
   @ViewChild('lienzo', { static: true }) lienzo!: ElementRef<HTMLCanvasElement>;
 
-  /** Servicio encargado de cargar los datos del mapa y verificar si una celda es caminable. */
+  /** Servicio de mapa encargado de cargar los datos y validar celdas caminables. */
   private mapaservice = inject(Mapaservice);
 
-  /** Zona de Angular usada para ejecutar el bucle de animación fuera de la detección de cambios en cada cuadro. */
+  /** Zona de Angular para mantener el bucle gráfico fuera de la detección de cambios en cada cuadro. */
   private zone = inject(NgZone);
 
-  /** Ancho lógico del lienzo estilo GBA en píxeles (escalado luego mediante CSS). */
+  /** Ancho lógico del lienzo estilo GBA en píxeles (escalado posteriormente por CSS). */
   private readonly ANCHO = 240;
 
-  /** Alto lógico del lienzo estilo GBA en píxeles (escalado luego mediante CSS). */
+  /** Alto lógico del lienzo estilo GBA en píxeles (escalado posteriormente por CSS). */
   private readonly ALTO = 160;
 
-  /** Duración en milisegundos que tarda el jugador en desplazarse de un tile al siguiente. */
+  /** Duración en milisegundos de cada paso entre celdas adyacentes. */
   private readonly DURACION_PASO = 250;
 
-  /** Contexto 2D del `<canvas>` utilizado para dibujar fondo, sprites y entidades. */
+  /** Ruta del spritesheet del personaje principal. */
+  private readonly RUTA_SPRITE_JUGADOR = '/assets/sprites/normal/men.png';
+
+  /** Contexto 2D del `<canvas>` para renderizar fondo, NPCs y jugador. */
   private ctx!: CanvasRenderingContext2D;
 
-  /** Estructura cargada del mapa con dimensiones, capas y datos de colisión/tiles. */
+  /** Datos cargados del mapa (dimensiones, tamaño de tile y capas de colisión/tiles). */
   private datos!: Mapadatosmodel;
 
-  /** Imagen de fondo completa del mapa renderizado. */
+  /** Imagen completa del fondo del mapa. */
   private fondo = new Image();
 
-  /** Hoja de sprites correspondiente al jugador. */
+  /** Hoja de sprites del jugador cargada desde `RUTA_SPRITE_JUGADOR`. */
   private spriteJugador = new Image();
 
-  /** Diccionario de imágenes de sprites indexadas por el `id` de cada NPC. */
+  /** Mapa de imágenes de sprites por `id` de NPC. */
   private spritesNpc = new Map<string, HTMLImageElement>();
 
-  /** Identificador devuelto por `requestAnimationFrame` para cancelar el bucle al destruir el componente. */
+  /** Identificador del cuadro de animación activo (`requestAnimationFrame`). */
   private idAnimacion = 0;
 
-  /** Marca de tiempo del cuadro anterior utilizada para calcular el delta `dt`. */
+  /** Marca de tiempo del cuadro anterior para calcular el delta `dt`. */
   private ultimoTiempo = 0;
 
-  /** Cola de direcciones actualmente presionadas por el jugador (la última tiene prioridad). */
+  /** Direcciones presionadas actualmente; la última agregada define la orientación. */
   private teclas: Direccionmodel[] = [];
 
-  /** Identificador del intervalo usado para el efecto progresivo de escritura en diálogos. */
+  /** Temporizador para el efecto de máquina de escribir en diálogos. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
-  /** Estado actual del jugador en el mapa (posición en tiles, dirección, animación y progreso de paso). */
-  jugador: Jugadormodel = { col: 128, fila: 167, direccion: 'abajo', moviendo: false, progreso: 0, paso: 0 };
+  /** Estado actual del jugador en la cuadrícula del mapa. */
+  jugador: Jugadormodel = {
+    col: 128,
+    fila: 167,
+    direccion: 'abajo',
+    moviendo: false,
+    progreso: 0,
+    paso: 0
+  };
 
-  /** Lista de NPCs presentes en el mapa con su posición, sprite y líneas de diálogo. */
-  npcs: Npcmodel[] = [
-    {
-      id: 'abedul', nombre: 'Prof. Abedul', col: 124, fila: 167, direccion: 'abajo',
-      sprite: '/assets/sprites/normal/002.png',
-      dialogo: ['¡Hola! Bienvenido al mundo Pokémon.', 'Pasa por mi laboratorio cuando estés listo.']
-    }
-  ];
+  /** NPCs presentes en el mapa con los que el jugador puede interactuar. */
+  npcs: Npcmodel[] = [];
 
-  /** Diálogo actualmente en curso al hablar con un NPC, o `null` si no hay conversación activa. */
+  /** Diálogo activo en pantalla, o `null` cuando no hay conversación en curso. */
   dialogoActivo: Dialogomodel | null = null;
 
   /** Texto revelado hasta el momento en la línea de diálogo activa. */
@@ -83,17 +87,12 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private indiceLinea = 0;
 
   /**
-   * Inicializa el contexto del lienzo, precarga los sprites del jugador y los NPCs,
-   * y arranca el bucle de animación una vez cargados los datos y la imagen del mapa.
+   * Inicializa el contexto del lienzo, carga la hoja de sprites del jugador (`/assets/sprites/normal/men.png`)
+   * y los NPCs, y arranca el bucle del juego una vez cargados el mapa y su imagen de fondo.
    */
   ngOnInit(): void {
     this.ctx = this.lienzo.nativeElement.getContext('2d')!;
-    this.spriteJugador.src = '/assets/sprites/normal/001.png';
-    for (const npc of this.npcs) {
-      const img = new Image();
-      img.src = npc.sprite;
-      this.spritesNpc.set(npc.id, img);
-    }
+    this.cargarSprites();
 
     this.mapaservice.cargarMapa('/assets/maps/mapapokemon.tmj').subscribe(datos => {
       this.datos = datos;
@@ -107,7 +106,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Detiene el bucle de `requestAnimationFrame` y limpia cualquier temporizador de texto activo.
+   * Cancela el bucle de animación y limpia temporizadores pendientes al destruir el componente.
    */
   ngOnDestroy(): void {
     cancelAnimationFrame(this.idAnimacion);
@@ -115,9 +114,23 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Registra teclas direccionales presionadas o activa la interacción con NPCs/diálogos.
+   * Precarga el spritesheet del jugador y las imágenes asociadas a cada NPC del mapa.
+   */
+  private cargarSprites(): void {
+    this.spriteJugador.src = this.RUTA_SPRITE_JUGADOR;
+    for (const npc of this.npcs) {
+      const img = new Image();
+      img.src = npc.sprite;
+      this.spritesNpc.set(npc.id, img);
+    }
+  }
+
+  // ---------- entrada ----------
+
+  /**
+   * Captura teclas direccionales para mover al jugador y teclas de acción para interactuar.
    *
-   * @param e Evento de teclado capturado a nivel de ventana.
+   * @param e Evento de teclado a nivel de ventana.
    */
   @HostListener('window:keydown', ['$event'])
   alPresionar(e: KeyboardEvent): void {
@@ -134,9 +147,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Elimina de la cola activa la dirección asociada a la tecla que se ha soltado.
+   * Retira una dirección de la cola de teclas activas al soltar la tecla correspondiente.
    *
-   * @param e Evento de teclado al liberar una tecla.
+   * @param e Evento de liberación de tecla.
    */
   @HostListener('window:keyup', ['$event'])
   alSoltar(e: KeyboardEvent): void {
@@ -145,10 +158,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Traduce una tecla física (`Flechas` o `WASD`) a una dirección del modelo del juego.
+   * Convierte una tecla de dirección (`Flechas` o `WASD`) en un valor de `Direccionmodel`.
    *
-   * @param tecla Valor de `event.key`.
-   * @returns La dirección correspondiente o `null` si la tecla no es direccional.
+   * @param tecla Nombre de la tecla presionada (`event.key`).
+   * @returns Dirección correspondiente o `null` si no aplica.
    */
   private teclaADireccion(tecla: string): Direccionmodel | null {
     switch (tecla.toLowerCase()) {
@@ -160,11 +173,12 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
+  // ---------- bucle del juego ----------
+
   /**
-   * Ejecuta un ciclo completo de actualización física/lógica y renderizado en `<canvas>`.
-   * Limita `dt` a `50 ms` para evitar saltos bruscos si la pestaña pierde foco.
+   * Bucle principal de actualización y dibujado del mapa.
    *
-   * @param t Marca de tiempo actual proporcionada por `requestAnimationFrame`.
+   * @param t Marca de tiempo actual de `requestAnimationFrame`.
    */
   private bucle = (t: number): void => {
     const dt = Math.min(t - this.ultimoTiempo, 50);
@@ -175,10 +189,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
   };
 
   /**
-   * Convierte una dirección cardinal en un desplazamiento unitario de columnas (`dc`) y filas (`df`).
+   * Calcula el desplazamiento unitario en columnas (`dc`) y filas (`df`) para una dirección.
    *
-   * @param dir Dirección de movimiento o mirada.
-   * @returns Objeto con los incrementos `dc` y `df`.
+   * @param dir Dirección cardinal.
+   * @returns Desplazamiento en `dc` y `df`.
    */
   private vector(dir: Direccionmodel): { dc: number; df: number } {
     switch (dir) {
@@ -190,21 +204,21 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Busca si existe un NPC ubicado exactamente en la columna y fila indicadas.
+   * Devuelve el NPC situado en la celda `(col, fila)`, si existe alguno.
    *
-   * @param col Columna del tile a consultar.
-   * @param fila Fila del tile a consultar.
-   * @returns El `Npcmodel` encontrado en esa celda o `undefined`.
+   * @param col Columna del tile.
+   * @param fila Fila del tile.
+   * @returns El NPC encontrado o `undefined`.
    */
   private npcEn(col: number, fila: number): Npcmodel | undefined {
     return this.npcs.find(n => n.col === col && n.fila === fila);
   }
 
   /**
-   * Avanza el progreso de un paso en curso y evalúa si puede iniciar un nuevo movimiento
-   * hacia la siguiente celda caminable y libre de NPCs.
+   * Actualiza el progreso de movimiento del jugador, evalúa sucesos al completar un paso
+   * e inicia el siguiente desplazamiento si hay dirección presionada y celda libre.
    *
-   * @param dt Tiempo transcurrido desde el último cuadro en milisegundos.
+   * @param dt Tiempo transcurrido desde el cuadro anterior en milisegundos.
    */
   private actualizar(dt: number): void {
     const j = this.jugador;
@@ -218,6 +232,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
         j.progreso = 0;
         j.moviendo = false;
         j.paso = (j.paso + 1) % 2;
+        this.evaluarSucesosTile(j.col, j.fila);
       }
     }
 
@@ -233,10 +248,26 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
+  // ---------- sucesos del mapa ----------
 
   /**
-   * Calcula la posición interpolada del jugador, centra la cámara dentro de los límites del mapa
-   * y dibuja el fondo junto con los NPCs y el jugador ordenados por profundidad (`y`).
+   * Punto de extensión para gestionar eventos al pisar una celda del mapa
+   * (por ejemplo: encuentros/capturas, curación, batallas o transiciones de zona).
+   *
+   * @param col Columna alcanzada por el jugador.
+   * @param fila Fila alcanzada por el jugador.
+   */
+  private evaluarSucesosTile(col: number, fila: number): void {
+    void col;
+    void fila;
+    // Aquí se conectarán los eventos de tile (hierba/captura, curación, batallas, etc.)
+  }
+
+  // ---------- dibujo ----------
+
+  /**
+   * Dibuja el segmento visible del mapa centrado en el jugador y renderiza NPCs y jugador
+   * ordenados por coordenada vertical (`y`).
    */
   private dibujar(): void {
     const ctx = this.ctx;
@@ -262,24 +293,51 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Dibuja al jugador en coordenadas relativas a la cámara según su estado actual de movimiento.
+   * Dibuja al jugador desde su hoja de 4x4 (`men.png`):
+   * - Filas: `0` abajo, `1` izquierda, `2` derecha, `3` arriba[cite: 6].
+   * - Columnas: `0` quieto, `1` y `3` alternando al caminar[cite: 6].
    *
-   * @param px Posición horizontal del jugador en píxeles dentro del mapa.
-   * @param py Posición vertical del jugador en píxeles dentro del mapa.
-   * @param camX Desplazamiento horizontal actual de la cámara.
-   * @param camY Desplazamiento vertical actual de la cámara.
+   * @param px Posición X del jugador en píxeles dentro del mapa.
+   * @param py Posición Y del jugador en píxeles dentro del mapa.
+   * @param camX Desplazamiento X de la cámara.
+   * @param camY Desplazamiento Y de la cámara.
    */
   private dibujarJugador(px: number, py: number, camX: number, camY: number): void {
-    const j = this.jugador;
-    this.dibujarSprite(this.spriteJugador, j.direccion, j.moviendo, j.paso, px - camX, py - camY);
+    const img = this.spriteJugador;
+    if (!img.complete || img.naturalWidth === 0) return;
+
+    const cols = 4;
+    const filas = 4;
+    const sw = img.naturalWidth / cols;
+    const sh = img.naturalHeight / filas;
+
+    const filaMap: Record<Direccionmodel, number> = {
+      abajo: 0,
+      izquierda: 1,
+      derecha: 2,
+      arriba: 3,
+    };
+
+    const fila = filaMap[this.jugador.direccion];
+    const col = this.jugador.moviendo ? (this.jugador.paso === 0 ? 1 : 3) : 0;
+
+    const sx = col * sw;
+    const sy = fila * sh;
+
+    const destW = 28;
+    const destH = 24;
+    const destX = Math.round(px - camX);
+    const destY = Math.round(py - camY - (destH - 16));
+
+    this.ctx.drawImage(img, sx, sy, sw, sh, destX, destY, destW, destH);
   }
 
   /**
-   * Dibuja un NPC estático en su posición de tile ajustada por la cámara.
+   * Dibuja un NPC en su posición de tile ajustada por la cámara.
    *
-   * @param n Datos del NPC a renderizar.
-   * @param camX Desplazamiento horizontal actual de la cámara.
-   * @param camY Desplazamiento vertical actual de la cámara.
+   * @param n Modelo del NPC.
+   * @param camX Desplazamiento X de la cámara.
+   * @param camY Desplazamiento Y de la cámara.
    */
   private dibujarNpc(n: Npcmodel, camX: number, camY: number): void {
     const img = this.spritesNpc.get(n.id);
@@ -287,17 +345,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Dibuja un cuadro de una hoja de sprites de `16x32` (9 cuadros en total, estilo Rubí/Esmeralda):
-   * - `0`: quieto abajo, `1`: quieto arriba, `2`: quieto izquierda.
-   * - `3-4`: caminar abajo, `5-6`: caminar arriba, `7-8`: caminar izquierda.
-   * - Para `'derecha'`, se refleja horizontalmente el sprite de izquierda.
+   * Recorta y dibuja un cuadro de sprite (`16x16`) según la dirección y el estado de caminata.
    *
-   * @param img Imagen de la hoja de sprites (`HTMLImageElement`).
-   * @param dir Dirección hacia la que mira o camina la entidad.
-   * @param moviendo Indica si la entidad está desplazándose para alternar cuadros de caminar.
-   * @param paso Índice alternante (`0` o `1`) del ciclo de caminar.
-   * @param x Coordenada horizontal de destino en el lienzo.
-   * @param y Coordenada vertical base (pies en el tile) en el lienzo.
+   * @param img Hoja de sprites a dibujar.
+   * @param dir Dirección hacia la que mira o avanza la entidad.
+   * @param moviendo Indica si está en medio de un desplazamiento.
+   * @param paso Alterna entre `0` y `1` para animar los pasos.
+   * @param x Coordenada horizontal en el lienzo.
+   * @param y Coordenada vertical base del tile en el lienzo.
    */
   private dibujarSprite(img: HTMLImageElement, dir: Direccionmodel, moviendo: boolean, paso: number, x: number, y: number): void {
     if (!img.complete || img.naturalWidth === 0) return;
@@ -312,16 +367,17 @@ export class Mapcomponent implements OnInit, OnDestroy {
       ctx.save();
       ctx.translate(x + 16, destY);
       ctx.scale(-1, 1);
-      ctx.drawImage(img, cuadro * 16, 0, 16, 32, 0, 0, 16, 32);
+      ctx.drawImage(img, cuadro * 16, 0, 16, 16, 0, 0, 16, 16);
       ctx.restore();
     } else {
-      ctx.drawImage(img, cuadro * 16, 0, 16, 32, x, destY, 16, 32);
+      ctx.drawImage(img, cuadro * 16, 0, 16, 16, x, destY, 16, 16);
     }
   }
 
+  // ---------- diálogos e interacciones ----------
+
   /**
-   * Continúa el diálogo activo si existe; de lo contrario, comprueba si hay un NPC frente
-   * al jugador para orientarlo hacia él e iniciar su conversación.
+   * Avanza el diálogo activo o inicia conversación si hay un NPC frente al jugador.
    */
   private interactuar(): void {
     if (this.dialogoActivo) {
@@ -341,9 +397,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Devuelve la dirección cardinal opuesta para que un NPC mire de frente al jugador.
+   * Retorna la dirección opuesta a la recibida.
    *
-   * @param d Dirección actual del jugador.
+   * @param d Dirección original.
    * @returns Dirección opuesta.
    */
   private opuesta(d: Direccionmodel): Direccionmodel {
@@ -351,7 +407,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Inicia el efecto letra por letra para la línea actual del diálogo activo.
+   * Escribe progresivamente la línea actual del diálogo activo.
    */
   private escribir(): void {
     clearInterval(this.temporizador);
@@ -365,15 +421,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Completa la línea actual si aún se está escribiendo, pasa a la siguiente línea
-   * o cierra el cuadro de diálogo cuando se han leído todas.
+   * Completa la línea en curso, pasa a la siguiente o cierra el diálogo al terminar.
    */
   private avanzarDialogo(): void {
     const d = this.dialogoActivo!;
     const linea = d.lineas[this.indiceLinea];
     if (this.textoMostrado.length < linea.length) {
       clearInterval(this.temporizador);
-      this.textoMostrado = linea; // primer Enter: muestra la línea completa
+      this.textoMostrado = linea;
       return;
     }
     if (this.indiceLinea < d.lineas.length - 1) {

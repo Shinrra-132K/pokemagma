@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Musicservice } from '../../services/musicservice';
 
 /**
  * Representa una opción de Pokémon inicial disponible para seleccionar en el maletín.
@@ -29,6 +30,8 @@ export interface InicialOpcion {
 export class Introcomponent implements OnInit, OnDestroy {
   /** Servicio de enrutamiento para redirigir al escenario principal al finalizar la intro. */
   private router = inject(Router);
+  /** Servicio encargado de reproducir y gestionar la música de fondo de la introducción. */
+  private musica = inject(Musicservice);
 
   /** Diálogos introductorios del Profesor Abedul antes de entregar la Pokédex. */
   lineasAntesPokedex: string[] = [
@@ -48,7 +51,7 @@ export class Introcomponent implements OnInit, OnDestroy {
   lineaPedirInicial = 'Ahora, dentro de este maletín tengo tres Pokébolas. ¡Elige al Pokémon que te acompañará!';
 
   /** Última línea de diálogo antes de iniciar la transición de salida hacia `/game`. */
-  lineaDespedida = '¡Muchas aventuras pokemón te están esperando! ¡Mucha suerte!';
+  lineaDespedida = '¡Explora por las rutas y otras ciudades para encontrar pokemon y combatir con otros entrenadores. ¡Mucha suerte!';
 
   /** Catálogo de Pokémon iniciales (Treecko, Torchic y Mudkip) disponibles para elegir. */
   iniciales: InicialOpcion[] = [
@@ -115,6 +118,7 @@ export class Introcomponent implements OnInit, OnDestroy {
    * Inicializa el componente comenzando a escribir la primera línea introductoria.
    */
   ngOnInit(): void {
+    this.musica.reproducirCuandoSePueda('/assets/music/abedulscene.ogg');
     this.escribirTexto(this.lineasAntesPokedex[0]);
   }
 
