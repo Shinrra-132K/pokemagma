@@ -72,10 +72,10 @@ export class Bagcomponent implements OnChanges {
   ];
 
   /** Se emite al seleccionar un objeto de la lista. */
-  @Output() objetoSeleccionado = new EventEmitter<BagItemModel>();
+  @Output() readonly objetoSeleccionado = new EventEmitter<BagItemModel>();
 
   /** Se emite al elegir `CLOSE BAG` o cerrar la mochila. */
-  @Output() cerrar = new EventEmitter<void>();
+  @Output() readonly cerrar = new EventEmitter<void>();
 
   /** Índice del bolsillo activo. */
   indiceBolsillo = signal(0);
