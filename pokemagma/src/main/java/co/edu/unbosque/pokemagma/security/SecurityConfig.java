@@ -59,6 +59,8 @@ public class SecurityConfig {
 	 */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		// Integra CORS en Spring Security para que el navegador pueda acceder a la API
+		// desde el origen del frontend definido en corsConfigurationSource().
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
@@ -107,6 +109,16 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
+	/**
+	 * Define las solicitudes de otros origenes que el navegador puede enviar a la API.
+	 *
+	 * Actualmente permite el frontend local de Angular en http://localhost:4200,
+	 * los metodos HTTP usados por la aplicacion y los encabezados JSON y Bearer JWT.
+	 * No habilita credenciales de navegador, la autenticacion protegida
+	 * utiliza el token JWT en el encabezado Authorization
+	 *
+	 * @return fuente de configuracion CORS aplicada a todas las rutas de la API
+	 */
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
