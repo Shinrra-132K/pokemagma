@@ -1,10 +1,10 @@
-import { Service, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Tmjmodel } from '../models/tmjmodel';
 import { Mapadatosmodel } from '../models/mapadatosmodel';
 
-@Service()
+@Injectable({ providedIn: 'root' })
 export class Mapaservice {
   private http = inject(HttpClient);
 

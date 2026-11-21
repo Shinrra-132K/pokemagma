@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.unbosque.pokemagma.dto.PasswordResetDTO;
 import co.edu.unbosque.pokemagma.dto.PasswordResetRequestDTO;
+import co.edu.unbosque.pokemagma.dto.PlayerProfileDTO;
 import co.edu.unbosque.pokemagma.dto.RegisterRequestDTO;
 import co.edu.unbosque.pokemagma.dto.UserDTO;
 import co.edu.unbosque.pokemagma.exception.EmailAlreadyRegisteredException;
@@ -23,13 +24,16 @@ import co.edu.unbosque.pokemagma.exception.UsernameAlreadyTakenException;
 import co.edu.unbosque.pokemagma.exception.UsernameNotValidException;
 import co.edu.unbosque.pokemagma.model.User;
 import co.edu.unbosque.pokemagma.repository.UserRepository;
+import co.edu.unbosque.pokemagma.model.PlayerProfile;
 import co.edu.unbosque.pokemagma.security.JwtUtil;
 import co.edu.unbosque.pokemagma.service.EmailVerificationService;
 import co.edu.unbosque.pokemagma.service.GameEventService;
 import co.edu.unbosque.pokemagma.service.IpGeolocationService;
 import co.edu.unbosque.pokemagma.service.PasswordResetService;
+import co.edu.unbosque.pokemagma.service.PlayerProfileService;
 import co.edu.unbosque.pokemagma.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -79,6 +83,7 @@ public class AuthController {
 	private final JwtUtil jwtUtil;
 	private final GameEventService eventService;
 	private final IpGeolocationService geolocationService;
+	private final PlayerProfileService profileService;
 
 	/**
 	 * Crea el controlador de autenticación.
@@ -91,7 +96,8 @@ public class AuthController {
 	 */
 	public AuthController(UserService userService, UserRepository userRepo,
 			EmailVerificationService verificationService, JwtUtil jwtUtil, PasswordResetService passwordResetService,
-			GameEventService eventService, IpGeolocationService geolocationService) {
+			GameEventService eventService, IpGeolocationService geolocationService,
+			PlayerProfileService profileService) {
 		this.userService = userService;
 		this.userRepo = userRepo;
 		this.verificationService = verificationService;
@@ -99,6 +105,7 @@ public class AuthController {
 		this.passwordResetService = passwordResetService;
 		this.eventService = eventService;
 		this.geolocationService = geolocationService;
+		this.profileService = profileService;
 	}
 
 	/**
@@ -109,8 +116,9 @@ public class AuthController {
 	 * @return mensaje de resultado, 201 si la cuenta fue creada, 409 si el nombre
 	 *         de usuario o el correo ya están registrados
 	 */
+	@Transactional
 	@PostMapping("/register")
-	public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequestDTO request)
+	public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequestDTO request)
 			throws UsernameNotValidException, EmailNotValidException, PasswordNotValidException,
 			UsernameAlreadyTakenException, EmailAlreadyRegisteredException {
 
@@ -135,15 +143,28 @@ public class AuthController {
 			return ResponseEntity.internalServerError().body(Map.of("message", "No se pudo crear la cuenta."));
 		}
 
+		User savedUser = userRepo.findByUsername(user.getUsername())
+				.orElseThrow(() -> new IllegalStateException("No se encontró el usuario recién creado."));
+
+		String apariencia = request.getGender() == PlayerProfile.Gender.FEMALE ? "may" : "brendan";
+
+		PlayerProfileDTO perfil = new PlayerProfileDTO(null, savedUser.getId(), request.getGender(), apariencia);
+
+		int resultadoPerfil = profileService.create(perfil);
+
+		if (resultadoPerfil != 0) {
+			throw new IllegalStateException("No se pudo crear el perfil del jugador.");
+		}
+
 		try {
 			verificationService.resend(user.getEmail());
 		} catch (MailException exception) {
-			return ResponseEntity.status(HttpStatus.CREATED).body(
-					Map.of("message", "Cuenta creada, pero no se pudo enviar el código. " + "Usa /auth/resend-code"));
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(Map.of("message", "Cuenta creada, pero no se pudo enviar el código. Usa /auth/resend-code"));
 		}
 
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(Map.of("message", "Cuenta creada. Revisa tu correo e ingresa el código " + "de 6 dígitos."));
+				.body(Map.of("message", "Cuenta creada. Revisa tu correo e ingresa el código de 6 dígitos."));
 	}
 
 	/**

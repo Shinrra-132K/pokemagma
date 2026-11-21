@@ -14,7 +14,7 @@
       <input id="contrasena" name="contrasena" type="password" placeholder="Contraseña"
              [(ngModel)]="contrasena" required>
 
-      <a class="link-forgot" routerLink="/forgot-password">Olvidé mi contraseña</a>
+      <a class="link-forgot" routerLink="/forgottenpassword">Olvidé mi contraseña</a>
 
       @if (mensaje) {
         <p class="mensaje" [class.error]="esError">{{ mensaje }}</p>

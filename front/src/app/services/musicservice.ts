@@ -1,11 +1,11 @@
-import { Service } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 /**
  * Servicio encargado de gestionar la música de fondo de la aplicación.
  * Controla la reproducción en bucle, evita reiniciar la misma pista si ya está sonando,
  * maneja el bloqueo de *autoplay* del navegador y aplica un *fade out* al detener.
  */
-@Service()
+@Injectable({ providedIn: 'root' })
 export class Musicservice {
   /** Instancia HTML5 `Audio` utilizada para reproducir las pistas musicales. */
   private audio = new Audio();

@@ -1,4 +1,4 @@
-import { Service, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Registerrequestmodel } from '../models/registerrequestmodel';
@@ -8,7 +8,7 @@ import { Verifyrequestmodel } from '../models/verifyrequestmodel';
 import { Messageresponsemodel } from '../models/messageresponsemodel';
 
 
-@Service()
+@Injectable({ providedIn: 'root' })
 export class Authservice {
   private http = inject(HttpClient);
   private url = 'http://localhost:8080/auth';
@@ -53,5 +53,25 @@ export class Authservice {
       return cuerpo;
     }
     return cuerpo?.message ?? cuerpo?.error ?? `Error ${error.status}`;
+  }
+
+  solicitarCodigoRestablecimiento(
+    email: string
+  ): Observable<Messageresponsemodel> {
+    return this.http.post<Messageresponsemodel>(
+      `${this.url}/forgot-password`,
+      { email }
+    );
+  }
+
+  restablecerContrasena(datos: {
+    email: string;
+    code: string;
+    newPassword: string;
+  }): Observable<Messageresponsemodel> {
+    return this.http.post<Messageresponsemodel>(
+      `${this.url}/reset-password`,
+      datos
+    );
   }
 }
