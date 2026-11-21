@@ -3,7 +3,6 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnChanges,
   OnDestroy,
   Output,
   signal,
@@ -26,7 +25,7 @@ export class Wildencountercomponent {
   @Input() pokemon: Wildpokemonmodel | null = null;
 
   /** Emite la acción elegida por el jugador en el menú del encuentro. */
-  @Output() accionElegida = new EventEmitter<EncounterAction>();
+  @Output() readonly accionElegida = new EventEmitter<EncounterAction>();
 
   /** Texto del cuadro de diálogo inferior. */
   textoDialogo = signal('');

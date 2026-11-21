@@ -83,6 +83,9 @@ export class Bagcomponent implements OnChanges {
   /** Índice de fila en el panel derecho (`0..objetos.length - 1` = objeto, `objetos.length` = `CLOSE BAG`). */
   indiceFila = signal(0);
 
+  /**
+   * Reinicia la selección de bolsillo y de fila cada vez que se abre la mochila.
+   */
   ngOnChanges(): void {
     if (this.abierta) {
       this.indiceBolsillo.set(0);
@@ -90,6 +93,11 @@ export class Bagcomponent implements OnChanges {
     }
   }
 
+  /**
+   * Gestiona la navegación por teclado dentro de la mochila (`Flechas`, `X` y `Escape`).
+   *
+   * @param e Evento de teclado capturado a nivel de ventana.
+   */
   @HostListener('window:keydown', ['$event'])
   alPresionarTecla(e: KeyboardEvent): void {
     if (!this.abierta) return;
@@ -123,18 +131,38 @@ export class Bagcomponent implements OnChanges {
     }
   }
 
+  /**
+   * Devuelve el bolsillo actualmente seleccionado según `indiceBolsillo`.
+   *
+   * @returns El bolsillo activo o `undefined` si no hay bolsillos configurados.
+   */
   obtenerBolsilloActual(): BagPocketModel | undefined {
     return this.bolsillos[this.indiceBolsillo()];
   }
 
+  /**
+   * Devuelve el bolsillo actualmente seleccionado según `indiceBolsillo`.
+   *
+   * @returns El bolsillo activo o `undefined` si no hay bolsillos configurados.
+   */
   obtenerObjetosActuales(): BagItemModel[] {
     return this.obtenerBolsilloActual()?.objetos ?? [];
   }
 
+  /**
+   * Indica si la fila seleccionada actualmente corresponde a la opción `CLOSE BAG`.
+   *
+   * @returns `true` si el cursor está sobre `CLOSE BAG`, `false` en caso contrario.
+   */
   esFilaCerrarBag(): boolean {
     return this.indiceFila() >= this.obtenerObjetosActuales().length;
   }
 
+  /**
+   * Obtiene la descripción del objeto seleccionado o el texto de salida si está en `CLOSE BAG`.
+   *
+   * @returns Texto descriptivo que se muestra en la caja inferior izquierda.
+   */
   obtenerDescripcionActual(): string {
     if (this.esFilaCerrarBag()) {
       return 'Return to the field.';
@@ -142,6 +170,11 @@ export class Bagcomponent implements OnChanges {
     return this.obtenerObjetosActuales()[this.indiceFila()]?.descripcion ?? '';
   }
 
+  /**
+   * Cambia al bolsillo anterior o siguiente de forma circular y reinicia la fila a `0`.
+   *
+   * @param paso Desplazamiento del índice (`-1` para anterior, `1` para siguiente).
+   */
   cambiarBolsillo(paso: -1 | 1): void {
     const total = this.bolsillos.length;
     if (!total) return;
@@ -149,16 +182,31 @@ export class Bagcomponent implements OnChanges {
     this.indiceFila.set(0);
   }
 
+  /**
+   * Desplaza la selección vertical entre los objetos del bolsillo y `CLOSE BAG`.
+   *
+   * @param paso Dirección del movimiento (`-1` hacia arriba, `1` hacia abajo).
+   */
   moverFila(paso: -1 | 1): void {
     const totalFilas = this.obtenerObjetosActuales().length + 1;
     this.indiceFila.set((this.indiceFila() + paso + totalFilas) % totalFilas);
   }
 
+  /**
+   * Selecciona una fila concreta (por clic o ratón) y ejecuta su acción correspondiente.
+   *
+   * @param indice Índice de la fila dentro del panel derecho.
+   */
   confirmarFila(indice: number): void {
     this.indiceFila.set(indice);
     this.confirmarFilaActual();
   }
 
+  /**
+   * Selecciona una fila concreta (por clic o ratón) y ejecuta su acción correspondiente.
+   *
+   * @param indice Índice de la fila dentro del panel derecho.
+   */
   confirmarFilaActual(): void {
     if (this.esFilaCerrarBag()) {
       this.cerrar.emit();

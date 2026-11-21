@@ -353,7 +353,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
    * @param item Objeto seleccionado en `Bagcomponent`.
    */
   alSeleccionarObjetoMochila(item: BagItemModel): void {
-    void item;
+    this.mochilaAbierta = item.cantidad > 0;
   }
 
   /**
