@@ -595,6 +595,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Cierra el menu lateral para volver a la pantalla del juego.
+   * **/
   alCerrarMenuLateral(): void {
     this.menuLateralAbierto = false;
   }
