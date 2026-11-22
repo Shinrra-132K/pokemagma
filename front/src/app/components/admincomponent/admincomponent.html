@@ -2,19 +2,38 @@
   <img
     class="admin-background"
     src="/assets/images/redbackground.jpeg"
-    alt="fondo">
+    alt=""
+  >
 
   <div class="admin-layout">
-
-    <input type="radio" name="seccion" id="tab-dashboard" class="tab-radio" checked>
-    <input type="radio" name="seccion" id="tab-usuarios" class="tab-radio">
-    <input type="radio" name="seccion" id="tab-pokemones" class="tab-radio">
-    <input type="radio" name="seccion" id="tab-auditorias" class="tab-radio">
+    <input
+      type="radio"
+      name="seccion"
+      id="tab-dashboard"
+      class="tab-radio"
+      checked
+    >
+    <input
+      type="radio"
+      name="seccion"
+      id="tab-usuarios"
+      class="tab-radio"
+    >
+    <input
+      type="radio"
+      name="seccion"
+      id="tab-auditorias"
+      class="tab-radio"
+    >
 
     <aside class="sidebar">
       <div class="brand">
         <span class="brand-icon">
-          <img src="/assets/images/pokeicon.png" class="brand-icon-pokemon" alt="pokebola">
+          <img
+            src="/assets/images/pokeicon.png"
+            class="brand-icon-pokemon"
+            alt=""
+          >
         </span>
         <div>
           <h2>POKEMAGMA</h2>
@@ -23,174 +42,446 @@
 
       <div class="profile">
         <div class="profile-avatar">
-          <img src="/assets/sprites/normal/courtney.png" alt="entrenadora" class="profile-avatar-entrenadora">
+          <img
+            src="/assets/sprites/normal/courtney.png"
+            alt=""
+            class="profile-avatar-entrenadora"
+          >
         </div>
         <div>
-          <strong>PokeMoon123</strong>
-          <small>Administrador</small>
+          <strong>Administración</strong>
+          <small>Panel administrativo</small>
         </div>
       </div>
 
       <nav class="menu">
         <label for="tab-dashboard">
-          <img src="/assets/images/dashboard.png" alt="dashboard" class="menu-icons">
-          Dashboard</label>
+          <img
+            src="/assets/images/dashboard.png"
+            alt=""
+            class="menu-icons"
+          >
+          Dashboard
+        </label>
+
         <label for="tab-usuarios">
-          <img src="/assets/images/users.png" alt="dashboard" class="menu-icons">
-          Usuarios</label>
+          <img
+            src="/assets/images/users.png"
+            alt=""
+            class="menu-icons"
+          >
+          Jugadores
+        </label>
+
         <label for="tab-auditorias">
-          <img src="/assets/images/auth.png" alt="dashboard" class="menu-icons">
-          Auditorías</label>
+          <img
+            src="/assets/images/auth.png"
+            alt=""
+            class="menu-icons"
+          >
+          Auditorías
+        </label>
       </nav>
 
-      <button type="button" class="button logout" routerLink="/home">Cerrar sesión</button>
+      <button type="button" class="button logout" routerLink="/home">
+        Volver al inicio
+      </button>
     </aside>
 
     <main class="main-content">
+      <div class="topbar">
+        <h1>Administración</h1>
+        <button
+          type="button"
+          class="button"
+          (click)="cargarDatos()"
+          [disabled]="cargando"
+        >
+          {{ cargando ? 'Cargando…' : 'Actualizar datos' }}
+        </button>
+      </div>
 
+      @if (mensajeError) {
+        <div class="box error-message" role="alert">
+          {{ mensajeError }}
+        </div>
+      }
 
-      <!-- ===== DASHBOARD ===== -->
+      @if (cargando) {
+        <div class="box loading-message">
+          Cargando información del servidor…
+        </div>
+      }
+
+      <!-- Dashboard -->
       <section class="section" id="sec-dashboard">
-
         <div class="banner">
           <div>
-            <h2>¡Hola, PokeAdministrador!</h2>
-            <p>Encuentra aquí toda la información principal de PokeMagma. Da click a una de las opciones para ver más.</p>
+            <h2>Resumen del sistema</h2>
+            <p>Datos recibidos desde el backend de Pokemagma.</p>
           </div>
         </div>
 
         <div class="stats-grid">
-          <div class="box stat"><span class="stat-icon">
-            <img src="/assets/images/users.png" alt="dashboard" class="menu-icons">
-          </span><div><p>Usuarios Registrados</p><h3>1,248</h3></div></div>
-          <div class="box stat"><span class="stat-icon">
-            <img src="/assets/images/buttonon.png" alt="dashboard" class="menu-icons">
-          </span><div><p>Usuarios Activos</p><h3>1,156</h3></div></div>
-          <div class="box stat"><span class="stat-icon">
-            <img src="/assets/images/buttonoff.png" alt="dashboard" class="menu-icons">
-          </span><div><p>Usuarios Inactivos</p><h3>92</h3></div></div>
-          <div class="box stat"><span class="stat-icon">
-            <img src="/assets/images/star.png" alt="dashboard" class="menu-icons">
-            ️</span><div><p>Administradores</p><h3>3</h3></div></div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="box">
-            <div class="box-heading">
-              <h3>Actividad reciente</h3>
-              <label for="tab-auditorias" class="button">Ver todo</label>
+          <div class="box stat">
+            <span class="stat-icon">👥</span>
+            <div>
+              <p>Jugadores registrados</p>
+              <h3>{{ jugadores.length }}</h3>
             </div>
-            <div class="activity"><strong>Sarah Johnson</strong><span>Inicio de sesión</span><small>08:30 AM</small></div>
-            <div class="activity"><strong>Michael Chen</strong><span>Actualización de perfil</span><small>08:15 AM</small></div>
-            <div class="activity"><strong>Emily Davis</strong><span>Captura de Pokémon</span><small>06:45 PM</small></div>
           </div>
 
-          <div class="box summary">
-            <h3>Pokémon registrados</h3>
-            <span class="summary-icon">⚪</span>
-            <h2>6</h2>
-            <label for="tab-pokemones" class="button">Ver Pokédex</label>
+          <div class="box stat">
+            <span class="stat-icon">🟢</span>
+            <div>
+              <p>Conectados</p>
+              <h3>{{ jugadoresConectados }}</h3>
+            </div>
+          </div>
+
+          <div class="box stat">
+            <span class="stat-icon">⚪</span>
+            <div>
+              <p>Desconectados</p>
+              <h3>{{ jugadoresDesconectados }}</h3>
+            </div>
+          </div>
+
+          <div class="box stat">
+            <span class="stat-icon">🔒</span>
+            <div>
+              <p>Cuentas deshabilitadas</p>
+              <h3>{{ totalDeshabilitados }}</h3>
+            </div>
           </div>
         </div>
 
-        <div class="generation-grid">
-          <div class="generation gen-one"><span>🔥</span><strong>Kanto</strong><small>001 - 151</small></div>
-          <div class="generation gen-two"><span>🌿</span><strong>Johto</strong><small>152 - 251</small></div>
-          <div class="generation gen-three"><span>🌊</span><strong>Hoenn</strong><small>252 - 386</small></div>
-        </div>
+        <div class="box">
+          <div class="box-heading">
+            <h3>Actividad reciente</h3>
+            <label for="tab-auditorias" class="button">Ver auditorías</label>
+          </div>
 
+          @if (eventos.length === 0) {
+            <p>No hay eventos de auditoría para mostrar.</p>
+          } @else {
+            <div class="table-wrap">
+              <table>
+                <thead>
+                <tr>
+                  <th>Jugador</th>
+                  <th>Acción</th>
+                  <th>Descripción</th>
+                  <th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (evento of eventos.slice(0, 5); track evento.id) {
+                    <tr>
+                      <td>{{ nombreJugador(evento.playerId) }}</td>
+                      <td>
+                        <span class="role-badge">
+                          {{ etiquetaEvento(evento.type) }}
+                        </span>
+                      </td>
+                      <td>{{ evento.description }}</td>
+                      <td>{{ evento.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
       </section>
 
-      <!-- ===== USUARIOS ===== -->
+      <!-- Jugadores y presencia -->
       <section class="section" id="sec-usuarios">
-
         <div class="section-title">
           <div>
-            <h2>Gestión de usuarios</h2>
-            <p>Administra las cuentas y roles de los entrenadores.</p>
+            <h2>Jugadores</h2>
+            <p>Estado de conexión y última actividad informada por el backend.</p>
           </div>
-          <button type="button" class="button">+ Agregar usuario</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="box stat">
+            <div>
+              <p>Conectados</p>
+              <h3>{{ jugadoresConectados }}</h3>
+            </div>
+          </div>
+
+          <div class="box stat">
+            <div>
+              <p>Desconectados</p>
+              <h3>{{ jugadoresDesconectados }}</h3>
+            </div>
+          </div>
+
+          <div class="box stat">
+            <div>
+              <p>Cuentas deshabilitadas</p>
+              <h3>{{ totalDeshabilitados }}</h3>
+            </div>
+          </div>
         </div>
 
         <div class="box">
-          <input class="search" type="text" placeholder="Buscar por nombre o correo...">
+          <div class="section-title">
+            <div>
+              <h3>Estado de conexión</h3>
+              <p>El backend considera conectado a quien envió actividad recientemente.</p>
+            </div>
+          </div>
+
+          <input
+            class="search"
+            type="search"
+            placeholder="Buscar jugador por nombre o ID…"
+            [(ngModel)]="busquedaJugadores"
+          >
+
+          <div class="filter-buttons">
+            <button
+              type="button"
+              class="button"
+              [class.filter-selected]="filtroEstado === 'TODOS'"
+              (click)="cambiarEstado('TODOS')"
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              class="button"
+              [class.filter-selected]="filtroEstado === 'ACTIVE'"
+              (click)="cambiarEstado('ACTIVE')"
+            >
+              Conectados
+            </button>
+            <button
+              type="button"
+              class="button"
+              [class.filter-selected]="filtroEstado === 'DISCONNECTED'"
+              (click)="cambiarEstado('DISCONNECTED')"
+            >
+              Desconectados
+            </button>
+          </div>
 
           <div class="table-wrap">
             <table>
               <thead>
-              <tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Registro</th></tr>
+              <tr>
+                <th>ID</th>
+                <th>Jugador</th>
+                <th>Estado</th>
+                <th>Última actividad</th>
+              </tr>
               </thead>
               <tbody>
-              <tr><td><strong>Sarah Johnson</strong></td><td>sarah.johnson@gmail.com</td><td><span class="role-badge">Jugador</span></td><td><span class="status-badge">● Activo</span></td><td>12 Oct 2026</td></tr>
-              <tr><td><strong>Michael Chen</strong></td><td>michael.chen@gmail.com</td><td><span class="role-badge">Administrador</span></td><td><span class="status-badge">● Activo</span></td><td>10 Oct 2026</td></tr>
-              <tr><td><strong>Emily Davis</strong></td><td>emily.davis@gmail.com</td><td><span class="role-badge">Jugador</span></td><td><span class="status-badge">● Activo</span></td><td>08 Oct 2026</td></tr>
-              <tr><td><strong>James Wilson</strong></td><td>james.wilson@gmail.com</td><td><span class="role-badge">Moderador</span></td><td><span class="status-badge inactive">● Inactivo</span></td><td>05 Oct 2026</td></tr>
+                @for (jugador of jugadoresFiltrados; track jugador.userId) {
+                  <tr>
+                    <td>{{ jugador.userId }}</td>
+                    <td><strong>{{ jugador.username }}</strong></td>
+                    <td>
+                      <span
+                        class="status-badge"
+                        [class.inactive]="jugador.status !== 'ACTIVE'"
+                      >
+                        {{ etiquetaEstado(jugador.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      @if (jugador.lastSeenAt) {
+                        {{ jugador.lastSeenAt | date:'dd/MM/yyyy HH:mm:ss' }}
+                      } @else {
+                        Sin actividad registrada
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4">No hay jugadores que coincidan con el filtro.</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
         </div>
 
-      </section>
-
-      <!-- ===== POKÉMON ===== -->
-      <section class="section" id="sec-pokemones">
-
-        <div class="section-title">
-          <div>
-            <h2>Gestión de Pokémon</h2>
-            <p>Catálogo de Pokémon disponibles en el juego.</p>
+        <div class="box disabled-users-box">
+          <div class="section-title">
+            <div>
+              <h3>Cuentas deshabilitadas</h3>
+              <p>Listado devuelto por el endpoint de cuentas deshabilitadas.</p>
+            </div>
           </div>
-        </div>
-
-        <div class="box">
-          <input class="search" type="text" placeholder="Buscar Pokémon por nombre o número...">
 
           <div class="table-wrap">
             <table>
               <thead>
-              <tr><th>N.º</th><th>Pokémon</th><th>Tipo</th><th>Generación</th><th>Estado</th></tr>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Correo verificado</th>
+                <th>Registro</th>
+              </tr>
               </thead>
               <tbody>
-              <tr><td>#001</td><td><strong>Bulbasaur</strong></td><td>Planta / Veneno</td><td>Primera</td><td><span class="status-badge">● Disponible</span></td></tr>
-              <tr><td>#004</td><td><strong>Charmander</strong></td><td>Fuego</td><td>Primera</td><td><span class="status-badge">● Disponible</span></td></tr>
-              <tr><td>#025</td><td><strong>Pikachu</strong></td><td>Eléctrico</td><td>Primera</td><td><span class="status-badge">● Disponible</span></td></tr>
-              <tr><td>#152</td><td><strong>Chikorita</strong></td><td>Planta</td><td>Segunda</td><td><span class="status-badge">● Disponible</span></td></tr>
+                @for (usuario of usuariosDeshabilitados; track usuario.id) {
+                  <tr>
+                    <td>{{ usuario.id }}</td>
+                    <td>{{ usuario.username }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.role }}</td>
+                    <td>{{ usuario.emailVerified ? 'Sí' : 'No' }}</td>
+                    <td>
+                      {{ usuario.registeredAt | date:'dd/MM/yyyy' }}
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6">No hay cuentas deshabilitadas.</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
         </div>
-
       </section>
 
-      <!-- ===== AUDITORÍAS ===== -->
+      <!-- Auditorías -->
       <section class="section" id="sec-auditorias">
-
         <div class="section-title">
           <div>
             <h2>Auditorías del sistema</h2>
-            <p>Movimientos y acciones realizadas por los usuarios.</p>
+            <p>Eventos registrados por el backend.</p>
           </div>
-          <button type="button" class="button">↓ Exportar registros</button>
         </div>
 
         <div class="box">
+          <div class="audit-filters">
+            <input
+              class="search"
+              type="search"
+              placeholder="Buscar por descripción, jugador o ID…"
+              [(ngModel)]="busquedaEventos"
+            >
+
+            <select
+              class="search"
+              [ngModel]="filtroEvento"
+              (ngModelChange)="cambiarTipoEvento($event)"
+            >
+              <option value="TODOS">Todos los tipos</option>
+              <option value="LOGIN">Inicio de sesión</option>
+              <option value="LOGOUT">Cierre de sesión</option>
+              <option value="STARTER_SELECTED">Inicial elegido</option>
+              <option value="WILD_ENCOUNTER">Encuentro salvaje</option>
+              <option value="BATTLE">Combate</option>
+              <option value="POKEMON_CAUGHT">Pokémon capturado</option>
+              <option value="ITEM_ACQUIRED">Objeto obtenido</option>
+              <option value="ITEM_USED">Objeto usado</option>
+              <option value="ACCOUNT_DISABLED">Cuenta deshabilitada</option>
+            </select>
+
+            <select
+              class="search"
+              [ngModel]="jugadorSeleccionado"
+              (ngModelChange)="cargarEventosJugador($event)"
+            >
+              <option value="">Todos los jugadores</option>
+              @for (jugador of jugadores; track jugador.userId) {
+                <option [value]="jugador.userId">
+                  {{ jugador.username }}
+                </option>
+              }
+            </select>
+          </div>
+
+          @if (cargandoEventos) {
+            <p>Cargando eventos…</p>
+          }
+
           <div class="table-wrap">
             <table>
               <thead>
-              <tr><th>Usuario</th><th>Acción</th><th>Descripción</th><th>Fecha</th></tr>
+              <tr>
+                <th>ID</th>
+                <th>Jugador</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
+              </tr>
               </thead>
               <tbody>
-              <tr><td><strong>Sarah Johnson</strong></td><td><span class="role-badge">Inicio de sesión</span></td><td>Nuevo inicio de sesión registrado</td><td>31 Oct 2026 · 08:30 AM</td></tr>
-              <tr><td><strong>Michael Chen</strong></td><td><span class="role-badge">Actualización</span></td><td>Modificó su información personal</td><td>31 Oct 2026 · 08:15 AM</td></tr>
-              <tr><td><strong>Emily Davis</strong></td><td><span class="role-badge">Captura</span></td><td>Capturó un Pikachu</td><td>30 Oct 2026 · 06:45 PM</td></tr>
-              <tr><td><strong>James Wilson</strong></td><td><span class="role-badge">Cierre de sesión</span></td><td>Cerró su sesión correctamente</td><td>30 Oct 2026 · 05:20 PM</td></tr>
+                @for (evento of eventosFiltrados; track evento.id) {
+                  <tr>
+                    <td>{{ evento.id }}</td>
+                    <td>{{ nombreJugador(evento.playerId) }}</td>
+                    <td>
+                      <span class="role-badge">
+                        {{ etiquetaEvento(evento.type) }}
+                      </span>
+                    </td>
+                    <td>{{ evento.description }}</td>
+                    <td>{{ evento.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="button"
+                        (click)="verDetalleEvento(evento.id)"
+                      >
+                        Ver
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6">No hay eventos para mostrar.</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
         </div>
 
-      </section>
+        @if (eventoSeleccionado) {
+          <div class="box event-details">
+            <div class="box-heading">
+              <h3>Evento #{{ eventoSeleccionado.id }}</h3>
+              <button
+                type="button"
+                class="button"
+                (click)="cerrarDetalleEvento()"
+              >
+                Cerrar
+              </button>
+            </div>
 
+            <p>
+              <strong>Jugador:</strong>
+              {{ nombreJugador(eventoSeleccionado.playerId) }}
+            </p>
+            <p>
+              <strong>Tipo:</strong>
+              {{ etiquetaEvento(eventoSeleccionado.type) }}
+            </p>
+            <p>
+              <strong>Descripción:</strong>
+              {{ eventoSeleccionado.description }}
+            </p>
+            <p>
+              <strong>Fecha:</strong>
+              {{ eventoSeleccionado.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
+            </p>
+          </div>
+        }
+      </section>
     </main>
   </div>
 </div>

@@ -30,3 +30,4 @@ pokemagma/src/main/resources/application.properties
 *.properties
 pokemagma/src/main/resources/application.properties
 pokemagma/src/main/resources/application.properties
+pokemagma/src/main/java/co/edu/unbosque/pokemagma/configuration/LoadDatabase.java

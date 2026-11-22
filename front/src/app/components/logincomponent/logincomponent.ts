@@ -4,10 +4,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Authservice } from '../../services/authservice';
 import { Playergameservice } from '../../services/playergameservice';
 
-/**
- * Gestiona el inicio de sesión y decide a qué pantalla navegar
- * según si el jugador ya tiene Pokémon en su equipo.
- */
 @Component({
   selector: 'app-logincomponent',
   standalone: false,
@@ -15,39 +11,16 @@ import { Playergameservice } from '../../services/playergameservice';
   templateUrl: './logincomponent.html',
 })
 export class Logincomponent {
-  /** Servicio que envía las credenciales al back y guarda el token recibido. */
   private authservice = inject(Authservice);
-
-  /** Servicio de navegación entre las pantallas de Angular. */
   private router = inject(Router);
-
-  /** Servicio que consulta el equipo del jugador autenticado. */
   private playergameservice = inject(Playergameservice);
 
-  /** Nombre de usuario ingresado en el formulario. */
   usuario = '';
-
-  /** Contraseña ingresada en el formulario. */
   contrasena = '';
-
-  /** Mensaje informativo o de error mostrado en la pantalla. */
   mensaje = '';
-
-  /** Indica si el mensaje actual corresponde a un error. */
   esError = false;
-
-  /** Indica si el login o la consulta del equipo está en curso. */
   cargando = false;
 
-  /**
-   * Envía las credenciales al back.
-   *
-   * Si el login es exitoso, consulta el equipo:
-   * - Sin Pokémon: navega a la intro y selección del inicial.
-   * - Con Pokémon: navega directamente al mapa.
-   *
-   * Si el correo aún no está verificado, redirige a la pantalla de verificación.
-   */
   ingresar(): void {
     this.mensaje = '';
     this.esError = false;
@@ -58,15 +31,21 @@ export class Logincomponent {
       password: this.contrasena,
     }).subscribe({
       next: () => {
-        // Authservice ya guardó el token antes de emitir la respuesta.
+        // El servicio guarda el token antes de emitir la respuesta.
+        if (this.authservice.esAdministrador()) {
+          this.cargando = false;
+          void this.router.navigate(['/admin']);
+          return;
+        }
+
         this.playergameservice.obtenerEquipo().subscribe({
           next: equipo => {
             this.cargando = false;
 
             if (!equipo || equipo.length === 0) {
-              this.router.navigate(['/intro']);
+              void this.router.navigate(['/intro']);
             } else {
-              this.router.navigate(['/game']);
+              void this.router.navigate(['/game']);
             }
           },
           error: (error: HttpErrorResponse) => {
@@ -82,7 +61,7 @@ export class Logincomponent {
 
         if (error.status === 403) {
           this.mensaje = 'Debes verificar tu correo antes de ingresar.';
-          this.router.navigate(['/verifyemail']);
+          void this.router.navigate(['/verifyemail']);
         } else {
           this.mensaje = this.authservice.obtenerMensajeError(error);
         }
