@@ -40,6 +40,18 @@ export class Wildencountercomponent implements OnChanges, OnDestroy {
   /** Temporizador para escribir el diálogo progresivamente. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
+  /** Nombre del jugador o del Pokémon que envía al combate. */
+  @Input() nombreJugador = 'RED';
+
+  /** Nivel del Pokémon enviado por el jugador (opcional). */
+  @Input() nivelJugador: number | null = 5;
+
+  /** Vida actual del jugador/Pokémon aliado en el encuentro. */
+  @Input() hpActualJugador = 100;
+
+  /** Vida máxima del jugador/Pokémon aliado en el encuentro. */
+  @Input() hpMaximoJugador = 100;
+
   /** Acciones disponibles para el jugador. */
   readonly accionesMenu: {
     accion: EncounterAction;
@@ -168,5 +180,19 @@ export class Wildencountercomponent implements OnChanges, OnDestroy {
         (this.indiceSeleccionado() + 1) % total
       );
     }
+  }
+
+  /** Calcula el porcentaje de vida del jugador/aliado. */
+  obtenerPorcentajeHpJugador(): number {
+    if (this.hpMaximoJugador <= 0) return 0;
+    return Math.max(
+      0,
+      Math.min(100, Math.round((this.hpActualJugador / this.hpMaximoJugador) * 100))
+    );
+  }
+
+  /** Obtiene la clase de color para la barra de vida del jugador/aliado. */
+  obtenerClaseHpJugador(): 'hp-alta' | 'hp-media' | 'hp-baja' {
+    return this.calcularClaseHp(this.obtenerPorcentajeHpJugador());
   }
 }

@@ -220,6 +220,43 @@
   transform: translateX(2px);
 }
 
+.hud-jugador {
+  position: relative;
+  z-index: 2;
+  align-self: flex-end;
+  margin: 0 18px 8px 0;
+  padding: 7px 11px;
+  min-width: 195px;
+  max-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f8f9e8;
+  color: #1f2421;
+  border: 3px solid #2b302c;
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 #2b302c;
+}
+
+.hud-cabecera-compacta {
+  gap: 10px;
+}
+
+.jugador-nombre {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-hp-compacta {
+  padding: 3px 5px;
+  gap: 6px;
+}
+
 @media (max-width: 600px) {
   .escena-encuentro {
     width: 100%;

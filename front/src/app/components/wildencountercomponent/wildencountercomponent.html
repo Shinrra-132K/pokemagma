@@ -34,6 +34,26 @@
         <div class="sombra-rival"></div>
       </div>
 
+      <div class="hud-jugador">
+        <div class="hud-cabecera hud-cabecera-compacta">
+          <span class="jugador-nombre">{{ nombreJugador }}</span>
+          @if (nivelJugador !== null) {
+            <span class="pokemon-nivel">Nv. {{ nivelJugador }}</span>
+          }
+        </div>
+
+        <div class="barra-hp-contenedor barra-hp-compacta" aria-label="Vida del jugador">
+          <span class="etiqueta-hp">HP</span>
+          <div class="barra-hp-fondo">
+            <div
+              class="barra-hp-relleno"
+              [class]="obtenerClaseHpJugador()"
+              [style.width.%]="obtenerPorcentajeHpJugador()"
+            ></div>
+          </div>
+        </div>
+      </div>
+
       <div class="panel-inferior">
         <div class="caja-dialogo">
           <p class="texto-dialogo">{{ textoDialogo() }}</p>
