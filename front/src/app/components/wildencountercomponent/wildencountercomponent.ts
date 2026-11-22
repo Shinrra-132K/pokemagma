@@ -3,19 +3,15 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnChanges,
-  OnDestroy,
   Output,
   signal,
 } from '@angular/core';
-import {
-  EncounterAction,
-  Wildpokemonmodel,
-} from '../../models/wildpokemonmodel';
+import { EncounterAction, Wildpokemonmodel } from '../../models/wildpokemonmodel';
 
 /**
- * Muestra el encuentro salvaje, los sprites de ambos Pokémon,
- * sus barras de vida y las acciones disponibles.
+ * Componente visual de encuentro con un Pokémon salvaje en la hierba alta.
+ * Muestra la escena retro, el mensaje inicial de aparición y el panel de opciones
+ * (`Combate`, `Mochila`, `Huir`) sin lógica de batalla aún.
  */
 @Component({
   selector: 'app-wildencountercomponent',
@@ -23,83 +19,57 @@ import {
   styleUrl: './wildencountercomponent.css',
   templateUrl: './wildencountercomponent.html',
 })
-export class Wildencountercomponent implements OnChanges, OnDestroy {
-  /** Pokémon salvaje del combate. */
+export class Wildencountercomponent {
+  /** Pokémon salvaje encontrado en la hierba alta. */
   @Input() pokemon: Wildpokemonmodel | null = null;
 
-  /** Emite la acción seleccionada al componente del mapa. */
-  @Output() readonly accionElegida =
-    new EventEmitter<EncounterAction>();
+  /** Emite la acción elegida por el jugador en el menú del encuentro. */
+  @Output() readonly accionElegida = new EventEmitter<EncounterAction>();
 
-  /** Texto visible en el diálogo del encuentro. */
+  /** Texto del cuadro de diálogo inferior. */
   textoDialogo = signal('');
 
-  /** Controla la visibilidad del menú de acciones. */
+  /** Controla si el menú de opciones (`Combate`, `Mochila`, `Huir`) está visible. */
   mostrarOpciones = signal(true);
 
-  /** Temporizador para escribir el diálogo progresivamente. */
+  /** Temporizador para el efecto de escritura del mensaje de aparición. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
-  /** Nombre del jugador o del Pokémon que envía al combate. */
-  @Input() nombreJugador = 'RED';
-
-  /** Nivel del Pokémon enviado por el jugador (opcional). */
-  @Input() nivelJugador: number | null = 5;
-
-  /** Vida actual del jugador/Pokémon aliado en el encuentro. */
-  @Input() hpActualJugador = 100;
-
-  /** Vida máxima del jugador/Pokémon aliado en el encuentro. */
-  @Input() hpMaximoJugador = 100;
-
-  /** Acciones disponibles para el jugador. */
-  readonly accionesMenu: {
-    accion: EncounterAction;
-    etiqueta: string;
-  }[] = [
-    { accion: 'battle', etiqueta: 'Combate' },
-    { accion: 'bag', etiqueta: 'Mochila' },
-    { accion: 'run', etiqueta: 'Huir' },
-  ];
-
-  /** Índice de la acción seleccionada en el menú. */
-  indiceSeleccionado = signal(0);
-
   /**
-   * Actualiza el mensaje cuando aparece un nuevo Pokémon salvaje.
+   * Actualiza el mensaje de encuentro cada vez que cambia el Pokémon salvaje recibido.
    */
   ngOnChanges(): void {
     if (this.pokemon) {
       this.mostrarOpciones.set(true);
       this.indiceSeleccionado.set(0);
-      this.escribirMensaje(
-        `¡Un ${this.pokemon.nombre} salvaje apareció!`
-      );
+      this.escribirMensaje(`¡Un ${this.pokemon.nombre} salvaje apareció!`);
     }
   }
 
-  /** Limpia el temporizador al destruir el componente. */
+  /**
+   * Limpia el temporizador de escritura al destruir el componente.
+   */
   ngOnDestroy(): void {
     clearInterval(this.temporizador);
   }
 
-  /** Obtiene el sprite del Pokémon salvaje. */
+  /**
+   * Obtiene la ruta del sprite del Pokémon salvaje.
+   *
+   * @returns Ruta del archivo de imagen del sprite.
+   */
   obtenerSpritePokemon(): string {
-    if (!this.pokemon) {
-      return '/assets/sprites/normal/001.png';
-    }
-
-    if (this.pokemon.sprite) {
-      return this.pokemon.sprite;
-    }
-
-    return (
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/' +
-      `sprites/pokemon/${this.pokemon.id}.png`
-    );
+    if (!this.pokemon) return '/assets/sprites/normal/001.png';
+    if (this.pokemon.sprite) return this.pokemon.sprite;
+    const numero = String(this.pokemon.id).padStart(3, '0');
+    return `/assets/sprites/normal/${numero}.png`;
   }
 
-  /** Calcula el porcentaje de vida del Pokémon salvaje. */
+  /**
+   * Calcula el porcentaje de vida actual (`0` a `100`) del Pokémon salvaje.
+   *
+   * @returns Porcentaje de HP restante.
+   */
   obtenerPorcentajeHp(): number {
     if (!this.pokemon) return 100;
     const max = this.pokemon.hpMaximo ?? 100;
@@ -108,91 +78,74 @@ export class Wildencountercomponent implements OnChanges, OnDestroy {
     return Math.max(0, Math.min(100, Math.round((actual / max) * 100)));
   }
 
-  /** Determina el color de una barra según el porcentaje de HP. */
-  private calcularClaseHp(
-    porcentaje: number
-  ): 'hp-alta' | 'hp-media' | 'hp-baja' {
-    if (porcentaje > 50) {
-      return 'hp-alta';
-    }
-
-    if (porcentaje > 20) {
-      return 'hp-media';
-    }
-
+  /**
+   * Devuelve la clase de color de la barra de HP según el porcentaje restante.
+   *
+   * @returns Clase CSS correspondiente al nivel de vida.
+   */
+  obtenerClaseHp(): 'hp-alta' | 'hp-media' | 'hp-baja' {
+    const pct = this.obtenerPorcentajeHp();
+    if (pct > 50) return 'hp-alta';
+    if (pct > 20) return 'hp-media';
     return 'hp-baja';
   }
 
-  /** Obtiene la clase de color de la barra del rival. */
-  obtenerClaseHp(): 'hp-alta' | 'hp-media' | 'hp-baja' {
-    return this.calcularClaseHp(this.obtenerPorcentajeHp());
-  }
-
-  /** Emite la acción seleccionada para que la gestione el mapa. */
+  /**
+   * Notifica al componente padre la opción seleccionada (`battle`, `bag` o `run`).
+   *
+   * @param accion Opción elegida por el jugador.
+   */
   elegirAccion(accion: EncounterAction): void {
     this.accionElegida.emit(accion);
   }
 
   /**
-   * Escribe un mensaje letra por letra.
+   * Escribe progresivamente el texto de aparición en el cuadro inferior.
    *
-   * @param mensaje texto que se mostrará.
+   * @param mensaje Frase a mostrar.
    */
   private escribirMensaje(mensaje: string): void {
     clearInterval(this.temporizador);
     this.textoDialogo.set('');
-
     let indice = 0;
 
     this.temporizador = setInterval(() => {
       indice++;
       this.textoDialogo.set(mensaje.slice(0, indice));
-
       if (indice >= mensaje.length) {
         clearInterval(this.temporizador);
       }
     }, 25);
   }
+  /** Lista ordenada de acciones visibles en el menú inferior derecho. */
+  readonly accionesMenu: { accion: EncounterAction; etiqueta: string }[] = [
+    { accion: 'battle', etiqueta: 'Combate' },
+    { accion: 'bag', etiqueta: 'Mochila' },
+    { accion: 'run', etiqueta: 'Huir' },
+  ];
+
+  /** Índice de la opción actualmente marcada con la flecha roja y resaltado. */
+  indiceSeleccionado = signal(0);
 
   /**
-   * Permite navegar entre las acciones con las flechas arriba y abajo.
+   * Permite navegar entre Combate, Mochila y Huir usando las flechas Arriba y Abajo.
    */
   @HostListener('window:keydown', ['$event'])
-  alPresionarTecla(event: KeyboardEvent): void {
-    if (!this.pokemon || !this.mostrarOpciones()) {
-      return;
-    }
+  alPresionarTecla(e: KeyboardEvent): void {
+    if (!this.pokemon || !this.mostrarOpciones()) return;
 
-    if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      event.stopPropagation();
-
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
       const total = this.accionesMenu.length;
-      this.indiceSeleccionado.set(
-        (this.indiceSeleccionado() - 1 + total) % total
-      );
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      event.stopPropagation();
-
+      this.indiceSeleccionado.set((this.indiceSeleccionado() - 1 + total) % total);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      e.stopPropagation();
       const total = this.accionesMenu.length;
-      this.indiceSeleccionado.set(
-        (this.indiceSeleccionado() + 1) % total
-      );
+      this.indiceSeleccionado.set((this.indiceSeleccionado() + 1) % total);
     }
   }
 
-  /** Calcula el porcentaje de vida del jugador/aliado. */
-  obtenerPorcentajeHpJugador(): number {
-    if (this.hpMaximoJugador <= 0) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round((this.hpActualJugador / this.hpMaximoJugador) * 100))
-    );
-  }
-
-  /** Obtiene la clase de color para la barra de vida del jugador/aliado. */
-  obtenerClaseHpJugador(): 'hp-alta' | 'hp-media' | 'hp-baja' {
-    return this.calcularClaseHp(this.obtenerPorcentajeHpJugador());
-  }
 }
+
