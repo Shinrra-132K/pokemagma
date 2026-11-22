@@ -49,11 +49,6 @@
   box-shadow: 4px 4px 0 #2b302c;
 }
 
-.hud-rival {
-  top: 18px;
-  left: 20px;
-}
-
 .hud-cabecera {
   display: flex;
   align-items: baseline;
@@ -156,14 +151,14 @@
 }
 
 .caja-dialogo {
-  min-height: 92px;
-  display: flex;
-  align-items: flex-start;
-  padding: 14px 16px;
   background: #fafaf0;
   color: #1c1f24;
   border: 3px solid #4a525d;
   border-radius: 4px;
+  padding: 14px 16px;
+  min-height: 92px;
+  display: flex;
+  align-items: flex-start;
 }
 
 .texto-dialogo {
@@ -174,13 +169,13 @@
 }
 
 .menu-opciones {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3px 10px;
   background: #fafaf0;
   border: 3px solid #4a525d;
   border-radius: 4px;
+  padding: 3px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .opcion-btn {
@@ -220,73 +215,18 @@
   transform: translateX(2px);
 }
 
-.hud-jugador {
-  position: relative;
-  z-index: 2;
-  align-self: flex-end;
-  margin: 0 18px 8px 0;
-  padding: 7px 11px;
-  min-width: 195px;
-  max-width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: #f8f9e8;
-  color: #1f2421;
-  border: 3px solid #2b302c;
-  border-radius: 2px;
-  box-shadow: 3px 3px 0 #2b302c;
-}
-
-.hud-cabecera-compacta {
-  gap: 10px;
-}
-
-.jugador-nombre {
-  font-weight: 700;
-  font-size: 18px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.barra-hp-compacta {
-  padding: 3px 5px;
-  gap: 6px;
-}
-
 @media (max-width: 600px) {
   .escena-encuentro {
     width: 100%;
     max-height: 92vh;
   }
 
-  .hud-rival {
-    min-width: 190px;
-    padding: 7px 9px;
-  }
-
-  .hud-rival {
-    top: 8px;
-    left: 8px;
-  }
-
-  .pokemon-nombre {
-    font-size: 21px;
-  }
-
-  .pokemon-nivel {
-    font-size: 15px;
+  .panel-inferior {
+    grid-template-columns: 1fr;
   }
 
   .sprite-rival {
     width: 88px;
     height: 88px;
-  }
-
-  .panel-inferior {
-    grid-template-columns: 1fr;
   }
 }

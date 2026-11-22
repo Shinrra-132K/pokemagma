@@ -35,7 +35,7 @@ public class LoadDatabase {
 		return args -> {
             String username = "teammagmaadmin";
             String email = "juegosfps1@gmail.com";
-            String password = "m1MikYuu2026$$+";
+            String password = "";
 
             if (userRepository.findByUsername(username).isPresent()) {
                 log.info("El administrador ya existe; se omite su creación.");
