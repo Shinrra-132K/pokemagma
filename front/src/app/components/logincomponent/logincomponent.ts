@@ -2,11 +2,11 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Authservice } from '../../services/authservice';
+import { Playergameservice } from '../../services/playergameservice';
 
 /**
- * Componente encargado de gestionar el inicio de sesión de los usuarios.
- * Valida las credenciales contra el servicio de autenticación, controla los estados
- * de carga y error en la interfaz, y redirige según el resultado de la respuesta.
+ * Gestiona el inicio de sesión y decide a qué pantalla navegar
+ * según si el jugador ya tiene Pokémon en su equipo.
  */
 @Component({
   selector: 'app-logincomponent',
@@ -15,57 +15,78 @@ import { Authservice } from '../../services/authservice';
   templateUrl: './logincomponent.html',
 })
 export class Logincomponent {
-  /** Servicio de autenticación utilizado para enviar las credenciales y procesar errores HTTP. */
+  /** Servicio que envía las credenciales al back y guarda el token recibido. */
   private authservice = inject(Authservice);
 
-  /** Servicio de enrutamiento para redirigir al usuario tras iniciar sesión o requerir verificación. */
+  /** Servicio de navegación entre las pantallas de Angular. */
   private router = inject(Router);
 
-  /** Nombre de usuario ingresado en el formulario de acceso. */
+  /** Servicio que consulta el equipo del jugador autenticado. */
+  private playergameservice = inject(Playergameservice);
+
+  /** Nombre de usuario ingresado en el formulario. */
   usuario = '';
 
-  /** Contraseña ingresada en el formulario de acceso. */
+  /** Contraseña ingresada en el formulario. */
   contrasena = '';
 
-  /** Mensaje de retroalimentación o error que se muestra en la interfaz. */
+  /** Mensaje informativo o de error mostrado en la pantalla. */
   mensaje = '';
 
-  /** Indica si el mensaje actual corresponde a un estado de error (`true`) o informativo (`false`). */
+  /** Indica si el mensaje actual corresponde a un error. */
   esError = false;
 
-  /** Indica si existe una petición de inicio de sesión en curso para bloquear envíos duplicados o mostrar carga. */
+  /** Indica si el login o la consulta del equipo está en curso. */
   cargando = false;
 
   /**
-   * Envía las credenciales al servicio de autenticación para iniciar sesión.
+   * Envía las credenciales al back.
    *
-   * - Si la autenticación es exitosa, detiene el estado de carga y redirige a `/howtoplay`.
-   * - Si el servidor responde con estado `403` (correo sin verificar), muestra el aviso correspondiente
-   *   y redirige a `/verifyemail`.
-   * - Ante cualquier otro error HTTP, delega la extracción del mensaje legible a `Authservice`.
+   * Si el login es exitoso, consulta el equipo:
+   * - Sin Pokémon: navega a la intro y selección del inicial.
+   * - Con Pokémon: navega directamente al mapa.
+   *
+   * Si el correo aún no está verificado, redirige a la pantalla de verificación.
    */
   ingresar(): void {
     this.mensaje = '';
+    this.esError = false;
     this.cargando = true;
 
     this.authservice.iniciarSesion({
       username: this.usuario,
-      password: this.contrasena
+      password: this.contrasena,
     }).subscribe({
       next: () => {
-        this.cargando = false;
-        this.router.navigate(['/howtoplay']); // aqui cambio a intro cuando tenga la logica funcional
+        // Authservice ya guardó el token antes de emitir la respuesta.
+        this.playergameservice.obtenerEquipo().subscribe({
+          next: equipo => {
+            this.cargando = false;
+
+            if (!equipo || equipo.length === 0) {
+              this.router.navigate(['/intro']);
+            } else {
+              this.router.navigate(['/game']);
+            }
+          },
+          error: (error: HttpErrorResponse) => {
+            this.cargando = false;
+            this.esError = true;
+            this.mensaje = this.authservice.obtenerMensajeError(error);
+          },
+        });
       },
       error: (error: HttpErrorResponse) => {
         this.cargando = false;
         this.esError = true;
+
         if (error.status === 403) {
           this.mensaje = 'Debes verificar tu correo antes de ingresar.';
           this.router.navigate(['/verifyemail']);
         } else {
           this.mensaje = this.authservice.obtenerMensajeError(error);
         }
-      }
+      },
     });
   }
 }

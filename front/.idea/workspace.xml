@@ -36,6 +36,7 @@
     "nodejs_package_manager_path": "npm",
     "npm.Angular CLI Server.executor": "Run",
     "npm.install.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\monik\\Downloads\\pokemagma\\front\\node_modules\\prettier",
     "settings.editor.selected.configurable": "settings.nodejs",
     "ts.external.directory.path": "C:\\Users\\monik\\Downloads\\pokemagma\\front\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"

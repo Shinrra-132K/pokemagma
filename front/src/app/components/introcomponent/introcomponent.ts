@@ -1,39 +1,46 @@
-import { Component, HostListener, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { Musicservice } from '../../services/musicservice';
+import { Playergameservice } from '../../services/playergameservice';
+import {
+  Pokeapiservice,
+  PokemonInicial,
+} from '../../services/pokeapiservice';
 
 /**
- * Representa una opción de Pokémon inicial disponible para seleccionar en el maletín.
- */
-export interface InicialOpcion {
-  /** Número de la Pokédex nacional o regional del Pokémon. */
-  id: number;
-  /** Nombre visible del Pokémon inicial. */
-  nombre: string;
-  /** Ruta del sprite normal del Pokémon que se mostrará al ser elegido. */
-  sprite: string;
-  /** Ruta del ícono de Pokébola mostrado en el selector. */
-  pokeball: string;
-}
-
-/**
- * Componente de introducción narrativa del juego.
- * Gestiona los diálogos iniciales del Profesor Abedul, la entrega de la Pokédex,
- * la selección de uno de los tres Pokémon iniciales y la transición hacia `/game`.
+ * Gestiona la introducción narrativa y la selección del Pokémon inicial.
+ *
+ * Obtiene del back las opciones aleatorias del jugador, consulta sus nombres
+ * y sprites en PokéAPI y guarda en el back el Pokémon elegido.
  */
 @Component({
   selector: 'app-introcomponent',
   standalone: false,
   templateUrl: './introcomponent.html',
-  styleUrl: './introcomponent.css'
+  styleUrl: './introcomponent.css',
 })
 export class Introcomponent implements OnInit, OnDestroy {
-  /** Servicio de enrutamiento para redirigir al escenario principal al finalizar la intro. */
+  /** Servicio de navegación de Angular. */
   private router = inject(Router);
-  /** Servicio encargado de reproducir y gestionar la música de fondo de la introducción. */
+
+  /** Servicio encargado de reproducir la música de la introducción. */
   private musica = inject(Musicservice);
 
-  /** Diálogos introductorios del Profesor Abedul antes de entregar la Pokédex. */
+  /** Servicio que consulta la oferta y registra la selección en el back. */
+  private playergameservice = inject(Playergameservice);
+
+  /** Servicio que consulta nombres y sprites en PokéAPI. */
+  private pokeapiservice = inject(Pokeapiservice);
+
+  /** Diálogos introductorios del Profesor Abedul. */
   lineasAntesPokedex: string[] = [
     '¡Hola! ¡Bienvenido al mundo de los Pokémon!',
     'Me llamo Abedul, aunque todos me conocen como el Profesor Abedul.',
@@ -41,89 +48,88 @@ export class Introcomponent implements OnInit, OnDestroy {
     'Algunas personas los tienen como compañeros. Otras los entrenan para combatir.',
     'Y hay quienes simplemente viven junto a ellos, como buenos amigos.',
     'Los Pokémon están en todas partes: en la hierba alta, en las cuevas, en el mar...',
-    'Yo me dedico a investigar cómo viven y cómo se relacionan con las personas.'
+    'Yo me dedico a investigar cómo viven y cómo se relacionan con las personas.',
   ];
 
-  /** Texto mostrado cuando el profesor entrega la Pokédex. */
-  lineaPokedex = 'Toma, esta es una Pokédex. Registrará automáticamente los datos de los Pokémon que veas o captures.';
+  /** Texto que se muestra cuando el profesor entrega la Pokédex. */
+  lineaPokedex =
+    'Toma, esta es una Pokédex. Registrará automáticamente los datos de los Pokémon que veas o captures.';
 
-  /** Texto mostrado durante la selección de Pokébolas desde el maletín. */
-  lineaPedirInicial = 'Ahora, dentro de este maletín tengo tres Pokébolas. ¡Elige al Pokémon que te acompañará!';
+  /** Texto que introduce la selección del Pokémon inicial. */
+  lineaPedirInicial =
+    'Ahora, dentro de este maletín tengo tres Pokébolas. ¡Elige al Pokémon que te acompañará!';
 
-  /** Última línea de diálogo antes de iniciar la transición de salida hacia `/game`. */
-  lineaDespedida = '¡Explora por las rutas y otras ciudades para encontrar pokemon y combatir con otros entrenadores. ¡Mucha suerte!';
+  /** Diálogo final antes de entrar al mapa. */
+  lineaDespedida =
+    '¡Explora por las rutas y otras ciudades para encontrar pokemon y combatir con otros entrenadores. ¡Mucha suerte!';
 
-  /** Catálogo de Pokémon iniciales (Treecko, Torchic y Mudkip) disponibles para elegir. */
-  iniciales: InicialOpcion[] = [
-    {
-      id: 252,
-      nombre: 'Treecko',
-      sprite: '/assets/sprites/normal/252.png',
-      pokeball: '/assets/images/pokeicon.png'
-    },
-    {
-      id: 255,
-      nombre: 'Torchic',
-      sprite: '/assets/sprites/normal/255.png',
-      pokeball: '/assets/images/pokeicon.png'
-    },
-    {
-      id: 258,
-      nombre: 'Mudkip',
-      sprite: '/assets/sprites/normal/258.png',
-      pokeball: '/assets/images/pokeicon.png'
-    }
-  ];
+  /** Pokémon ofrecidos por el back, con sus datos y sprites obtenidos de PokéAPI. */
+  iniciales: PokemonInicial[] = [];
+
+  /** Indica si se están cargando las opciones de Pokémon. */
+  cargandoIniciales = true;
+
+  /** Indica si se está guardando la elección en el back. */
+  cargandoSeleccion = false;
+
+  /** Mensaje mostrado si falla la carga de las opciones. */
+  errorIniciales = '';
+
+  /** Mensaje mostrado si falla el guardado de la elección. */
+  errorSeleccion = '';
 
   /**
-   * Estado actual de la secuencia de introducción:
-   * `'previo' -> 'pokedex' -> 'seleccion' -> 'confirmado' -> 'despedida'`.
+   * Fase actual de la secuencia:
+   * previo → pokedex → seleccion → confirmado → despedida.
    */
-  fase = signal<'previo' | 'pokedex' | 'seleccion' | 'confirmado' | 'despedida'>('previo');
+  fase = signal<
+    'previo' | 'pokedex' | 'seleccion' | 'confirmado' | 'despedida'
+  >('previo');
 
-  /** Índice de la línea actual dentro de `lineasAntesPokedex` (cuando `fase` es `'previo'`). */
+  /** Índice de la línea actual dentro de `lineasAntesPokedex`. */
   indice = signal(0);
 
-  /** Fragmento o línea completa de texto que se renderiza en el cuadro de diálogo. */
+  /** Texto visible actualmente en el cuadro de diálogo. */
   textoMostrado = signal('');
 
-  /** Indica si actualmente está corriendo el efecto de escritura letra por letra. */
+  /** Indica si el texto se está escribiendo progresivamente. */
   escribiendo = signal(false);
 
-  /** Controla si se muestra el sprite del Profesor Abedul (se oculta si falla la carga). */
+  /** Controla la visibilidad del sprite del Profesor Abedul. */
   mostrarImagen = signal(true);
 
-  /** Controla si se muestra el sprite del Pokémon en escena. */
+  /** Controla la visibilidad del sprite del Pokémon en la escena. */
   mostrarPokemon = signal(true);
 
-  /** Controla si se muestra la imagen del maletín en la fase de selección. */
+  /** Controla la visibilidad de la imagen del maletín. */
   mostrarMaleta = signal(true);
 
-  /** Activa la animación de desvanecimiento de salida antes de navegar a `/game`. */
+  /** Controla la animación de salida hacia el mapa. */
   saliendo = signal(false);
 
-  /** Almacena el Pokémon inicial elegido por el jugador, o `null` si aún no se ha elegido. */
-  inicialSeleccionado = signal<InicialOpcion | null>(null);
+  /** Pokémon elegido por el jugador; es `null` antes de seleccionar. */
+  inicialSeleccionado = signal<PokemonInicial | null>(null);
 
-  /** Ruta del sprite del Pokémon mostrado actualmente (inicialmente un sprite base, luego el elegido). */
+  /** Sprite que se muestra fuera de la fase de selección. */
   pokemonActualSprite = signal('/assets/sprites/normal/001.png');
 
-  /** Identificador del intervalo usado para el efecto de máquina de escribir. */
+  /** Temporizador del efecto de escritura de los diálogos. */
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
-  /** Identificador del temporizador que ejecuta la navegación tras la animación de salida. */
+  /** Temporizador de navegación al mapa. */
   private salida: ReturnType<typeof setTimeout> | undefined;
 
   /**
-   * Inicializa el componente comenzando a escribir la primera línea introductoria.
+   * Inicia la música, el primer diálogo y la carga de la oferta inicial.
    */
   ngOnInit(): void {
     this.musica.reproducirCuandoSePueda('/assets/music/abedulscene.ogg');
     this.escribirTexto(this.lineasAntesPokedex[0]);
+    this.cargarOpcionesIniciales();
   }
 
   /**
-   * Limpia intervalos y temporizadores activos al destruir el componente para evitar fugas de memoria.
+   * Limpia los temporizadores cuando se destruye el componente.
    */
   ngOnDestroy(): void {
     clearInterval(this.temporizador);
@@ -131,17 +137,57 @@ export class Introcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Escucha pulsaciones de teclas a nivel de `window`.
-   * Permite avanzar con `x` o `Espacio` (ignorando repetición al mantener presionada),
-   * excepto durante la fase `'seleccion'`, donde la elección se realiza en una Pokébola.
+   * Carga del back los IDs aleatorios y luego obtiene los Pokémon en PokéAPI.
+   */
+  private cargarOpcionesIniciales(): void {
+    this.cargandoIniciales = true;
+    this.errorIniciales = '';
+
+    this.playergameservice.obtenerOpcionesIniciales().subscribe({
+      next: oferta => {
+        if (oferta.selected) {
+          this.cargandoIniciales = false;
+          this.router.navigate(['/game']);
+          return;
+        }
+
+        const ids = [
+          oferta.generationOneSpeciesId,
+          oferta.generationTwoSpeciesId,
+          oferta.generationThreeSpeciesId,
+        ];
+
+        forkJoin(ids.map(id => this.pokeapiservice.obtenerPokemon(id))).subscribe({
+          next: pokemones => {
+            this.iniciales = pokemones;
+            this.cargandoIniciales = false;
+          },
+          error: () => {
+            this.errorIniciales =
+              'No se pudieron cargar los Pokémon. Intenta recargar la página.';
+            this.cargandoIniciales = false;
+          },
+        });
+      },
+      error: () => {
+        this.errorIniciales =
+          'No se pudo obtener la oferta inicial del servidor.';
+        this.cargandoIniciales = false;
+      },
+    });
+  }
+
+  /**
+   * Permite avanzar los diálogos con X o Espacio.
+   * Durante la selección, el jugador elige haciendo clic en una Pokébola.
    *
-   * @param e Evento de teclado capturado.
+   * @param event evento de teclado capturado en la ventana.
    */
   @HostListener('window:keydown', ['$event'])
-  alPresionar(e: KeyboardEvent): void {
-    if ((e.key === 'x' || e.key === ' ') && !e.repeat) {
-      e.preventDefault();
-      // En la fase de selección de pokébolas, el usuario elige haciendo clic en una
+  alPresionar(event: KeyboardEvent): void {
+    if ((event.key === 'x' || event.key === ' ') && !event.repeat) {
+      event.preventDefault();
+
       if (this.fase() !== 'seleccion') {
         this.avanzar();
       }
@@ -149,32 +195,52 @@ export class Introcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Registra el Pokémon inicial seleccionado, actualiza su sprite en escena,
-   * cambia a la fase `'confirmado'` y muestra el mensaje de confirmación.
+   * Guarda en el back el Pokémon seleccionado.
+   * Después de que el back confirma la operación, revela su sprite y nombre.
    *
-   * @param opcion Opción de Pokémon inicial elegida por el jugador.
-   * @param event Evento de clic para detener la propagación hacia el contenedor padre.
+   * @param opcion Pokémon elegido.
+   * @param event evento de clic que se detiene para no avanzar el diálogo.
    */
-  seleccionarInicial(opcion: InicialOpcion, event: MouseEvent): void {
+  seleccionarInicial(opcion: PokemonInicial, event: MouseEvent): void {
     event.stopPropagation();
-    if (this.fase() !== 'seleccion') return;
 
-    this.inicialSeleccionado.set(opcion);
-    this.pokemonActualSprite.set(opcion.sprite);
-    this.mostrarPokemon.set(true);
-    this.fase.set('confirmado');
-    this.escribirTexto(`¡Has elegido a ${opcion.nombre}! Es un gran compañero.`);
+    if (this.fase() !== 'seleccion' || this.cargandoSeleccion) {
+      return;
+    }
+
+    this.cargandoSeleccion = true;
+    this.errorSeleccion = '';
+
+    this.playergameservice.elegirInicial(opcion.id).subscribe({
+      next: () => {
+        this.cargandoSeleccion = false;
+        this.inicialSeleccionado.set(opcion);
+        this.pokemonActualSprite.set(opcion.sprite);
+        this.mostrarPokemon.set(true);
+        this.fase.set('confirmado');
+        this.escribirTexto(
+          `¡Has elegido a ${opcion.nombre}! Es un gran compañero.`,
+        );
+      },
+      error: () => {
+        this.cargandoSeleccion = false;
+        this.errorSeleccion =
+          'No se pudo guardar la elección. Inténtalo de nuevo.';
+      },
+    });
   }
 
   /**
-   * Avanza el flujo de la introducción.
-   * Si el texto aún se está escribiendo, lo completa de inmediato;
-   * de lo contrario, pasa a la siguiente línea o cambia de `fase` hasta navegar a `/game`.
+   * Avanza los diálogos y las fases de la introducción.
+   * Al terminar la despedida, navega a la pantalla del mapa.
    */
   avanzar(): void {
-    if (this.saliendo()) return;
+    if (this.saliendo() || this.cargandoSeleccion) {
+      return;
+    }
 
     const textoActualObjetivo = this.obtenerTextoObjetivoActual();
+
     if (this.escribiendo() && textoActualObjetivo !== null) {
       clearInterval(this.temporizador);
       this.textoMostrado.set(textoActualObjetivo);
@@ -186,12 +252,13 @@ export class Introcomponent implements OnInit, OnDestroy {
 
     if (faseActual === 'previo') {
       if (this.indice() < this.lineasAntesPokedex.length - 1) {
-        this.indice.update(i => i + 1);
+        this.indice.update(indice => indice + 1);
         this.escribirTexto(this.lineasAntesPokedex[this.indice()]);
       } else {
         this.fase.set('pokedex');
         this.escribirTexto(this.lineaPokedex);
       }
+
       return;
     }
 
@@ -203,7 +270,7 @@ export class Introcomponent implements OnInit, OnDestroy {
     }
 
     if (faseActual === 'seleccion') {
-      // Espera a que el jugador seleccione una de las 3 pokébolas
+      // El jugador debe elegir una de las Pokébolas.
       return;
     }
 
@@ -215,15 +282,16 @@ export class Introcomponent implements OnInit, OnDestroy {
 
     if (faseActual === 'despedida') {
       this.saliendo.set(true);
-      this.salida = setTimeout(() => this.router.navigate(['/game']), 600);
+      this.salida = setTimeout(() => {
+        this.router.navigate(['/game']);
+      }, 600);
     }
   }
 
   /**
-   * Obtiene el texto completo correspondiente a la `fase` activa.
-   * Útil para autocompletar el diálogo si el usuario interrumpe la animación de escritura.
+   * Obtiene el texto completo que corresponde a la fase activa.
    *
-   * @returns La cadena esperada para la fase actual o `null` si no aplica.
+   * @returns diálogo esperado o `null` si la fase no tiene un diálogo.
    */
   private obtenerTextoObjetivoActual(): string | null {
     switch (this.fase()) {
@@ -234,8 +302,11 @@ export class Introcomponent implements OnInit, OnDestroy {
       case 'seleccion':
         return this.lineaPedirInicial;
       case 'confirmado': {
-        const sel = this.inicialSeleccionado();
-        return sel ? `¡Has elegido a ${sel.nombre}! Es un gran compañero.` : '';
+        const seleccionado = this.inicialSeleccionado();
+
+        return seleccionado
+          ? `¡Has elegido a ${seleccionado.nombre}! Es un gran compañero.`
+          : '';
       }
       case 'despedida':
         return this.lineaDespedida;
@@ -245,20 +316,23 @@ export class Introcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Inicia el efecto progresivo de máquina de escribir para una línea de texto.
-   * Cancela cualquier intervalo previo antes de comenzar.
+   * Escribe el diálogo letra por letra y cancela cualquier escritura anterior.
    *
-   * @param linea Texto completo que se irá revelando carácter por carácter.
+   * @param linea texto que se mostrará progresivamente.
    */
   private escribirTexto(linea: string): void {
     clearInterval(this.temporizador);
+
     this.textoMostrado.set('');
     this.escribiendo.set(true);
-    let i = 0;
+
+    let indiceCaracter = 0;
+
     this.temporizador = setInterval(() => {
-      i++;
-      this.textoMostrado.set(linea.slice(0, i));
-      if (i >= linea.length) {
+      indiceCaracter++;
+      this.textoMostrado.set(linea.slice(0, indiceCaracter));
+
+      if (indiceCaracter >= linea.length) {
         clearInterval(this.temporizador);
         this.escribiendo.set(false);
       }
