@@ -4,6 +4,7 @@ import { Mapadatosmodel } from '../../models/mapadatosmodel';
 import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel } from '../../models/npcmodel';
 import { EncounterAction, Wildpokemonmodel } from '../../models/wildpokemonmodel';
 import { BagItemModel } from '../../models/bagmodel';
+import { PauseMenuAction } from '../../models/pausemenuoptionmodel';
 
 /**
  * Componente principal del mapa jugable estilo Game Boy Advance.
@@ -77,6 +78,12 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
   /** Controla si la mochila está abierta en pantalla. */
   mochilaAbierta = false;
+
+  /** Controla si el menú lateral derecho está abierto en pantalla. */
+  menuLateralAbierto = false;
+
+  /** Controla si el perfil de usuario está abierto en pantalla.**/
+  perfilAbierto = false;
 
   /** Estado actual del jugador en la cuadrícula del mapa. */
   jugador: Jugadormodel = {
@@ -161,9 +168,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (e.key === 'Enter' && !e.repeat) {
+    if (e.key === 'Enter' && !e.repeat && !this.perfilAbierto) {
       e.preventDefault();
-      this.alternarMochila();
+      this.alternarMenuLateral();
       return;
     }
 
@@ -179,7 +186,8 @@ export class Mapcomponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (tecla === 'e' && !e.repeat && !this.pokemonSalvaje && !this.dialogoActivo && !this.mochilaAbierta) {
+    if (tecla === 'e' && !e.repeat && !this.pokemonSalvaje && !this.dialogoActivo && !this.mochilaAbierta && !this.menuLateralAbierto &&
+      !this.perfilAbierto) {
       e.preventDefault();
       this.abrirEncuentroPrueba();
     }
@@ -275,7 +283,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private actualizar(dt: number): void {
     const j = this.jugador;
 
-    if (this.dialogoActivo || this.pokemonSalvaje || this.mochilaAbierta) {
+    if (this.dialogoActivo || this.pokemonSalvaje || this.mochilaAbierta || this.menuLateralAbierto || this.perfilAbierto) {
       return;
     }
 
@@ -548,17 +556,53 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Abre o cierra la mochila con Enter (si no hay un encuentro salvaje ni diálogo).
+   * Abre o cierra el menu lateral con Enter.
    */
-  private alternarMochila(): void {
+  private alternarMenuLateral(): void {
     if (this.mochilaAbierta) {
-      this.mochilaAbierta = false;
+      return;
+    }
+    if (this.menuLateralAbierto) {
+      this.menuLateralAbierto = false;
       return;
     }
     if (!this.pokemonSalvaje && !this.dialogoActivo) {
       this.teclas = [];
-      this.mochilaAbierta = true;
+      this.menuLateralAbierto = true;
     }
+  }
+/**
+ * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
+ * ver perfil,seguir jugando y cerrar sesión
+ * **/
+  alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
+    this.menuLateralAbierto = false;
+
+    if (accion === 'bag') {
+      this.mochilaAbierta = true;
+      return;
+    }
+
+    if (accion === 'pokedex') {
+      // Pendiente para el componente de Pokédex
+      return;
+    }
+
+    if (accion === 'profile') {
+      this.perfilAbierto = true;
+      return;
+    }
+
+    if (accion === 'logout') {
+      // Pendiente para cerrar sesión
+    }
+  }
+
+  /**
+   * Cierra el menu lateral para volver a la pantalla del juego.
+   * **/
+  alCerrarMenuLateral(): void {
+    this.menuLateralAbierto = false;
   }
 
   /**
@@ -568,6 +612,11 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private aceptarConTeclaX(): void {
     if (this.dialogoActivo) {
       this.avanzarDialogo();
+      return;
+    }
+
+    if (this.perfilAbierto) {
+      this.perfilAbierto = false;
       return;
     }
 
@@ -584,6 +633,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
         '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])'
       );
       opcionActiva?.click();
+      return;
+    }
+
+    if (this.menuLateralAbierto) {
+      const opcionMenu = document.querySelector<HTMLButtonElement>(
+        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])'
+      );
+      opcionMenu?.click();
       return;
     }
 
