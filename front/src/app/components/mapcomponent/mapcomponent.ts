@@ -1,4 +1,13 @@
-import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Mapaservice } from '../../services/mapaservice';
 import { Mapadatosmodel } from '../../models/mapadatosmodel';
 import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel } from '../../models/npcmodel';
@@ -84,6 +93,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
   /** Controla si el perfil de usuario está abierto en pantalla.**/
   perfilAbierto = false;
+
+  /** Controla si la pokedex del jugador está abierta en pantalla**/
+  pokedexAbierta = false;
 
   /** Estado actual del jugador en la cuadrícula del mapa. */
   jugador: Jugadormodel = {
@@ -186,8 +198,15 @@ export class Mapcomponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (tecla === 'e' && !e.repeat && !this.pokemonSalvaje && !this.dialogoActivo && !this.mochilaAbierta && !this.menuLateralAbierto &&
-      !this.perfilAbierto) {
+    if (
+      tecla === 'e' &&
+      !e.repeat &&
+      !this.pokemonSalvaje &&
+      !this.dialogoActivo &&
+      !this.mochilaAbierta &&
+      !this.menuLateralAbierto &&
+      !this.perfilAbierto
+    ) {
       e.preventDefault();
       this.abrirEncuentroPrueba();
     }
@@ -283,7 +302,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private actualizar(dt: number): void {
     const j = this.jugador;
 
-    if (this.dialogoActivo || this.pokemonSalvaje || this.mochilaAbierta || this.menuLateralAbierto || this.perfilAbierto) {
+    if (
+      this.dialogoActivo ||
+      this.pokemonSalvaje ||
+      this.mochilaAbierta ||
+      this.menuLateralAbierto ||
+      this.perfilAbierto
+    ) {
       return;
     }
 
@@ -389,8 +414,12 @@ export class Mapcomponent implements OnInit, OnDestroy {
     const px = (j.col + (j.moviendo ? v.dc * j.progreso : 0)) * T;
     const py = (j.fila + (j.moviendo ? v.df * j.progreso : 0)) * T;
 
-    const camX = Math.round(Math.max(0, Math.min(px + T / 2 - this.ANCHO / 2, this.fondo.width - this.ANCHO)));
-    const camY = Math.round(Math.max(0, Math.min(py + T / 2 - this.ALTO / 2, this.fondo.height - this.ALTO)));
+    const camX = Math.round(
+      Math.max(0, Math.min(px + T / 2 - this.ANCHO / 2, this.fondo.width - this.ANCHO)),
+    );
+    const camY = Math.round(
+      Math.max(0, Math.min(py + T / 2 - this.ALTO / 2, this.fondo.height - this.ALTO)),
+    );
 
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, this.ANCHO, this.ALTO);
@@ -471,7 +500,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     moviendo: boolean,
     paso: number,
     x: number,
-    y: number
+    y: number,
   ): void {
     if (!img.complete || img.naturalWidth === 0) return;
     let cuadro = 0;
@@ -519,7 +548,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
    * @returns Dirección opuesta.
    */
   private opuesta(d: Direccionmodel): Direccionmodel {
-    return ({ arriba: 'abajo', abajo: 'arriba', izquierda: 'derecha', derecha: 'izquierda' } as const)[d];
+    return (
+      { arriba: 'abajo', abajo: 'arriba', izquierda: 'derecha', derecha: 'izquierda' } as const
+    )[d];
   }
 
   /**
@@ -571,10 +602,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
       this.menuLateralAbierto = true;
     }
   }
-/**
- * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
- * ver perfil,seguir jugando y cerrar sesión
- * **/
+  /**
+   * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
+   * ver perfil,seguir jugando y cerrar sesión
+   * **/
   alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
     this.menuLateralAbierto = false;
 
@@ -584,7 +615,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     if (accion === 'pokedex') {
-      // Pendiente para el componente de Pokédex
+      this.pokedexAbierta = true;
       return;
     }
 
@@ -622,7 +653,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.mochilaAbierta) {
       const filaMochila = document.querySelector<HTMLButtonElement>(
-        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])'
+        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])',
       );
       filaMochila?.click();
       return;
@@ -630,15 +661,23 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.pokemonSalvaje && !this.mochilaAbierta) {
       const opcionActiva = document.querySelector<HTMLButtonElement>(
-        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])'
+        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])',
       );
       opcionActiva?.click();
       return;
     }
 
+    if (this.pokedexAbierta) {
+      const filaPokedex = document.querySelector<HTMLButtonElement>(
+        '.pokedex-overlay .pokedex-fila.seleccionada:not([disabled])'
+      );
+      filaPokedex?.click();
+      return;
+    }
+
     if (this.menuLateralAbierto) {
       const opcionMenu = document.querySelector<HTMLButtonElement>(
-        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])'
+        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])',
       );
       opcionMenu?.click();
       return;
@@ -655,7 +694,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     const botonVisible = document.querySelector<HTMLButtonElement>(
-      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])'
+      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])',
     );
     botonVisible?.click();
   }

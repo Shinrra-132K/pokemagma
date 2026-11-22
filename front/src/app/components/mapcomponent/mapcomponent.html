@@ -24,6 +24,11 @@
       (cerrar)="perfilAbierto = false"
     />
 
+    <app-pokedexcomponent
+      [abierto]="pokedexAbierta"
+      (cerrar)="pokedexAbierta = false"
+    />
+
     @if (dialogoActivo) {
       <div class="dialogo">
         <span class="dialogo-nombre">{{ dialogoActivo.nombre }}</span>
