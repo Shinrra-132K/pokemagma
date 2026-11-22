@@ -20,6 +20,7 @@ import { Wildencountercomponent } from './components/wildencountercomponent/wild
 import { Bagcomponent } from './components/bagcomponent/bagcomponent';
 import { Menucomponent } from './components/menucomponent/menucomponent';
 import { Profilecomponent } from './components/profilecomponent/profilecomponent';
+import { Pokedexcomponent } from './components/pokedexcomponent/pokedexcomponent';
 /**
  * @file app.module.ts
  * @description Módulo raíz de la aplicación Angular. Agrupa todos los componentes,
@@ -43,6 +44,7 @@ import { Profilecomponent } from './components/profilecomponent/profilecomponent
     Bagcomponent,
     Menucomponent,
     Profilecomponent,
+    Pokedexcomponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],

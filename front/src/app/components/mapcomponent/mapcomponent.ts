@@ -92,6 +92,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
   menuLateralAbierto = false;
   perfilAbierto = false;
 
+  /** Controla si la pokedex del jugador está abierta en pantalla**/
+  pokedexAbierta = false;
+
+  /** Estado actual del jugador en la cuadrícula del mapa. */
   jugador: Jugadormodel = {
     col: 128,
     fila: 167,
@@ -185,6 +189,20 @@ export class Mapcomponent implements OnInit, OnDestroy {
     if (e.key === ' ') {
       e.preventDefault();
       this.interactuar();
+      return;
+    }
+
+    if (
+      tecla === 'e' &&
+      !e.repeat &&
+      !this.pokemonSalvaje &&
+      !this.dialogoActivo &&
+      !this.mochilaAbierta &&
+      !this.menuLateralAbierto &&
+      !this.perfilAbierto
+    ) {
+      e.preventDefault();
+      this.abrirEncuentroPrueba();
     }
   }
 
@@ -250,7 +268,6 @@ export class Mapcomponent implements OnInit, OnDestroy {
     const jugador = this.jugador;
 
     if (
-      this.explorando ||
       this.dialogoActivo ||
       this.pokemonSalvaje ||
       this.mochilaAbierta ||
@@ -615,14 +632,11 @@ export class Mapcomponent implements OnInit, OnDestroy {
       )
     );
 
+    const camX = Math.round(
+      Math.max(0, Math.min(px + T / 2 - this.ANCHO / 2, this.fondo.width - this.ANCHO)),
+    );
     const camY = Math.round(
-      Math.max(
-        0,
-        Math.min(
-          py + tamañoTile / 2 - this.ALTO / 2,
-          this.fondo.height - this.ALTO
-        )
-      )
+      Math.max(0, Math.min(py + T / 2 - this.ALTO / 2, this.fondo.height - this.ALTO)),
     );
 
     ctx.imageSmoothingEnabled = false;
@@ -725,7 +739,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     moviendo: boolean,
     paso: number,
     x: number,
-    y: number
+    y: number,
   ): void {
     if (!img.complete || img.naturalWidth === 0) {
       return;
@@ -794,13 +808,16 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  private opuesta(direccion: Direccionmodel): Direccionmodel {
-    return {
-      arriba: 'abajo',
-      abajo: 'arriba',
-      izquierda: 'derecha',
-      derecha: 'izquierda',
-    }[direccion] as Direccionmodel;
+  /**
+   * Retorna la dirección opuesta a la recibida.
+   *
+   * @param d Dirección original.
+   * @returns Dirección opuesta.
+   */
+  private opuesta(d: Direccionmodel): Direccionmodel {
+    return (
+      { arriba: 'abajo', abajo: 'arriba', izquierda: 'derecha', derecha: 'izquierda' } as const
+    )[d];
   }
 
   private escribir(): void {
@@ -853,7 +870,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
       this.menuLateralAbierto = true;
     }
   }
-
+  /**
+   * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
+   * ver perfil,seguir jugando y cerrar sesión
+   * **/
   alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
     this.menuLateralAbierto = false;
 
@@ -863,7 +883,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     if (accion === 'pokedex') {
-      // Pendiente de conectar la pantalla de la Pokédex.
+      this.pokedexAbierta = true;
       return;
     }
 
@@ -894,7 +914,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.mochilaAbierta) {
       const filaMochila = document.querySelector<HTMLButtonElement>(
-        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])'
+        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])',
       );
       filaMochila?.click();
       return;
@@ -902,15 +922,23 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.pokemonSalvaje && !this.mochilaAbierta) {
       const opcionActiva = document.querySelector<HTMLButtonElement>(
-        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])'
+        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])',
       );
       opcionActiva?.click();
       return;
     }
 
+    if (this.pokedexAbierta) {
+      const filaPokedex = document.querySelector<HTMLButtonElement>(
+        '.pokedex-overlay .pokedex-fila.seleccionada:not([disabled])'
+      );
+      filaPokedex?.click();
+      return;
+    }
+
     if (this.menuLateralAbierto) {
       const opcionMenu = document.querySelector<HTMLButtonElement>(
-        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])'
+        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])',
       );
       opcionMenu?.click();
       return;
@@ -927,7 +955,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     const botonVisible = document.querySelector<HTMLButtonElement>(
-      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])'
+      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])',
     );
     botonVisible?.click();
   }
