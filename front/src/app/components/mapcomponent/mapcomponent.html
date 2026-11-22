@@ -4,11 +4,16 @@
 
     <app-wildencountercomponent
       [pokemon]="pokemonSalvaje"
+      [nombreJugador]="nombrePokemonJugador"
+      [nivelJugador]="nivelPokemonJugador"
+      [hpActualJugador]="hpActualJugador"
+      [hpMaximoJugador]="hpMaximoJugador"
       (accionElegida)="alElegirAccionEncuentro($event)"
     />
 
     <app-bagcomponent
       [abierta]="mochilaAbierta"
+      [bolsillos]="bolsillosInventario"
       (objetoSeleccionado)="alSeleccionarObjetoMochila($event)"
       (cerrar)="alCerrarMochila()"
     />
@@ -36,5 +41,4 @@
       </div>
     }
   </div>
-
 </div>
