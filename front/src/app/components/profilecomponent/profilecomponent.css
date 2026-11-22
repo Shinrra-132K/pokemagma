@@ -204,3 +204,16 @@
   font-weight: 700;
   color: #4c615b;
 }
+
+.pokemon-mini-sprite {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.sin-equipo {
+  margin: 4px 0;
+  color: #2f3d39;
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+}

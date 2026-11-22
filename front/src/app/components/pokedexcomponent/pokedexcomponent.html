@@ -3,7 +3,9 @@
     <img
       class="admin-background"
       src="/assets/images/redbackground.jpeg"
-      alt="fondo">
+      alt="Fondo de la Pokédex"
+    >
+
     <section class="pokedex-consola" aria-label="Pokédex">
       <header class="pokedex-barra-superior">
         <span class="pokedex-titulo">POKéDEX</span>
@@ -12,13 +14,15 @@
       <div class="pokedex-zona-central">
         <aside class="pokedex-panel-sprite" aria-label="Imagen del Pokémon">
           <div class="pokedex-marco-sprite">
-            @if (obtenerEntradaActual(); as actual) {
-              @if (actual.sprite && (actual.visto || actual.capturado)) {
+            @if (cargando) {
+              <span class="pokedex-numero-grande">CARGANDO</span>
+            } @else if (obtenerEntradaActual(); as actual) {
+              @if (actual.sprite) {
                 <img
                   class="pokedex-sprite"
                   [src]="actual.sprite"
                   [alt]="actual.nombre"
-                />
+                >
               } @else {
                 <span class="pokedex-numero-grande">
                   #{{ actual.numero.toString().padStart(3, '0') }}
@@ -30,26 +34,43 @@
           </div>
         </aside>
 
-        <div class="pokedex-lista" role="listbox" aria-label="Lista de Pokémon">
-          @for (item of entradas; track item.numero; let i = $index) {
-            <button
-              type="button"
-              class="pokedex-fila"
-              [class.seleccionada]="i === indiceSeleccionado()"
-              (mouseenter)="indiceSeleccionado.set(i)"
-              (click)="confirmarFila(i)"
-            >
-              <span
-                class="pokedex-pokeball"
-                [class.capturado]="item.capturado"
-                [class.visto]="!item.capturado && item.visto"
-                aria-hidden="true"
-              ></span>
-              <span class="pokedex-num">{{ item.numero.toString().padStart(3, '0') }}</span>
-              <span class="pokedex-item-nombre">
-                ---
-              </span>
-            </button>
+        <div class="pokedex-lista" role="listbox" aria-label="Pokémon capturados">
+          @if (cargando) {
+            <p class="pokedex-mensaje">Cargando Pokémon capturados…</p>
+          } @else if (error) {
+            <div class="pokedex-mensaje">
+              <p>{{ error }}</p>
+              <button type="button" class="pokedex-accion" (click)="reintentar()">
+                Reintentar
+              </button>
+            </div>
+          } @else if (entradas.length === 0) {
+            <p class="pokedex-mensaje">
+              Todavía no has capturado Pokémon.
+            </p>
+          } @else {
+            @for (item of entradas; track item.numero; let i = $index) {
+              <button
+                type="button"
+                class="pokedex-fila"
+                [class.seleccionada]="i === indiceSeleccionado()"
+                (mouseenter)="indiceSeleccionado.set(i)"
+                (click)="confirmarFila(i)"
+              >
+                <span
+                  class="pokedex-pokeball capturado"
+                  aria-hidden="true"
+                ></span>
+
+                <span class="pokedex-num">
+                  #{{ item.numero.toString().padStart(3, '0') }}
+                </span>
+
+                <span class="pokedex-item-nombre">
+                  {{ item.nombre }}
+                </span>
+              </button>
+            }
           }
 
           <button
@@ -59,7 +80,10 @@
             (mouseenter)="indiceSeleccionado.set(entradas.length)"
             (click)="confirmarFila(entradas.length)"
           >
-            <span class="pokedex-pokeball pokedex-pokeball-salir" aria-hidden="true"></span>
+            <span
+              class="pokedex-pokeball pokedex-pokeball-salir"
+              aria-hidden="true"
+            ></span>
             <span>SALIR</span>
           </button>
         </div>
@@ -70,31 +94,27 @@
           @if (obtenerEntradaActual(); as actual) {
             <div class="pokedex-info-cabecera">
               <span class="pokedex-info-nombre">
-                {{ actual.visto || actual.capturado ? actual.nombre : 'Desconocido' }}
+                {{ actual.nombre }}
               </span>
+
               <span class="pokedex-info-tipo">
-                TIPO: {{ actual.visto || actual.capturado ? actual.tipo : '???' }}
+                ID: #{{ actual.numero.toString().padStart(3, '0') }}
               </span>
             </div>
+
             <p class="pokedex-info-descripcion">
-              {{
-                actual.visto || actual.capturado
-                  ? actual.descripcion
-                  : 'Aún no hay datos registrados de este Pokémon.'
-              }}
+              Pokémon capturado y registrado en tu Pokédex.
             </p>
           } @else {
             <p class="pokedex-info-descripcion">
-              Confirma con <strong>X</strong> o haz clic en <strong>SALIR</strong> para volver al mapa.
+              Selecciona un Pokémon para ver su ID y nombre. Presiona
+              <strong>Escape</strong> o elige <strong>SALIR</strong> para volver
+              al mapa.
             </p>
           }
         </div>
 
         <div class="pokedex-estadisticas">
-          <div class="pokedex-stat">
-            <span class="pokedex-stat-etiqueta">VISTOS</span>
-            <span class="pokedex-stat-valor">{{ totalVistos() }}</span>
-          </div>
           <div class="pokedex-stat">
             <span class="pokedex-stat-etiqueta">CAPTURADOS</span>
             <span class="pokedex-stat-valor">{{ totalCapturados() }}</span>

@@ -8,75 +8,83 @@
       <div class="tarjeta-interior">
         <header class="cabecera-tarjeta">
           <h2 class="titulo-tarjeta">TRAINER CARD</h2>
-          <div class="caja-id">USERNAME: DYNAMIGHTT:D</div>
+          <div class="caja-id">
+            ID: {{ idUsuario ?? '---' }}
+          </div>
         </header>
 
         <div class="cuerpo-tarjeta">
           <div class="datos-entrenador">
+            @if (cargando) {
+              <p>Cargando perfil…</p>
+            }
+
+            @if (error) {
+              <p role="alert">{{ error }}</p>
+            }
+
             <div class="fila-dato fila-nombre">
               <span class="viñeta-dato" aria-hidden="true"></span>
-              <span class="etiqueta-dato">NAME:</span>
-              <span class="valor-dato">RED</span>
+              <span class="etiqueta-dato">NOMBRE:</span>
+              <span class="valor-dato">{{ nombreUsuario }}</span>
             </div>
 
             <div class="separador-nombre"></div>
 
             <div class="fila-dato">
               <span class="viñeta-dato" aria-hidden="true"></span>
-              <span class="etiqueta-dato">MONEY</span>
-              <span class="valor-dato valor-derecha">₽161216</span>
+              <span class="etiqueta-dato">GÉNERO:</span>
+              <span class="valor-dato valor-derecha">{{ genero }}</span>
             </div>
 
             <div class="fila-dato">
               <span class="viñeta-dato" aria-hidden="true"></span>
-              <span class="etiqueta-dato">POKéDEX</span>
-              <span class="valor-dato valor-derecha">20</span>
-            </div>
-
-            <div class="fila-dato">
-              <span class="viñeta-dato" aria-hidden="true"></span>
-              <span class="etiqueta-dato">TIME</span>
-              <span class="valor-dato valor-derecha">19:56</span>
+              <span class="etiqueta-dato">POKÉMON CAPTURADOS:</span>
+              <span class="valor-dato valor-derecha">
+                {{ cantidadCapturados }}
+              </span>
             </div>
           </div>
 
           <div class="zona-entrenador">
             <img
               class="sprite-entrenador"
-              src="/assets/sprites/normal/brendan.png"
-              alt="Entrenador"
-            />
+              [src]="'/assets/sprites/normal/' + apariencia + '.png'"
+              [alt]="'Entrenador ' + nombreUsuario"
+            >
           </div>
         </div>
 
         <footer class="seccion-pokemon">
-          <div class="etiqueta-pokemon">TOP POKéMON</div>
-          <div class="rejilla-pokemon" aria-label="Pokémon de mayor nivel">
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
+          <div class="etiqueta-pokemon">EQUIPO POKÉMON</div>
+
+          @if (equipo.length > 0) {
+            <div class="rejilla-pokemon" aria-label="Equipo Pokémon">
+              @for (pokemon of equipo; track pokemon.speciesId) {
+                <div class="slot-pokemon">
+                  @if (pokemon.sprite) {
+                    <img
+                      class="pokemon-mini-sprite"
+                      [src]="pokemon.sprite"
+                      [alt]="pokemon.name"
+                    >
+                  }
+
+                  <span class="nombre-poke-mini">
+                    {{ pokemon.name }}
+                  </span>
+
+                  <span class="nivel-poke-mini">
+                    Nv. {{ pokemon.level }}
+                  </span>
+                </div>
+              }
             </div>
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
-            </div>
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
-            </div>
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
-            </div>
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
-            </div>
-            <div class="slot-pokemon">
-              <span class="nombre-poke-mini">---</span>
-              <span class="nivel-poke-mini">Nv.--</span>
-            </div>
-          </div>
+          } @else if (!cargando) {
+            <p class="sin-equipo">
+              Todavía no tienes Pokémon en tu equipo.
+            </p>
+          }
         </footer>
       </div>
     </section>
