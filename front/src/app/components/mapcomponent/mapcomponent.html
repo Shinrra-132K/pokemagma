@@ -13,6 +13,17 @@
       (cerrar)="alCerrarMochila()"
     />
 
+    <app-menucomponent
+      [abierto]="menuLateralAbierto"
+      (accionSeleccionada)="alSeleccionarOpcionMenu($event)"
+      (cerrar)="alCerrarMenuLateral()"
+    />
+
+    <app-profilecomponent
+      [abierto]="perfilAbierto"
+      (cerrar)="perfilAbierto = false"
+    />
+
     @if (dialogoActivo) {
       <div class="dialogo">
         <span class="dialogo-nombre">{{ dialogoActivo.nombre }}</span>
@@ -20,4 +31,5 @@
       </div>
     }
   </div>
+
 </div>

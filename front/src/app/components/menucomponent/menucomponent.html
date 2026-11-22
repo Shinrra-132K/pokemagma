@@ -1,0 +1,26 @@
+@if (abierto) {
+  <div class="menu-lateral-overlay" (click)="cerrar.emit()">
+    <aside
+      class="menu-lateral-panel"
+      aria-label="Menú principal del juego"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="menu-lateral-cabecera">MENÚ</div>
+
+      <nav class="menu-lateral-lista">
+        @for (opcion of opciones; track opcion.accion; let i = $index) {
+          <button
+            type="button"
+            class="menu-lateral-opcion"
+            [class.seleccionada]="i === indiceSeleccionado()"
+            (mouseenter)="indiceSeleccionado.set(i)"
+            (click)="confirmarOpcion(i)"
+          >
+            <span class="menu-lateral-flecha">▶</span>
+            <span>{{ opcion.etiqueta }}</span>
+          </button>
+        }
+      </nav>
+    </aside>
+  </div>
+}
