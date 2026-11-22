@@ -571,7 +571,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
       this.menuLateralAbierto = true;
     }
   }
-
+/**
+ * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
+ * ver perfil,seguir jugando y cerrar sesión
+ * **/
   alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
     this.menuLateralAbierto = false;
 
