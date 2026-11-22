@@ -2,7 +2,7 @@
   <img
     class="admin-background"
     src="/assets/images/redbackground.jpeg"
-    alt=""
+    alt="Fondo del panel de administración"
   >
 
   <div class="admin-layout">
@@ -11,19 +11,21 @@
       name="seccion"
       id="tab-dashboard"
       class="tab-radio"
-      checked
     >
+
     <input
       type="radio"
       name="seccion"
       id="tab-usuarios"
       class="tab-radio"
     >
+
     <input
       type="radio"
       name="seccion"
       id="tab-auditorias"
       class="tab-radio"
+      checked
     >
 
     <aside class="sidebar">
@@ -32,11 +34,12 @@
           <img
             src="/assets/images/pokeicon.png"
             class="brand-icon-pokemon"
-            alt=""
+            alt="Pokébola"
           >
         </span>
         <div>
           <h2>POKEMAGMA</h2>
+          <small>Administración</small>
         </div>
       </div>
 
@@ -44,17 +47,17 @@
         <div class="profile-avatar">
           <img
             src="/assets/sprites/normal/courtney.png"
-            alt=""
+            alt="Avatar administrador"
             class="profile-avatar-entrenadora"
           >
         </div>
         <div>
-          <strong>Administración</strong>
-          <small>Panel administrativo</small>
+          <strong>{{ nombreAdministrador }}</strong>
+          <small>Administrador</small>
         </div>
       </div>
 
-      <nav class="menu">
+      <nav class="menu" aria-label="Secciones administrativas">
         <label for="tab-dashboard">
           <img
             src="/assets/images/dashboard.png"
@@ -83,240 +86,196 @@
         </label>
       </nav>
 
-      <button type="button" class="button logout" routerLink="/home">
-        Volver al inicio
+      <button
+        type="button"
+        class="button logout"
+        (click)="cerrarSesion()"
+      >
+        Cerrar sesión
       </button>
     </aside>
 
     <main class="main-content">
-      <div class="topbar">
-        <h1>Administración</h1>
-        <button
-          type="button"
-          class="button"
-          (click)="cargarDatos()"
-          [disabled]="cargando"
-        >
-          {{ cargando ? 'Cargando…' : 'Actualizar datos' }}
-        </button>
+      <div class="admin-messages" *ngIf="error || aviso">
+        <p class="error-message" role="alert" *ngIf="error">
+          {{ error }}
+        </p>
+        <p class="success-message" role="status" *ngIf="aviso && !error">
+          {{ aviso }}
+        </p>
       </div>
-
-      @if (mensajeError) {
-        <div class="box error-message" role="alert">
-          {{ mensajeError }}
-        </div>
-      }
-
-      @if (cargando) {
-        <div class="box loading-message">
-          Cargando información del servidor…
-        </div>
-      }
 
       <!-- Dashboard -->
       <section class="section" id="sec-dashboard">
         <div class="banner">
           <div>
-            <h2>Resumen del sistema</h2>
-            <p>Datos recibidos desde el backend de Pokemagma.</p>
+            <h2>Auditoría administrativa</h2>
+            <p>Resumen de la actividad y conexión de los jugadores.</p>
           </div>
+
+          <button
+            type="button"
+            class="button"
+            (click)="cargarDatos()"
+            [disabled]="cargando"
+          >
+            {{ cargando ? 'Actualizando…' : 'Actualizar' }}
+          </button>
         </div>
 
         <div class="stats-grid">
           <div class="box stat">
-            <span class="stat-icon">👥</span>
             <div>
-              <p>Jugadores registrados</p>
+              <p>Jugadores en presencia</p>
               <h3>{{ jugadores.length }}</h3>
             </div>
           </div>
 
           <div class="box stat">
-            <span class="stat-icon">🟢</span>
             <div>
               <p>Conectados</p>
-              <h3>{{ jugadoresConectados }}</h3>
+              <h3>{{ cantidadConectados }}</h3>
             </div>
           </div>
 
           <div class="box stat">
-            <span class="stat-icon">⚪</span>
             <div>
               <p>Desconectados</p>
-              <h3>{{ jugadoresDesconectados }}</h3>
+              <h3>{{ cantidadDesconectados }}</h3>
             </div>
           </div>
 
           <div class="box stat">
-            <span class="stat-icon">🔒</span>
             <div>
               <p>Cuentas deshabilitadas</p>
-              <h3>{{ totalDeshabilitados }}</h3>
+              <h3>{{ cantidadDeshabilitados }}</h3>
             </div>
           </div>
         </div>
 
-        <div class="box">
-          <div class="box-heading">
-            <h3>Actividad reciente</h3>
-            <label for="tab-auditorias" class="button">Ver auditorías</label>
+        <div class="dashboard-grid">
+          <div class="box">
+            <div class="box-heading">
+              <h3>Eventos recientes</h3>
+              <label for="tab-auditorias" class="button">
+                Ver auditorías
+              </label>
+            </div>
+
+            <p *ngIf="ultimosEventos.length === 0" class="empty-state">
+              No hay eventos registrados.
+            </p>
+
+            <div
+              class="activity"
+              *ngFor="let evento of ultimosEventos"
+            >
+              <strong>{{ nombreJugador(evento.playerId) }}</strong>
+              <span>{{ evento.type }}</span>
+              <small>{{ evento.createdAt | date:'short' }}</small>
+            </div>
           </div>
 
-          @if (eventos.length === 0) {
-            <p>No hay eventos de auditoría para mostrar.</p>
-          } @else {
-            <div class="table-wrap">
-              <table>
-                <thead>
-                <tr>
-                  <th>Jugador</th>
-                  <th>Acción</th>
-                  <th>Descripción</th>
-                  <th>Fecha</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @for (evento of eventos.slice(0, 5); track evento.id) {
-                    <tr>
-                      <td>{{ nombreJugador(evento.playerId) }}</td>
-                      <td>
-                        <span class="role-badge">
-                          {{ etiquetaEvento(evento.type) }}
-                        </span>
-                      </td>
-                      <td>{{ evento.description }}</td>
-                      <td>{{ evento.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
+          <div class="box summary">
+            <h3>Estado de conexión</h3>
+            <p>Conectados: <strong>{{ cantidadConectados }}</strong></p>
+            <p>Desconectados: <strong>{{ cantidadDesconectados }}</strong></p>
+            <label for="tab-usuarios" class="button">
+              Ver jugadores
+            </label>
+          </div>
         </div>
       </section>
 
-      <!-- Jugadores y presencia -->
+      <!-- Jugadores -->
       <section class="section" id="sec-usuarios">
         <div class="section-title">
           <div>
-            <h2>Jugadores</h2>
-            <p>Estado de conexión y última actividad informada por el backend.</p>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="box stat">
-            <div>
-              <p>Conectados</p>
-              <h3>{{ jugadoresConectados }}</h3>
-            </div>
+            <h2>Jugadores y presencia</h2>
+            <p>Estado informado por el sistema de presencia del backend.</p>
           </div>
 
-          <div class="box stat">
-            <div>
-              <p>Desconectados</p>
-              <h3>{{ jugadoresDesconectados }}</h3>
-            </div>
-          </div>
-
-          <div class="box stat">
-            <div>
-              <p>Cuentas deshabilitadas</p>
-              <h3>{{ totalDeshabilitados }}</h3>
-            </div>
-          </div>
+          <button
+            type="button"
+            class="button"
+            (click)="cargarDatos()"
+            [disabled]="cargando"
+          >
+            {{ cargando ? 'Cargando…' : 'Actualizar' }}
+          </button>
         </div>
 
         <div class="box">
-          <div class="section-title">
-            <div>
-              <h3>Estado de conexión</h3>
-              <p>El backend considera conectado a quien envió actividad recientemente.</p>
-            </div>
-          </div>
+          <h3>Conectados y desconectados</h3>
 
           <input
             class="search"
             type="search"
-            placeholder="Buscar jugador por nombre o ID…"
-            [(ngModel)]="busquedaJugadores"
+            [(ngModel)]="buscarJugador"
+            placeholder="Buscar por usuario o ID..."
+            aria-label="Buscar jugador"
           >
-
-          <div class="filter-buttons">
-            <button
-              type="button"
-              class="button"
-              [class.filter-selected]="filtroEstado === 'TODOS'"
-              (click)="cambiarEstado('TODOS')"
-            >
-              Todos
-            </button>
-            <button
-              type="button"
-              class="button"
-              [class.filter-selected]="filtroEstado === 'ACTIVE'"
-              (click)="cambiarEstado('ACTIVE')"
-            >
-              Conectados
-            </button>
-            <button
-              type="button"
-              class="button"
-              [class.filter-selected]="filtroEstado === 'DISCONNECTED'"
-              (click)="cambiarEstado('DISCONNECTED')"
-            >
-              Desconectados
-            </button>
-          </div>
 
           <div class="table-wrap">
             <table>
               <thead>
               <tr>
                 <th>ID</th>
-                <th>Jugador</th>
+                <th>Usuario</th>
                 <th>Estado</th>
                 <th>Última actividad</th>
+                <th>Acción</th>
               </tr>
               </thead>
               <tbody>
-                @for (jugador of jugadoresFiltrados; track jugador.userId) {
-                  <tr>
-                    <td>{{ jugador.userId }}</td>
-                    <td><strong>{{ jugador.username }}</strong></td>
-                    <td>
-                      <span
-                        class="status-badge"
-                        [class.inactive]="jugador.status !== 'ACTIVE'"
-                      >
-                        {{ etiquetaEstado(jugador.status) }}
-                      </span>
-                    </td>
-                    <td>
-                      @if (jugador.lastSeenAt) {
-                        {{ jugador.lastSeenAt | date:'dd/MM/yyyy HH:mm:ss' }}
-                      } @else {
-                        Sin actividad registrada
-                      }
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="4">No hay jugadores que coincidan con el filtro.</td>
-                  </tr>
-                }
+              <tr *ngFor="let jugador of jugadoresFiltrados">
+                <td>{{ jugador.userId }}</td>
+                <td><strong>{{ jugador.username }}</strong></td>
+                <td>
+                    <span
+                      class="status-badge"
+                      [class.inactive]="jugador.status !== 'ACTIVE'"
+                    >
+                      {{
+                        jugador.status === 'ACTIVE'
+                          ? '● Conectado'
+                          : '● Desconectado'
+                      }}
+                    </span>
+                </td>
+                <td>
+                  {{
+                    jugador.lastSeenAt
+                      ? (jugador.lastSeenAt | date:'medium')
+                      : 'Sin actividad registrada'
+                  }}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="button button-small"
+                    (click)="verEventosDelJugador(jugador.userId)"
+                  >
+                    Ver auditoría
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="jugadoresFiltrados.length === 0">
+                <td colspan="5" class="empty-state">
+                  No hay jugadores para mostrar con esa búsqueda.
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <div class="box disabled-users-box">
-          <div class="section-title">
-            <div>
-              <h3>Cuentas deshabilitadas</h3>
-              <p>Listado devuelto por el endpoint de cuentas deshabilitadas.</p>
-            </div>
-          </div>
+        <div class="box">
+          <h3>Cuentas deshabilitadas</h3>
+          <p>
+            Total reportado por el servidor: {{ cantidadDeshabilitados }}
+          </p>
 
           <div class="table-wrap">
             <table>
@@ -331,22 +290,26 @@
               </tr>
               </thead>
               <tbody>
-                @for (usuario of usuariosDeshabilitados; track usuario.id) {
-                  <tr>
-                    <td>{{ usuario.id }}</td>
-                    <td>{{ usuario.username }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td>{{ usuario.role }}</td>
-                    <td>{{ usuario.emailVerified ? 'Sí' : 'No' }}</td>
-                    <td>
-                      {{ usuario.registeredAt | date:'dd/MM/yyyy' }}
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="6">No hay cuentas deshabilitadas.</td>
-                  </tr>
-                }
+              <tr *ngFor="let usuario of usuariosDeshabilitados">
+                <td>{{ usuario.id }}</td>
+                <td><strong>{{ usuario.username }}</strong></td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.role }}</td>
+                <td>{{ usuario.emailVerified ? 'Sí' : 'No' }}</td>
+                <td>
+                  {{
+                    usuario.registeredAt
+                      ? (usuario.registeredAt | date:'shortDate')
+                      : 'Sin fecha'
+                  }}
+                </td>
+              </tr>
+
+              <tr *ngIf="usuariosDeshabilitados.length === 0">
+                <td colspan="6" class="empty-state">
+                  No hay cuentas deshabilitadas para mostrar.
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -358,55 +321,71 @@
         <div class="section-title">
           <div>
             <h2>Auditorías del sistema</h2>
-            <p>Eventos registrados por el backend.</p>
+            <p>Eventos almacenados por el backend.</p>
+          </div>
+
+          <div class="audit-actions">
+            <button
+              type="button"
+              class="button"
+              (click)="cargarDatos()"
+              [disabled]="cargando"
+            >
+              {{ cargando ? 'Cargando…' : 'Actualizar registros' }}
+            </button>
           </div>
         </div>
 
+        <div class="box audit-filters">
+          <input
+            class="search"
+            type="search"
+            [(ngModel)]="buscar"
+            placeholder="Buscar usuario, descripción o tipo..."
+            aria-label="Buscar eventos"
+          >
+
+          <select
+            class="search"
+            [(ngModel)]="filtroTipo"
+            aria-label="Filtrar por tipo de evento"
+          >
+            <option value="">Todos los tipos</option>
+            <option value="LOGIN">Inicio de sesión</option>
+            <option value="LOGOUT">Cierre de sesión</option>
+            <option value="STARTER_SELECTED">Selección inicial</option>
+            <option value="WILD_ENCOUNTER">Encuentro salvaje</option>
+            <option value="BATTLE">Combate</option>
+            <option value="POKEMON_CAUGHT">Pokémon capturado</option>
+            <option value="ITEM_ACQUIRED">Objeto obtenido</option>
+            <option value="ITEM_USED">Objeto usado</option>
+            <option value="ACCOUNT_DISABLED">Cuenta deshabilitada</option>
+          </select>
+
+          <input
+            class="search"
+            type="number"
+            min="1"
+            [(ngModel)]="filtroJugadorId"
+            placeholder="ID del jugador"
+            aria-label="Filtrar por ID de jugador"
+          >
+
+          <button
+            type="button"
+            class="button"
+            (click)="limpiarFiltros()"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+
         <div class="box">
-          <div class="audit-filters">
-            <input
-              class="search"
-              type="search"
-              placeholder="Buscar por descripción, jugador o ID…"
-              [(ngModel)]="busquedaEventos"
-            >
+          <p *ngIf="cargando" class="empty-state">
+            Cargando eventos…
+          </p>
 
-            <select
-              class="search"
-              [ngModel]="filtroEvento"
-              (ngModelChange)="cambiarTipoEvento($event)"
-            >
-              <option value="TODOS">Todos los tipos</option>
-              <option value="LOGIN">Inicio de sesión</option>
-              <option value="LOGOUT">Cierre de sesión</option>
-              <option value="STARTER_SELECTED">Inicial elegido</option>
-              <option value="WILD_ENCOUNTER">Encuentro salvaje</option>
-              <option value="BATTLE">Combate</option>
-              <option value="POKEMON_CAUGHT">Pokémon capturado</option>
-              <option value="ITEM_ACQUIRED">Objeto obtenido</option>
-              <option value="ITEM_USED">Objeto usado</option>
-              <option value="ACCOUNT_DISABLED">Cuenta deshabilitada</option>
-            </select>
-
-            <select
-              class="search"
-              [ngModel]="jugadorSeleccionado"
-              (ngModelChange)="cargarEventosJugador($event)"
-            >
-              <option value="">Todos los jugadores</option>
-              @for (jugador of jugadores; track jugador.userId) {
-                <option [value]="jugador.userId">
-                  {{ jugador.username }}
-                </option>
-              }
-            </select>
-          </div>
-
-          @if (cargandoEventos) {
-            <p>Cargando eventos…</p>
-          }
-
-          <div class="table-wrap">
+          <div class="table-wrap" *ngIf="!cargando">
             <table>
               <thead>
               <tr>
@@ -415,72 +394,33 @@
                 <th>Tipo</th>
                 <th>Descripción</th>
                 <th>Fecha</th>
-                <th>Detalle</th>
               </tr>
               </thead>
               <tbody>
-                @for (evento of eventosFiltrados; track evento.id) {
-                  <tr>
-                    <td>{{ evento.id }}</td>
-                    <td>{{ nombreJugador(evento.playerId) }}</td>
-                    <td>
-                      <span class="role-badge">
-                        {{ etiquetaEvento(evento.type) }}
-                      </span>
-                    </td>
-                    <td>{{ evento.description }}</td>
-                    <td>{{ evento.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-                    <td>
-                      <button
-                        type="button"
-                        class="button"
-                        (click)="verDetalleEvento(evento.id)"
-                      >
-                        Ver
-                      </button>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="6">No hay eventos para mostrar.</td>
-                  </tr>
-                }
+              <tr *ngFor="let evento of eventosFiltrados">
+                <td>{{ evento.id }}</td>
+                <td>
+                  <strong>{{ nombreJugador(evento.playerId) }}</strong>
+                  <small *ngIf="evento.playerId !== null">
+                    ID: {{ evento.playerId }}
+                  </small>
+                </td>
+                <td>
+                  <span class="role-badge">{{ evento.type }}</span>
+                </td>
+                <td>{{ evento.description }}</td>
+                <td>{{ evento.createdAt | date:'medium' }}</td>
+              </tr>
+
+              <tr *ngIf="eventosFiltrados.length === 0">
+                <td colspan="5" class="empty-state">
+                  No hay eventos que coincidan con los filtros.
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
         </div>
-
-        @if (eventoSeleccionado) {
-          <div class="box event-details">
-            <div class="box-heading">
-              <h3>Evento #{{ eventoSeleccionado.id }}</h3>
-              <button
-                type="button"
-                class="button"
-                (click)="cerrarDetalleEvento()"
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <p>
-              <strong>Jugador:</strong>
-              {{ nombreJugador(eventoSeleccionado.playerId) }}
-            </p>
-            <p>
-              <strong>Tipo:</strong>
-              {{ etiquetaEvento(eventoSeleccionado.type) }}
-            </p>
-            <p>
-              <strong>Descripción:</strong>
-              {{ eventoSeleccionado.description }}
-            </p>
-            <p>
-              <strong>Fecha:</strong>
-              {{ eventoSeleccionado.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
-            </p>
-          </div>
-        }
       </section>
     </main>
   </div>

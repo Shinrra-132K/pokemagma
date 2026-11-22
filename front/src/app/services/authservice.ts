@@ -56,8 +56,8 @@ export class Authservice {
   }
 
   /**
-   * Lee el rol del JWT para decidir la navegación del frontend.
-   * La autorización de las operaciones sigue correspondiendo al backend.
+   * Lee el rol incluido en el JWT para decidir la navegación inicial.
+   * El backend mantiene la responsabilidad de autorizar las operaciones.
    */
   esAdministrador(): boolean {
     const token = this.obtenerToken();
@@ -74,24 +74,24 @@ export class Authservice {
       const base64 = partes[1]
         .replace(/-/g, '+')
         .replace(/_/g, '/');
+
       const base64ConRelleno = base64.padEnd(
         Math.ceil(base64.length / 4) * 4,
         '='
       );
 
-      const binario = atob(base64ConRelleno);
       const bytes = Uint8Array.from(
-        binario,
+        atob(base64ConRelleno),
         caracter => caracter.charCodeAt(0)
       );
+
       const claims = JSON.parse(
         new TextDecoder().decode(bytes)
-      ) as { authorities?: string[] };
+      ) as {
+        authorities?: string[];
+      };
 
-      return claims.authorities?.some(
-        autoridad =>
-          autoridad === 'ROLE_ADMIN' || autoridad === 'ADMIN'
-      ) ?? false;
+      return claims.authorities?.includes('ROLE_ADMIN') ?? false;
     } catch {
       return false;
     }

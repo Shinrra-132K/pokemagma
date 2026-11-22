@@ -8,7 +8,12 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { Mapaservice } from '../../services/mapaservice';
+import { Authservice } from '../../services/authservice';
+import { Playergameservice, BattleState } from '../../services/playergameservice';
+import { Pokeapiservice } from '../../services/pokeapiservice';
 import { Mapadatosmodel } from '../../models/mapadatosmodel';
 import {
   Direccionmodel,
@@ -20,10 +25,7 @@ import {
   EncounterAction,
   Wildpokemonmodel,
 } from '../../models/wildpokemonmodel';
-import {
-  BagItemModel,
-  BagPocketModel,
-} from '../../models/bagmodel';
+import { BagItemModel } from '../../models/bagmodel';
 import { PauseMenuAction } from '../../models/pausemenuoptionmodel';
 import { BattleStateModel } from '../../models/battlestatemodel';
 import { InventoryItemModel } from '../../models/inventoryitemmodel';
@@ -39,27 +41,17 @@ export class Mapcomponent implements OnInit, OnDestroy {
   @ViewChild('lienzo', { static: true })
   lienzo!: ElementRef<HTMLCanvasElement>;
 
-  private mapaservice = inject(Mapaservice);
-  private playergameservice = inject(Playergameservice);
-  private zone = inject(NgZone);
-
-  /** Evita enviar varias solicitudes de captura al mismo tiempo. */
-  private capturaEnCurso = false;
-
-  /** Datos que alimentan la barra de vida del Pokémon del jugador. */
-  nombrePokemonJugador = 'Tu Pokémon';
-  nivelPokemonJugador: number | null = null;
-  hpActualJugador = 100;
-  hpMaximoJugador = 100;
-
-  /** Bolsillos que se muestran en la mochila, con cantidades del back. */
-  bolsillosInventario: BagPocketModel[] = [];
+  private readonly mapaservice = inject(Mapaservice);
+  private readonly authService = inject(Authservice);
+  private readonly router = inject(Router);
+  private readonly playergameservice = inject(Playergameservice);
+  private readonly pokeapiservice = inject(Pokeapiservice);
+  private readonly zone = inject(NgZone);
 
   private readonly ANCHO = 240;
   private readonly ALTO = 160;
-  private readonly RUTA_SPRITE_JUGADOR =
-    '/assets/sprites/normal/men.png';
-  private readonly MAP_ID = 'mapapokemon';
+  private readonly RUTA_SPRITE_JUGADOR = '/assets/sprites/normal/men.png';
+  private readonly MAPA_ID = 'mapapokemon';
 
   private ctx!: CanvasRenderingContext2D;
   private datos!: Mapadatosmodel;
@@ -71,31 +63,21 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private teclas: Direccionmodel[] = [];
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
-  /** Evita iniciar otra exploración mientras responde el servidor. */
-  private explorando = false;
-
-  /** ID del combate creado por el back. */
-  private battleId: number | null = null;
-
-  /** Último estado de combate recibido desde el back. */
-  private estadoCombate: BattleStateModel | null = null;
-
-  /** Pokémon salvaje que se muestra en Wildencountercomponent. */
-  pokemonSalvaje: Wildpokemonmodel | null = null;
-
   private readonly DURACION_PASO_NORMAL = 250;
   private readonly DURACION_PASO_CORRER = 120;
 
   private corriendo = false;
+  private explorandoArbusto = false;
+  private battleId: number | null = null;
+  private capturando = false;
 
+  pokemonSalvaje: Wildpokemonmodel | null = null;
   mochilaAbierta = false;
   menuLateralAbierto = false;
   perfilAbierto = false;
-
-  /** Controla si la pokedex del jugador está abierta en pantalla**/
   pokedexAbierta = false;
+  mensajeCombate = '';
 
-  /** Estado actual del jugador en la cuadrícula del mapa. */
   jugador: Jugadormodel = {
     col: 128,
     fila: 167,
@@ -139,29 +121,21 @@ export class Mapcomponent implements OnInit, OnDestroy {
     this.spriteJugador.src = this.RUTA_SPRITE_JUGADOR;
 
     for (const npc of this.npcs) {
-      const img = new Image();
-      img.src = npc.sprite;
-      this.spritesNpc.set(npc.id, img);
+      const imagen = new Image();
+      imagen.src = npc.sprite;
+      this.spritesNpc.set(npc.id, imagen);
     }
   }
 
   @HostListener('window:keydown', ['$event'])
-  alPresionar(e: KeyboardEvent): void {
-    const tecla = e.key.toLowerCase();
-    const direccion = this.teclaADireccion(e.key);
+  alPresionar(evento: KeyboardEvent): void {
+    const tecla = evento.key.toLowerCase();
+    const direccion = this.teclaADireccion(evento.key);
 
     if (direccion) {
-      e.preventDefault();
+      evento.preventDefault();
 
-      if (
-        !this.explorando &&
-        !this.pokemonSalvaje &&
-        !this.dialogoActivo &&
-        !this.mochilaAbierta &&
-        !this.menuLateralAbierto &&
-        !this.perfilAbierto &&
-        !this.teclas.includes(direccion)
-      ) {
+      if (!this.teclas.includes(direccion)) {
         this.teclas.push(direccion);
       }
 
@@ -169,52 +143,57 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     if (tecla === 'z') {
-      e.preventDefault();
+      evento.preventDefault();
       this.corriendo = true;
       return;
     }
 
-    if (e.key === 'Enter' && !e.repeat && !this.perfilAbierto) {
-      e.preventDefault();
+    if (
+      evento.key === 'Enter' &&
+      !evento.repeat &&
+      !this.perfilAbierto
+    ) {
+      evento.preventDefault();
       this.alternarMenuLateral();
       return;
     }
 
-    if (tecla === 'x' && !e.repeat) {
-      e.preventDefault();
+    if (tecla === 'x' && !evento.repeat) {
+      evento.preventDefault();
       this.aceptarConTeclaX();
       return;
     }
 
-    if (e.key === ' ') {
-      e.preventDefault();
+    if (evento.key === ' ') {
+      evento.preventDefault();
       this.interactuar();
       return;
     }
 
     if (
       tecla === 'e' &&
-      !e.repeat &&
+      !evento.repeat &&
       !this.pokemonSalvaje &&
       !this.dialogoActivo &&
       !this.mochilaAbierta &&
       !this.menuLateralAbierto &&
       !this.perfilAbierto
     ) {
-      e.preventDefault();
+      evento.preventDefault();
       this.abrirEncuentroPrueba();
     }
   }
 
   @HostListener('window:keyup', ['$event'])
-  alSoltar(e: KeyboardEvent): void {
-    const tecla = e.key.toLowerCase();
+  alSoltar(evento: KeyboardEvent): void {
+    const tecla = evento.key.toLowerCase();
 
     if (tecla === 'z') {
       this.corriendo = false;
     }
 
-    const direccion = this.teclaADireccion(e.key);
+    const direccion = this.teclaADireccion(evento.key);
+
     if (direccion) {
       this.teclas = this.teclas.filter(
         teclaActiva => teclaActiva !== direccion
@@ -238,10 +217,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   private bucle = (tiempo: number): void => {
-    const dt = Math.min(tiempo - this.ultimoTiempo, 50);
+    const delta = Math.min(tiempo - this.ultimoTiempo, 50);
     this.ultimoTiempo = tiempo;
 
-    this.actualizar(dt);
+    this.actualizar(delta);
     this.dibujar();
 
     this.idAnimacion = requestAnimationFrame(this.bucle);
@@ -260,11 +239,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  private npcEn(col: number, fila: number): Npcmodel | undefined {
-    return this.npcs.find(npc => npc.col === col && npc.fila === fila);
+  private npcEn(columna: number, fila: number): Npcmodel | undefined {
+    return this.npcs.find(
+      npc => npc.col === columna && npc.fila === fila
+    );
   }
 
-  private actualizar(dt: number): void {
+  private actualizar(delta: number): void {
     const jugador = this.jugador;
 
     if (
@@ -272,7 +253,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
       this.pokemonSalvaje ||
       this.mochilaAbierta ||
       this.menuLateralAbierto ||
-      this.perfilAbierto
+      this.perfilAbierto ||
+      this.pokedexAbierta ||
+      this.explorandoArbusto
     ) {
       return;
     }
@@ -282,13 +265,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
         ? this.DURACION_PASO_CORRER
         : this.DURACION_PASO_NORMAL;
 
-      jugador.progreso += dt / duracion;
+      jugador.progreso += delta / duracion;
 
       if (jugador.progreso >= 1) {
-        const movimiento = this.vector(jugador.direccion);
+        const desplazamiento = this.vector(jugador.direccion);
 
-        jugador.col += movimiento.dc;
-        jugador.fila += movimiento.df;
+        jugador.col += desplazamiento.dc;
+        jugador.fila += desplazamiento.df;
         jugador.progreso = 0;
         jugador.moviendo = false;
         jugador.paso = (jugador.paso + 1) % 2;
@@ -302,13 +285,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
     if (this.teclas.length > 0) {
       jugador.direccion = this.teclas[this.teclas.length - 1];
 
-      const movimiento = this.vector(jugador.direccion);
-      const colDestino = jugador.col + movimiento.dc;
-      const filaDestino = jugador.fila + movimiento.df;
+      const desplazamiento = this.vector(jugador.direccion);
+      const columna = jugador.col + desplazamiento.dc;
+      const fila = jugador.fila + desplazamiento.df;
 
       if (
-        this.mapaservice.esCaminable(this.datos, colDestino, filaDestino) &&
-        !this.npcEn(colDestino, filaDestino)
+        this.mapaservice.esCaminable(this.datos, columna, fila) &&
+        !this.npcEn(columna, fila)
       ) {
         jugador.moviendo = true;
         jugador.progreso = 0;
@@ -316,17 +299,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Consulta al back al terminar un paso sobre una casilla de hierba. */
-  private evaluarSucesosTile(col: number, fila: number): void {
-    if (this.datos.grilla[fila]?.[col] !== 4) {
-      return;
-    }
-
-    if (this.explorando || this.pokemonSalvaje) {
-      return;
-    }
-
-    this.explorando = true;
+  abrirEncuentroPrueba(): void {
     this.teclas = [];
 
     const bushId = `${col}_${fila}`;
@@ -385,241 +358,256 @@ export class Mapcomponent implements OnInit, OnDestroy {
       });
   }
 
-  /** Ejecuta la acción elegida en la pantalla del encuentro. */
+  private evaluarSucesosTile(columna: number, fila: number): void {
+    // Mapaservice asigna el valor 4 a las casillas de hierba.
+    if (this.datos.grilla[fila]?.[columna] !== 4) {
+      return;
+    }
+
+    if (this.explorandoArbusto || this.pokemonSalvaje || this.battleId) {
+      return;
+    }
+
+    this.explorandoArbusto = true;
+    this.teclas = [];
+
+    const bushId = `${columna}-${fila}`;
+
+    this.playergameservice
+      .explorarArbusto(this.MAPA_ID, bushId)
+      .subscribe({
+        next: resultado => {
+          if (!resultado.encounter || resultado.battleId == null) {
+            this.explorandoArbusto = false;
+            return;
+          }
+
+          this.battleId = resultado.battleId;
+
+          this.playergameservice
+            .obtenerCombate(resultado.battleId)
+            .subscribe({
+              next: combate => this.mostrarCombate(combate),
+              error: error => {
+                this.explorandoArbusto = false;
+                this.battleId = null;
+                this.mensajeCombate =
+                  `Se creó el encuentro, pero no se pudo cargar el combate. ` +
+                  `Error ${error.status || ''}`;
+              },
+            });
+        },
+        error: error => {
+          this.explorandoArbusto = false;
+          this.mensajeCombate =
+            `No se pudo explorar el arbusto. Error ${error.status || ''}`;
+        },
+      });
+  }
+
+  private mostrarCombate(combate: BattleState): void {
+    this.pokemonSalvaje = {
+      id: combate.wildSpeciesId,
+      nombre: combate.wildName,
+      nivel: combate.wildLevel,
+      hpActual: combate.wildCurrentHp,
+      hpMaximo: combate.wildMaxHp,
+    };
+
+    this.explorandoArbusto = false;
+    this.mensajeCombate = '';
+
+    this.pokeapiservice.obtenerPokemon(combate.wildSpeciesId).subscribe({
+      next: pokemonApi => {
+        if (this.pokemonSalvaje?.id === combate.wildSpeciesId) {
+          this.pokemonSalvaje = {
+            ...this.pokemonSalvaje,
+            sprite: pokemonApi.sprite,
+          };
+        }
+      },
+      error: () => {
+        // Wildencountercomponent intentará usar el sprite local por ID.
+      },
+    });
+  }
+
+  private actualizarCombate(combate: BattleState): void {
+    if (this.pokemonSalvaje) {
+      this.pokemonSalvaje = {
+        ...this.pokemonSalvaje,
+        id: combate.wildSpeciesId,
+        nombre: combate.wildName,
+        nivel: combate.wildLevel,
+        hpActual: combate.wildCurrentHp,
+        hpMaximo: combate.wildMaxHp,
+      };
+    }
+
+    if (combate.status !== 'ACTIVE') {
+      const mensaje =
+        combate.status === 'WON'
+          ? '¡Ganaste el combate!'
+          : combate.status === 'LOST'
+            ? 'Tu Pokémon ya no puede continuar.'
+            : combate.status === 'FLED'
+              ? 'Escapaste del combate.'
+              : combate.status === 'CAPTURED'
+                ? '¡Pokémon capturado!'
+                : 'El combate terminó.';
+
+      this.pokemonSalvaje = null;
+      this.battleId = null;
+      this.mensajeCombate = mensaje;
+    }
+  }
+
   alElegirAccionEncuentro(accion: EncounterAction): void {
     if (accion === 'bag') {
       this.abrirMochila();
       return;
     }
 
-    if (this.battleId === null) {
-      console.error('No hay un ID de combate activo.');
+    if (this.battleId == null) {
+      this.pokemonSalvaje = null;
       return;
     }
 
-    const battleId = this.battleId;
+    const idCombate = this.battleId;
 
     if (accion === 'run') {
-      this.playergameservice.huir(battleId).subscribe({
-        next: estado => {
-          this.zone.run(() => {
-            this.estadoCombate = estado;
-            this.cerrarEncuentro();
-          });
-        },
+      this.playergameservice.huir(idCombate).subscribe({
+        next: combate => this.actualizarCombate(combate),
         error: error => {
-          console.error('No se pudo huir del combate:', error);
+          this.mensajeCombate =
+            `No se pudo huir del combate. Error ${error.status || ''}`;
         },
       });
 
       return;
     }
 
-    if (accion === 'battle') {
-      this.playergameservice.atacar(battleId).subscribe({
-        next: estado => {
-          this.zone.run(() => {
-            this.actualizarEstadoCombate(estado);
-          });
-        },
-        error: error => {
-          console.error('No se pudo ejecutar el ataque:', error);
-        },
-      });
-    }
-  }
-
-  /** Actualiza las barras con el estado que devuelve el back. */
-  private actualizarEstadoCombate(estado: BattleStateModel): void {
-    this.estadoCombate = estado;
-    this.hpActualJugador = estado.playerCurrentHp;
-    this.hpMaximoJugador = estado.playerMaxHp;
-
-    if (this.pokemonSalvaje) {
-      this.pokemonSalvaje.hpActual = estado.wildCurrentHp;
-      this.pokemonSalvaje.hpMaximo = estado.wildMaxHp;
-    }
-
-    if (estado.status !== 'ACTIVE') {
-      this.cerrarEncuentro();
-    }
-  }
-
-  /** Limpia el estado local al terminar el combate o huir. */
-  private cerrarEncuentro(): void {
-    this.mochilaAbierta = false;
-    this.pokemonSalvaje = null;
-    this.battleId = null;
-    this.estadoCombate = null;
-  }
-
-  /** Abre la mochila y solicita las cantidades actuales al back. */
-  private abrirMochila(): void {
-    this.cargarInventario();
-    this.mochilaAbierta = true;
+    // La opción “Combate” realiza un ataque básico usando el backend.
+    this.playergameservice.atacar(idCombate).subscribe({
+      next: combate => this.actualizarCombate(combate),
+      error: error => {
+        this.mensajeCombate =
+          `No se pudo ejecutar el ataque. Error ${error.status || ''}`;
+      },
+    });
   }
 
   alCerrarMochila(): void {
     this.mochilaAbierta = false;
   }
 
-  /** Procesa la poción, la Poké Ball u otro objeto seleccionado. */
   alSeleccionarObjetoMochila(item: BagItemModel): void {
+    const codigoObjeto = item.id.toLowerCase();
+
+    const esPokebola =
+      codigoObjeto === 'pokeball' ||
+      codigoObjeto === 'pokébola' ||
+      codigoObjeto === 'pokebola';
+
+    if (!esPokebola) {
+      // Los demás objetos todavía no están conectados a una acción de combate.
+      this.mensajeCombate = 'Este objeto aún no tiene una acción configurada.';
+      return;
+    }
+
+    if (this.battleId === null || !this.pokemonSalvaje) {
+      this.mensajeCombate = 'Solo puedes usar una Pokébola durante un combate.';
+      return;
+    }
+
     if (item.cantidad <= 0) {
+      this.mensajeCombate = 'No te quedan Pokébolas.';
       return;
     }
 
-    if (item.id === 'pokeball') {
-      this.intentarCaptura();
+    if (this.capturando) {
       return;
     }
 
-    if (item.id === 'potion') {
-      this.usarPocionEnPokemonActivo();
-      return;
-    }
+    this.capturando = true;
+    const idCombate = this.battleId;
 
-    console.warn(
-      `El objeto "${item.nombre}" todavía no tiene un efecto implementado.`
-    );
-  }
+    this.playergameservice.capturar(idCombate).subscribe({
+      next: combate => {
+        this.capturando = false;
 
-  /** Aplica una poción al Pokémon activo del combate. */
-  private usarPocionEnPokemonActivo(): void {
-    const pokemonId = this.estadoCombate?.playerPokemonId;
+        // El backend consume una Pokébola en cada intento aceptado.
+        item.cantidad = Math.max(0, item.cantidad - 1);
+        this.mochilaAbierta = false;
 
-    if (pokemonId == null) {
-      console.error(
-        'No hay un Pokémon activo seleccionado para recibir la poción.'
-      );
-      return;
-    }
+        this.actualizarCombate(combate);
 
-    this.playergameservice.usarObjeto('POTION', pokemonId).subscribe({
-      next: pokemon => {
-        this.zone.run(() => {
-          this.hpActualJugador = pokemon.currentHp;
-          this.hpMaximoJugador = pokemon.maxHp;
-          this.mochilaAbierta = false;
-
-          if (this.estadoCombate) {
-            this.estadoCombate = {
-              ...this.estadoCombate,
-              playerCurrentHp: pokemon.currentHp,
-              playerMaxHp: pokemon.maxHp,
-            };
-          }
-
-          this.cargarInventario();
-        });
+        if (combate.status === 'CAPTURED') {
+          this.mensajeCombate = `¡Capturaste a ${combate.wildName}!`;
+        } else if (combate.status === 'ACTIVE') {
+          this.mensajeCombate =
+            `¡${combate.wildName} se liberó! El Pokémon salvaje contraataca.`;
+        }
       },
       error: error => {
-        console.error('No se pudo usar la poción:', error);
+        this.capturando = false;
+
+        // Si el backend rechazó el intento, no se descuenta la Pokébola.
+        if (error.status === 0) {
+          this.mensajeCombate = 'No se pudo conectar con el servidor.';
+        } else if (error.status === 401 || error.status === 403) {
+          this.mensajeCombate = 'Tu sesión no está autorizada.';
+        } else {
+          this.mensajeCombate =
+            error.error?.message ||
+            `No se pudo usar la Pokébola (error ${error.status}).`;
+        }
       },
     });
   }
 
-  /** Intenta capturar el Pokémon salvaje actual. */
-  private intentarCaptura(): void {
-    if (!this.pokemonSalvaje || this.battleId === null) {
-      console.error(
-        'Solo puedes lanzar una Poké Ball durante un encuentro salvaje.'
-      );
-      return;
-    }
-
-    if (this.capturaEnCurso) {
-      return;
-    }
-
-    this.capturaEnCurso = true;
-
-    this.playergameservice.capturar(this.battleId).subscribe({
-      next: estado => {
-        this.zone.run(() => {
-          this.capturaEnCurso = false;
-          this.mochilaAbierta = false;
-          this.actualizarEstadoCombate(estado);
-          this.cargarInventario();
-        });
-      },
-      error: error => {
-        this.zone.run(() => {
-          this.capturaEnCurso = false;
-          console.error('No se pudo intentar la captura:', error);
-        });
-      },
-    });
+  alCerrarMenuLateral(): void {
+    this.menuLateralAbierto = false;
   }
 
-  /** Carga los objetos y cantidades actuales desde el back. */
-  private cargarInventario(): void {
-    this.playergameservice.obtenerInventario().subscribe({
-      next: inventario => {
-        const cantidades = new Map<string, number>(
-          (inventario ?? []).map((item: InventoryItemModel) => [
-            item.itemCode.toUpperCase(),
-            item.quantity,
-          ])
-        );
+  alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
+    this.menuLateralAbierto = false;
 
-        this.zone.run(() => {
-          this.bolsillosInventario = [
-            {
-              tipo: 'items',
-              titulo: 'Items',
-              indiceSpriteMochila: 0,
-              objetos: [
-                {
-                  id: 'potion',
-                  nombre: 'Potion',
-                  cantidad: cantidades.get('POTION') ?? 0,
-                  descripcion: 'Restaura hasta 20 HP a un Pokémon.',
-                },
-              ],
-            },
-            {
-              tipo: 'pokeballs',
-              titulo: 'Poké Balls',
-              indiceSpriteMochila: 1,
-              objetos: [
-                {
-                  id: 'pokeball',
-                  nombre: 'Poké Ball',
-                  cantidad: cantidades.get('POKEBALL') ?? 0,
-                  descripcion: 'Intenta capturar al Pokémon salvaje.',
-                },
-              ],
-            },
-            {
-              tipo: 'key-items',
-              titulo: 'Key Items',
-              indiceSpriteMochila: 4,
-              objetos: [],
-            },
-          ];
-        });
-      },
-      error: error => {
-        console.error('No se pudo cargar el inventario:', error);
-      },
-    });
+    if (accion === 'bag') {
+      this.mochilaAbierta = true;
+      return;
+    }
+
+    if (accion === 'pokedex') {
+      this.pokedexAbierta = true;
+      return;
+    }
+
+    if (accion === 'profile') {
+      this.perfilAbierto = true;
+      return;
+    }
+
+    if (accion === 'logout') {
+      this.authService.cerrarSesion();
+      void this.router.navigateByUrl('/home');
+    }
   }
 
   private dibujar(): void {
-    const ctx = this.ctx;
+    const contexto = this.ctx;
     const tamañoTile = this.datos.tamanoTile;
     const jugador = this.jugador;
-    const movimiento = this.vector(jugador.direccion);
+    const desplazamiento = this.vector(jugador.direccion);
 
     const px =
       (jugador.col +
-        (jugador.moviendo ? movimiento.dc * jugador.progreso : 0)) *
+        (jugador.moviendo ? desplazamiento.dc * jugador.progreso : 0)) *
       tamañoTile;
 
     const py =
       (jugador.fila +
-        (jugador.moviendo ? movimiento.df * jugador.progreso : 0)) *
+        (jugador.moviendo ? desplazamiento.df * jugador.progreso : 0)) *
       tamañoTile;
 
     const camX = Math.round(
@@ -632,16 +620,19 @@ export class Mapcomponent implements OnInit, OnDestroy {
       )
     );
 
-    const camX = Math.round(
-      Math.max(0, Math.min(px + T / 2 - this.ANCHO / 2, this.fondo.width - this.ANCHO)),
-    );
     const camY = Math.round(
-      Math.max(0, Math.min(py + T / 2 - this.ALTO / 2, this.fondo.height - this.ALTO)),
+      Math.max(
+        0,
+        Math.min(
+          py + tamañoTile / 2 - this.ALTO / 2,
+          this.fondo.height - this.ALTO
+        )
+      )
     );
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, this.ANCHO, this.ALTO);
-    ctx.drawImage(
+    contexto.imageSmoothingEnabled = false;
+    contexto.clearRect(0, 0, this.ANCHO, this.ALTO);
+    contexto.drawImage(
       this.fondo,
       camX,
       camY,
@@ -673,44 +664,44 @@ export class Mapcomponent implements OnInit, OnDestroy {
     camX: number,
     camY: number
   ): void {
-    const img = this.spriteJugador;
+    const imagen = this.spriteJugador;
 
-    if (!img.complete || img.naturalWidth === 0) {
+    if (!imagen.complete || imagen.naturalWidth === 0) {
       return;
     }
 
-    const sw = img.naturalWidth / 4;
-    const sh = img.naturalHeight / 4;
+    const columnas = 4;
+    const filas = 4;
+    const anchoSprite = imagen.naturalWidth / columnas;
+    const altoSprite = imagen.naturalHeight / filas;
 
-    const filaDireccion: Record<Direccionmodel, number> = {
+    const filaPorDireccion: Record<Direccionmodel, number> = {
       abajo: 0,
       izquierda: 1,
       derecha: 2,
       arriba: 3,
     };
 
-    const fila = filaDireccion[this.jugador.direccion];
+    const fila = filaPorDireccion[this.jugador.direccion];
     const columna = this.jugador.moviendo
       ? this.jugador.paso === 0
         ? 1
         : 3
       : 0;
 
-    const destW = 28;
-    const destH = 24;
-    const destX = Math.round(px - camX);
-    const destY = Math.round(py - camY - (destH - 16));
+    const xDestino = Math.round(px - camX);
+    const yDestino = Math.round(py - camY - (24 - 16));
 
     this.ctx.drawImage(
-      img,
-      columna * sw,
-      fila * sh,
-      sw,
-      sh,
-      destX,
-      destY,
-      destW,
-      destH
+      imagen,
+      columna * anchoSprite,
+      fila * altoSprite,
+      anchoSprite,
+      altoSprite,
+      xDestino,
+      yDestino,
+      28,
+      24
     );
   }
 
@@ -719,11 +710,11 @@ export class Mapcomponent implements OnInit, OnDestroy {
     camX: number,
     camY: number
   ): void {
-    const img = this.spritesNpc.get(npc.id);
+    const imagen = this.spritesNpc.get(npc.id);
 
-    if (img) {
+    if (imagen) {
       this.dibujarSprite(
-        img,
+        imagen,
         npc.direccion,
         false,
         0,
@@ -734,14 +725,14 @@ export class Mapcomponent implements OnInit, OnDestroy {
   }
 
   private dibujarSprite(
-    img: HTMLImageElement,
+    imagen: HTMLImageElement,
     direccion: Direccionmodel,
     moviendo: boolean,
     paso: number,
     x: number,
-    y: number,
+    y: number
   ): void {
-    if (!img.complete || img.naturalWidth === 0) {
+    if (!imagen.complete || imagen.naturalWidth === 0) {
       return;
     }
 
@@ -750,30 +741,42 @@ export class Mapcomponent implements OnInit, OnDestroy {
     if (direccion === 'abajo') {
       cuadro = moviendo ? 3 + paso : 0;
     }
+
     if (direccion === 'arriba') {
       cuadro = moviendo ? 5 + paso : 1;
     }
+
     if (direccion === 'izquierda' || direccion === 'derecha') {
       cuadro = moviendo ? 7 + paso : 2;
     }
 
-    const destY = y - 16;
+    const destinoY = y - 16;
 
     if (direccion === 'derecha') {
       this.ctx.save();
-      this.ctx.translate(x + 16, destY);
+      this.ctx.translate(x + 16, destinoY);
       this.ctx.scale(-1, 1);
-      this.ctx.drawImage(img, cuadro * 16, 0, 16, 16, 0, 0, 16, 16);
+      this.ctx.drawImage(
+        imagen,
+        cuadro * 16,
+        0,
+        16,
+        16,
+        0,
+        0,
+        16,
+        16
+      );
       this.ctx.restore();
     } else {
       this.ctx.drawImage(
-        img,
+        imagen,
         cuadro * 16,
         0,
         16,
         16,
         x,
-        destY,
+        destinoY,
         16,
         16
       );
@@ -787,14 +790,15 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     const jugador = this.jugador;
+
     if (jugador.moviendo) {
       return;
     }
 
-    const movimiento = this.vector(jugador.direccion);
+    const desplazamiento = this.vector(jugador.direccion);
     const npc = this.npcEn(
-      jugador.col + movimiento.dc,
-      jugador.fila + movimiento.df
+      jugador.col + desplazamiento.dc,
+      jugador.fila + desplazamiento.df
     );
 
     if (npc) {
@@ -808,16 +812,13 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Retorna la dirección opuesta a la recibida.
-   *
-   * @param d Dirección original.
-   * @returns Dirección opuesta.
-   */
-  private opuesta(d: Direccionmodel): Direccionmodel {
-    return (
-      { arriba: 'abajo', abajo: 'arriba', izquierda: 'derecha', derecha: 'izquierda' } as const
-    )[d];
+  private opuesta(direccion: Direccionmodel): Direccionmodel {
+    return {
+      arriba: 'abajo',
+      abajo: 'arriba',
+      izquierda: 'derecha',
+      derecha: 'izquierda',
+    }[direccion] as Direccionmodel;
   }
 
   private escribir(): void {
@@ -825,11 +826,11 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     const linea = this.dialogoActivo!.lineas[this.indiceLinea];
     this.textoMostrado = '';
+
     let indice = 0;
 
     this.temporizador = setInterval(() => {
-      indice++;
-      this.textoMostrado = linea.slice(0, indice);
+      this.textoMostrado = linea.slice(0, ++indice);
 
       if (indice >= linea.length) {
         clearInterval(this.temporizador);
@@ -870,36 +871,6 @@ export class Mapcomponent implements OnInit, OnDestroy {
       this.menuLateralAbierto = true;
     }
   }
-  /**
-   * Indica que acción se realiza para cada caso. Abrir mochila, abrir pokedex,
-   * ver perfil,seguir jugando y cerrar sesión
-   * **/
-  alSeleccionarOpcionMenu(accion: PauseMenuAction): void {
-    this.menuLateralAbierto = false;
-
-    if (accion === 'bag') {
-      this.abrirMochila();
-      return;
-    }
-
-    if (accion === 'pokedex') {
-      this.pokedexAbierta = true;
-      return;
-    }
-
-    if (accion === 'profile') {
-      this.perfilAbierto = true;
-      return;
-    }
-
-    if (accion === 'logout') {
-      // Pendiente de conectar el cierre de sesión.
-    }
-  }
-
-  alCerrarMenuLateral(): void {
-    this.menuLateralAbierto = false;
-  }
 
   private aceptarConTeclaX(): void {
     if (this.dialogoActivo) {
@@ -914,7 +885,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.mochilaAbierta) {
       const filaMochila = document.querySelector<HTMLButtonElement>(
-        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])',
+        '.mochila-overlay .fila-mochila.fila-activa:not([disabled])'
       );
       filaMochila?.click();
       return;
@@ -922,7 +893,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.pokemonSalvaje && !this.mochilaAbierta) {
       const opcionActiva = document.querySelector<HTMLButtonElement>(
-        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])',
+        '.encuentro-overlay .opcion-btn.seleccionada:not([disabled])'
       );
       opcionActiva?.click();
       return;
@@ -938,7 +909,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
     if (this.menuLateralAbierto) {
       const opcionMenu = document.querySelector<HTMLButtonElement>(
-        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])',
+        '.menu-lateral-overlay .menu-lateral-opcion.seleccionada:not([disabled])'
       );
       opcionMenu?.click();
       return;
@@ -955,8 +926,9 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
 
     const botonVisible = document.querySelector<HTMLButtonElement>(
-      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])',
+      '.mochila-overlay button:not([disabled]), .encuentro-overlay button:not([disabled])'
     );
+
     botonVisible?.click();
   }
 }

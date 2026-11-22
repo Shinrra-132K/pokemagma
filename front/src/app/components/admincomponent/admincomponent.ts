@@ -1,15 +1,18 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { Adminauditservice } from '../../services/adminauditservice';
-import {
-  AdminGameEvent,
-  AdminUserPresence,
-  AdminUser,
-  AdminEventType,
-} from '../../models/adminauditmodels';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-type FiltroEstado = 'TODOS' | 'ACTIVE' | 'DISCONNECTED';
-type FiltroEvento = 'TODOS' | AdminEventType;
+import { Authservice } from '../../services/authservice';
+import {
+  Adminauditservice,
+  EventoAuditoria,
+  PresenciaJugador,
+  UsuarioDeshabilitado,
+} from '../../services/adminauditservice';
 
 @Component({
   selector: 'app-admincomponent',
@@ -18,203 +21,309 @@ type FiltroEvento = 'TODOS' | AdminEventType;
   templateUrl: './admincomponent.html',
 })
 export class Admincomponent implements OnInit, OnDestroy {
-  private readonly adminAuditService = inject(Adminauditservice);
+  private readonly auditoriaService = inject(Adminauditservice);
+  private readonly authService = inject(Authservice);
+  private readonly router = inject(Router);
 
-  jugadores: AdminUserPresence[] = [];
-  eventos: AdminGameEvent[] = [];
-  usuariosDeshabilitados: AdminUser[] = [];
-  eventoSeleccionado: AdminGameEvent | null = null;
+  eventos: EventoAuditoria[] = [];
+  jugadores: PresenciaJugador[] = [];
+  usuariosDeshabilitados: UsuarioDeshabilitado[] = [];
 
-  totalDeshabilitados = 0;
+  eventoSeleccionado: EventoAuditoria | null = null;
+  nombreAdministrador = 'Administrador';
+
+  buscar = '';
+  buscarJugador = '';
+  filtroTipo = '';
+  filtroJugadorId: number | null = null;
+
   cargando = false;
-  cargandoEventos = false;
-  mensajeError = '';
+  error = '';
+  aviso = '';
+  cantidadDeshabilitados = 0;
 
-  busquedaJugadores = '';
-  busquedaEventos = '';
-  filtroEstado: FiltroEstado = 'TODOS';
-  filtroEvento: FiltroEvento = 'TODOS';
-  jugadorSeleccionado = '';
-
-  private temporizadorPresencia?: ReturnType<typeof setInterval>;
+  private temporizador: ReturnType<typeof setInterval> | null = null;
+  private suscripcionDetalle?: Subscription;
 
   ngOnInit(): void {
     this.cargarDatos();
 
-    // Actualiza la presencia con frecuencia menor a la ventana de 30 s
-    // que usa el backend para considerar activo a un jugador.
-    this.temporizadorPresencia = setInterval(
-      () => this.actualizarPresencia(),
-      15_000
-    );
+    // Actualiza presencia y eventos cada 15 segundos mientras el panel está abierto.
+    this.temporizador = setInterval(() => {
+      this.cargarDatos(false);
+    }, 15000);
   }
 
   ngOnDestroy(): void {
-    if (this.temporizadorPresencia) {
-      clearInterval(this.temporizadorPresencia);
+    if (this.temporizador) {
+      clearInterval(this.temporizador);
     }
+
+    this.suscripcionDetalle?.unsubscribe();
   }
 
-  cargarDatos(): void {
-    this.cargando = true;
-    this.mensajeError = '';
-
-    forkJoin({
-      presencia: this.adminAuditService.obtenerPresencia(),
-      eventos: this.adminAuditService.obtenerEventos(),
-      deshabilitados: this.adminAuditService.obtenerDeshabilitados(),
-      conteoDeshabilitados:
-        this.adminAuditService.obtenerConteoDeshabilitados(),
-    }).subscribe({
-      next: datos => {
-        this.jugadores = datos.presencia ?? [];
-        this.eventos = datos.eventos ?? [];
-        this.usuariosDeshabilitados = datos.deshabilitados ?? [];
-        this.totalDeshabilitados = datos.conteoDeshabilitados.count ?? 0;
-        this.cargando = false;
-      },
-      error: error => {
-        this.cargando = false;
-        this.mensajeError =
-          error.status === 403
-            ? 'Tu cuenta no tiene permisos de administrador.'
-            : 'No se pudieron cargar los datos del panel. Revisa la conexión con el backend.';
-      },
-    });
-  }
-
-  private actualizarPresencia(): void {
-    this.adminAuditService.obtenerPresencia().subscribe({
-      next: presencia => {
-        this.jugadores = presencia ?? [];
-      },
-      error: () => {
-        // La siguiente actualización automática o manual puede recuperar la conexión.
-      },
-    });
-  }
-
-  get jugadoresFiltrados(): AdminUserPresence[] {
-    const texto = this.busquedaJugadores.trim().toLocaleLowerCase();
-
-    return this.jugadores.filter(jugador => {
-      const coincideEstado =
-        this.filtroEstado === 'TODOS' ||
-        jugador.status === this.filtroEstado;
-
-      const coincideTexto =
-        !texto ||
-        jugador.username.toLocaleLowerCase().includes(texto) ||
-        String(jugador.userId).includes(texto);
-
-      return coincideEstado && coincideTexto;
-    });
-  }
-
-  get eventosFiltrados(): AdminGameEvent[] {
-    const texto = this.busquedaEventos.trim().toLocaleLowerCase();
-
-    return this.eventos.filter(evento => {
-      const coincideTipo =
-        this.filtroEvento === 'TODOS' ||
-        evento.type === this.filtroEvento;
-
-      const nombreJugador = this.nombreJugador(evento.playerId)
-        .toLocaleLowerCase();
-
-      const coincideTexto =
-        !texto ||
-        evento.description.toLocaleLowerCase().includes(texto) ||
-        nombreJugador.includes(texto) ||
-        String(evento.playerId ?? '').includes(texto) ||
-        String(evento.id).includes(texto);
-
-      return coincideTipo && coincideTexto;
-    });
-  }
-
-  get jugadoresConectados(): number {
-    return this.jugadores.filter(jugador => jugador.status === 'ACTIVE').length;
-  }
-
-  get jugadoresDesconectados(): number {
+  get cantidadConectados(): number {
     return this.jugadores.filter(
-      jugador => jugador.status === 'DISCONNECTED'
+      jugador => jugador.status === 'ACTIVE'
     ).length;
   }
 
+  get cantidadDesconectados(): number {
+    return this.jugadores.filter(
+      jugador => jugador.status !== 'ACTIVE'
+    ).length;
+  }
+
+  get ultimosEventos(): EventoAuditoria[] {
+    return [...this.eventos]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() -
+          new Date(a.createdAt).getTime()
+      )
+      .slice(0, 5);
+  }
+
+  get jugadoresFiltrados(): PresenciaJugador[] {
+    const texto = this.buscarJugador.trim().toLowerCase();
+
+    if (!texto) {
+      return this.jugadores;
+    }
+
+    return this.jugadores.filter(jugador =>
+      `${jugador.username} ${jugador.userId}`
+        .toLowerCase()
+        .includes(texto)
+    );
+  }
+
+  get eventosFiltrados(): EventoAuditoria[] {
+    const texto = this.buscar.trim().toLowerCase();
+
+    return [...this.eventos]
+      .filter(evento => {
+        const coincideTipo =
+          !this.filtroTipo || evento.type === this.filtroTipo;
+
+        const coincideJugador =
+          this.filtroJugadorId === null ||
+          this.filtroJugadorId === undefined ||
+          evento.playerId === Number(this.filtroJugadorId);
+
+        const nombre = this.nombreJugador(evento.playerId).toLowerCase();
+        const descripcion = (evento.description ?? '').toLowerCase();
+        const tipo = (evento.type ?? '').toLowerCase();
+
+        const coincideTexto =
+          !texto ||
+          nombre.includes(texto) ||
+          descripcion.includes(texto) ||
+          tipo.includes(texto) ||
+          String(evento.playerId ?? '').includes(texto);
+
+        return coincideTipo && coincideJugador && coincideTexto;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() -
+          new Date(a.createdAt).getTime()
+      );
+  }
+
+  cargarDatos(mostrarIndicador = true): void {
+    if (mostrarIndicador) {
+      this.cargando = true;
+    }
+
+    this.error = '';
+    this.aviso = '';
+
+    forkJoin({
+      eventos: this.auditoriaService.obtenerEventos().pipe(
+        catchError(error => {
+          this.registrarError('eventos', error);
+          return of([] as EventoAuditoria[]);
+        })
+      ),
+      jugadores: this.auditoriaService.obtenerPresencia().pipe(
+        catchError(error => {
+          this.registrarError('presencia de jugadores', error);
+          return of([] as PresenciaJugador[]);
+        })
+      ),
+      deshabilitados:
+        this.auditoriaService.obtenerUsuariosDeshabilitados().pipe(
+          catchError(error => {
+            this.registrarError('cuentas deshabilitadas', error);
+            return of([] as UsuarioDeshabilitado[]);
+          })
+        ),
+      cantidadDeshabilitados:
+        this.auditoriaService.obtenerCantidadDeshabilitados().pipe(
+          catchError(error => {
+            this.registrarError('conteo de cuentas deshabilitadas', error);
+            return of({ count: 0 });
+          })
+        ),
+    }).subscribe({
+      next: resultado => {
+        this.eventos = resultado.eventos;
+        this.jugadores = resultado.jugadores;
+        this.usuariosDeshabilitados = resultado.deshabilitados;
+        this.cantidadDeshabilitados =
+          resultado.cantidadDeshabilitados.count ?? 0;
+        this.cargando = false;
+
+        if (!this.error) {
+          this.aviso = 'Datos actualizados correctamente.';
+        }
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar los datos de administración.';
+        this.cargando = false;
+      },
+    });
+  }
+
+  verDetalle(id: number): void {
+    this.suscripcionDetalle?.unsubscribe();
+    this.error = '';
+    this.eventoSeleccionado = null;
+
+    this.suscripcionDetalle = this.auditoriaService
+      .obtenerEventoPorId(id)
+      .subscribe({
+        next: evento => {
+          this.eventoSeleccionado = evento;
+        },
+        error: error => {
+          this.error = this.mensajeError(error);
+        },
+      });
+  }
+
+  verEventosDelJugador(playerId: number): void {
+    this.filtroJugadorId = playerId;
+    this.filtroTipo = '';
+    this.buscar = '';
+
+    this.auditoriaService.obtenerEventosPorJugador(playerId).subscribe({
+      next: eventos => {
+        this.eventos = eventos;
+        this.eventoSeleccionado = null;
+        this.aviso = `Se cargaron los eventos del jugador ${playerId}.`;
+      },
+      error: error => {
+        this.error = this.mensajeError(error);
+      },
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.buscar = '';
+    this.buscarJugador = '';
+    this.filtroTipo = '';
+    this.filtroJugadorId = null;
+    this.eventoSeleccionado = null;
+    this.cargarDatos();
+  }
+
+  cerrarDetalle(): void {
+    this.eventoSeleccionado = null;
+  }
+
   nombreJugador(playerId: number | null): string {
-    if (playerId === null) {
+    if (playerId === null || playerId === undefined) {
       return 'Sistema';
     }
 
-    const jugador = this.jugadores.find(item => item.userId === playerId);
-    return jugador?.username ?? `Jugador #${playerId}`;
+    const jugador = this.jugadores.find(
+      item => item.userId === playerId
+    );
+
+    return jugador?.username ?? `Jugador ${playerId}`;
   }
 
-  cambiarEstado(filtro: FiltroEstado): void {
-    this.filtroEstado = filtro;
-  }
+  exportarCsv(): void {
+    const filas = this.eventosFiltrados;
 
-  cambiarTipoEvento(valor: string): void {
-    this.filtroEvento =
-      valor === 'TODOS' ? 'TODOS' : (valor as AdminEventType);
-  }
+    if (filas.length === 0) {
+      this.aviso = 'No hay registros para exportar.';
+      return;
+    }
 
-  cargarEventosJugador(valor: string): void {
-    this.jugadorSeleccionado = valor;
-    this.eventoSeleccionado = null;
-    this.cargandoEventos = true;
-    this.mensajeError = '';
+    const encabezados = [
+      'ID',
+      'ID jugador',
+      'Usuario',
+      'Tipo',
+      'Descripción',
+      'Fecha',
+    ];
 
-    const solicitud = valor
-      ? this.adminAuditService.obtenerEventosJugador(Number(valor))
-      : this.adminAuditService.obtenerEventos();
+    const escapar = (valor: unknown): string =>
+      `"${String(valor ?? '').replace(/"/g, '""')}"`;
 
-    solicitud.subscribe({
-      next: eventos => {
-        this.eventos = eventos ?? [];
-        this.cargandoEventos = false;
-      },
-      error: () => {
-        this.cargandoEventos = false;
-        this.mensajeError = 'No se pudieron cargar los eventos de auditoría.';
-      },
+    const contenido = [
+      encabezados.map(escapar).join(','),
+      ...filas.map(evento =>
+        [
+          evento.id,
+          evento.playerId ?? '',
+          this.nombreJugador(evento.playerId),
+          evento.type,
+          evento.description,
+          evento.createdAt,
+        ]
+          .map(escapar)
+          .join(',')
+      ),
+    ].join('\r\n');
+
+    const archivo = new Blob(['\uFEFF', contenido], {
+      type: 'text/csv;charset=utf-8;',
     });
+
+    const url = URL.createObjectURL(archivo);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = `auditorias-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+    enlace.click();
+    URL.revokeObjectURL(url);
   }
 
-  verDetalleEvento(id: number): void {
-    this.adminAuditService.obtenerEvento(id).subscribe({
-      next: evento => {
-        this.eventoSeleccionado = evento;
-      },
-      error: () => {
-        this.mensajeError = `No se pudo cargar el evento #${id}.`;
-      },
-    });
+  cerrarSesion(): void {
+    this.authService.cerrarSesion();
+    void this.router.navigate(['/login']);
   }
 
-  cerrarDetalleEvento(): void {
-    this.eventoSeleccionado = null;
+  private registrarError(seccion: string, error: unknown): void {
+    const detalle = this.mensajeError(error);
+    this.error = this.error
+      ? `${this.error} ${seccion}: ${detalle}`
+      : `No se pudieron cargar ${seccion}: ${detalle}`;
   }
 
-  etiquetaEvento(tipo: AdminEventType): string {
-    const etiquetas: Record<AdminEventType, string> = {
-      LOGIN: 'Inicio de sesión',
-      LOGOUT: 'Cierre de sesión',
-      STARTER_SELECTED: 'Inicial elegido',
-      WILD_ENCOUNTER: 'Encuentro salvaje',
-      BATTLE: 'Combate',
-      POKEMON_CAUGHT: 'Pokémon capturado',
-      ITEM_ACQUIRED: 'Objeto obtenido',
-      ITEM_USED: 'Objeto usado',
-      ACCOUNT_DISABLED: 'Cuenta deshabilitada',
-    };
+  private mensajeError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401 || error.status === 403) {
+        return 'Tu sesión no tiene autorización. Inicia sesión con una cuenta administradora.';
+      }
 
-    return etiquetas[tipo] ?? tipo;
-  }
+      if (error.status === 0) {
+        return 'No se pudo conectar con el backend en http://localhost:8080.';
+      }
 
-  etiquetaEstado(estado: string): string {
-    return estado === 'ACTIVE' ? 'Conectado' : 'Desconectado';
+      return `El servidor respondió con el error ${error.status}.`;
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return 'Ocurrió un error inesperado.';
   }
 }

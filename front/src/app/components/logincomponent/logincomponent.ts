@@ -31,13 +31,14 @@ export class Logincomponent {
       password: this.contrasena,
     }).subscribe({
       next: () => {
-        // El servicio guarda el token antes de emitir la respuesta.
+        // Authservice ya guardó el token antes de emitir la respuesta.
         if (this.authservice.esAdministrador()) {
           this.cargando = false;
           void this.router.navigate(['/admin']);
           return;
         }
 
+        // Para los jugadores, conserva el flujo actual según su equipo.
         this.playergameservice.obtenerEquipo().subscribe({
           next: equipo => {
             this.cargando = false;

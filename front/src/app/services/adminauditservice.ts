@@ -1,87 +1,104 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import {
-  AdminGameEvent,
-  AdminUser,
-  AdminUserPresence,
-} from '../models/adminauditmodels';
+
+export interface EventoAuditoria {
+  id: number;
+  playerId: number | null;
+  type: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface PresenciaJugador {
+  userId: number;
+  username: string;
+  status: 'ACTIVE' | 'DISCONNECTED' | string;
+  lastSeenAt: string | null;
+}
+
+export interface UsuarioDeshabilitado {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  enabled: boolean;
+  emailVerified: boolean;
+  registeredAt: string | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class Adminauditservice {
   private readonly http = inject(HttpClient);
-  private readonly url = 'http://localhost:8080/admin/audit';
+  private readonly baseUrl = 'http://localhost:8080/admin/audit';
 
-  /**
-   * Prepara el token que protege las rutas administrativas.
-   */
-  private opcionesAuth() {
+  private obtenerHeaders(): HttpHeaders {
     const token = localStorage.getItem('pokemagma_token');
 
-    return {
-      headers: new HttpHeaders(
-        token ? { Authorization: `Bearer ${token}` } : {}
-      ),
-    };
+    if (!token) {
+      throw new Error('No se encontró el token. Inicia sesión nuevamente.');
+    }
+
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
   }
 
-  /**
-   * Convierte las respuestas vacías del backend (204) en listas vacías.
-   */
-  private obtenerLista<T>(ruta: string): Observable<T[]> {
-    return this.http
-      .get<T[] | null>(`${this.url}${ruta}`, this.opcionesAuth())
-      .pipe(map(respuesta => respuesta ?? []));
+  private listaVaciaSiNoHayContenido<T>(
+    observable: Observable<T[] | null>
+  ): Observable<T[]> {
+    return observable.pipe(map(respuesta => respuesta ?? []));
   }
 
-  /**
-   * Obtiene los eventos de auditoría, del más reciente al más antiguo.
-   */
-  obtenerEventos(): Observable<AdminGameEvent[]> {
-    return this.obtenerLista<AdminGameEvent>('/events/getall');
-  }
-
-  /**
-   * Obtiene los eventos asociados a un jugador.
-   */
-  obtenerEventosJugador(playerId: number): Observable<AdminGameEvent[]> {
-    return this.obtenerLista<AdminGameEvent>(
-      `/events/getbyplayer/${playerId}`
+  obtenerEventos(): Observable<EventoAuditoria[]> {
+    return this.listaVaciaSiNoHayContenido(
+      this.http.get<EventoAuditoria[] | null>(
+        `${this.baseUrl}/events/getall`,
+        { headers: this.obtenerHeaders() }
+      )
     );
   }
 
-  /**
-   * Busca el detalle de un evento por su ID.
-   */
-  obtenerEvento(id: number): Observable<AdminGameEvent> {
-    return this.http.get<AdminGameEvent>(
-      `${this.url}/events/getbyid/${id}`,
-      this.opcionesAuth()
+  obtenerEventoPorId(id: number): Observable<EventoAuditoria> {
+    return this.http.get<EventoAuditoria>(
+      `${this.baseUrl}/events/getbyid/${id}`,
+      { headers: this.obtenerHeaders() }
     );
   }
 
-  /**
-   * Obtiene los jugadores y su estado de presencia.
-   */
-  obtenerPresencia(): Observable<AdminUserPresence[]> {
-    return this.obtenerLista<AdminUserPresence>('/users/presence');
+  obtenerEventosPorJugador(
+    playerId: number
+  ): Observable<EventoAuditoria[]> {
+    return this.listaVaciaSiNoHayContenido(
+      this.http.get<EventoAuditoria[] | null>(
+        `${this.baseUrl}/events/getbyplayer/${playerId}`,
+        { headers: this.obtenerHeaders() }
+      )
+    );
   }
 
-  /**
-   * Obtiene las cuentas deshabilitadas.
-   * El backend debe responder sin contraseñas.
-   */
-  obtenerDeshabilitados(): Observable<AdminUser[]> {
-    return this.obtenerLista<AdminUser>('/users/disabled');
+  obtenerPresencia(): Observable<PresenciaJugador[]> {
+    return this.listaVaciaSiNoHayContenido(
+      this.http.get<PresenciaJugador[] | null>(
+        `${this.baseUrl}/users/presence`,
+        { headers: this.obtenerHeaders() }
+      )
+    );
   }
 
-  /**
-   * Obtiene la cantidad de cuentas deshabilitadas.
-   */
-  obtenerConteoDeshabilitados(): Observable<{ count: number }> {
+  obtenerUsuariosDeshabilitados(): Observable<UsuarioDeshabilitado[]> {
+    return this.listaVaciaSiNoHayContenido(
+      this.http.get<UsuarioDeshabilitado[] | null>(
+        `${this.baseUrl}/users/disabled`,
+        { headers: this.obtenerHeaders() }
+      )
+    );
+  }
+
+  obtenerCantidadDeshabilitados(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(
-      `${this.url}/users/disabled/count`,
-      this.opcionesAuth()
+      `${this.baseUrl}/users/disabled/count`,
+      { headers: this.obtenerHeaders() }
     );
   }
 }
