@@ -27,6 +27,9 @@ import {
 } from '../../models/wildpokemonmodel';
 import { BagItemModel } from '../../models/bagmodel';
 import { PauseMenuAction } from '../../models/pausemenuoptionmodel';
+import { BattleStateModel } from '../../models/battlestatemodel';
+import { InventoryItemModel } from '../../models/inventoryitemmodel';
+import { Playergameservice } from '../../services/playergameservice';
 
 @Component({
   selector: 'app-mapcomponent',
@@ -92,6 +95,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ctx = this.lienzo.nativeElement.getContext('2d')!;
     this.cargarSprites();
+    this.cargarInventario();
 
     this.mapaservice
       .cargarMapa('/assets/maps/mapapokemon.tmj')
@@ -297,11 +301,61 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
   abrirEncuentroPrueba(): void {
     this.teclas = [];
-    this.pokemonSalvaje = {
-      id: 263,
-      nombre: 'Zigzagoon',
-      nivel: 3,
-    };
+
+    const bushId = `${col}_${fila}`;
+
+    this.playergameservice
+      .explorarArbusto(this.MAP_ID, bushId)
+      .subscribe({
+        next: resultado => {
+          this.zone.run(() => {
+            this.explorando = false;
+
+            if (
+              !resultado.encounter ||
+              resultado.battleId == null ||
+              resultado.speciesId == null ||
+              !resultado.pokemonName
+            ) {
+              return;
+            }
+
+            this.battleId = resultado.battleId;
+            this.pokemonSalvaje = {
+              id: resultado.speciesId,
+              nombre: resultado.pokemonName,
+              nivel: resultado.level,
+              sprite:
+                `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${resultado.speciesId}.png`,
+            };
+
+            this.playergameservice
+              .obtenerCombate(resultado.battleId)
+              .subscribe({
+                next: estado => {
+                  this.zone.run(() => {
+                    this.actualizarEstadoCombate(estado);
+                  });
+                },
+                error: error => {
+                  console.error(
+                    'No se pudo cargar el estado inicial del combate:',
+                    error
+                  );
+                },
+              });
+          });
+        },
+        error: error => {
+          this.zone.run(() => {
+            this.explorando = false;
+            console.error(
+              'No se pudo consultar el encuentro salvaje:',
+              error
+            );
+          });
+        },
+      });
   }
 
   private evaluarSucesosTile(columna: number, fila: number): void {
@@ -410,7 +464,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
 
   alElegirAccionEncuentro(accion: EncounterAction): void {
     if (accion === 'bag') {
-      this.mochilaAbierta = true;
+      this.abrirMochila();
       return;
     }
 
