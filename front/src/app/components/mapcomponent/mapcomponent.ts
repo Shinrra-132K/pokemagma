@@ -1,11 +1,33 @@
-import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild, inject, } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Mapaservice } from '../../services/mapaservice';
 import { Mapadatosmodel } from '../../models/mapadatosmodel';
-import { Direccionmodel, Dialogomodel, Jugadormodel, Npcmodel, } from '../../models/npcmodel';
-import { EncounterAction, Wildpokemonmodel, } from '../../models/wildpokemonmodel';
-import { BagItemModel } from '../../models/bagmodel';
+import {
+  Direccionmodel,
+  Dialogomodel,
+  Jugadormodel,
+  Npcmodel,
+} from '../../models/npcmodel';
+import {
+  EncounterAction,
+  Wildpokemonmodel,
+} from '../../models/wildpokemonmodel';
+import {
+  BagItemModel,
+  BagPocketModel,
+} from '../../models/bagmodel';
 import { PauseMenuAction } from '../../models/pausemenuoptionmodel';
-import { BattleState, Playergameservice, } from '../../services/playergameservice';
+import { BattleStateModel } from '../../models/battlestatemodel';
+import { InventoryItemModel } from '../../models/inventoryitemmodel';
+import { Playergameservice } from '../../services/playergameservice';
 
 @Component({
   selector: 'app-mapcomponent',
@@ -20,8 +42,18 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private mapaservice = inject(Mapaservice);
   private playergameservice = inject(Playergameservice);
   private zone = inject(NgZone);
+
   /** Evita enviar varias solicitudes de captura al mismo tiempo. */
   private capturaEnCurso = false;
+
+  /** Datos que alimentan la barra de vida del Pokémon del jugador. */
+  nombrePokemonJugador = 'Tu Pokémon';
+  nivelPokemonJugador: number | null = null;
+  hpActualJugador = 100;
+  hpMaximoJugador = 100;
+
+  /** Bolsillos que se muestran en la mochila, con cantidades del back. */
+  bolsillosInventario: BagPocketModel[] = [];
 
   private readonly ANCHO = 240;
   private readonly ALTO = 160;
@@ -46,7 +78,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   private battleId: number | null = null;
 
   /** Último estado de combate recibido desde el back. */
-  private estadoCombate: BattleState | null = null;
+  private estadoCombate: BattleStateModel | null = null;
 
   /** Pokémon salvaje que se muestra en Wildencountercomponent. */
   pokemonSalvaje: Wildpokemonmodel | null = null;
@@ -77,6 +109,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ctx = this.lienzo.nativeElement.getContext('2d')!;
     this.cargarSprites();
+    this.cargarInventario();
 
     this.mapaservice
       .cargarMapa('/assets/maps/mapapokemon.tmj')
@@ -266,14 +299,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Consulta al back al finalizar un paso sobre una casilla de hierba.
-   * Mapaservice identifica la hierba con el valor 4.
-   */
-  /**
-   * Consulta al back al terminar un paso sobre una casilla de hierba.
-   * Si ocurre un encuentro, carga el combate y el Pokémon del jugador.
-   */
+  /** Consulta al back al terminar un paso sobre una casilla de hierba. */
   private evaluarSucesosTile(col: number, fila: number): void {
     if (this.datos.grilla[fila]?.[col] !== 4) {
       return;
@@ -313,6 +339,21 @@ export class Mapcomponent implements OnInit, OnDestroy {
                 `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${resultado.speciesId}.png`,
             };
 
+            this.playergameservice
+              .obtenerCombate(resultado.battleId)
+              .subscribe({
+                next: estado => {
+                  this.zone.run(() => {
+                    this.actualizarEstadoCombate(estado);
+                  });
+                },
+                error: error => {
+                  console.error(
+                    'No se pudo cargar el estado inicial del combate:',
+                    error
+                  );
+                },
+              });
           });
         },
         error: error => {
@@ -327,12 +368,10 @@ export class Mapcomponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Ejecuta la acción seleccionada en Wildencountercomponent.
-   */
+  /** Ejecuta la acción elegida en la pantalla del encuentro. */
   alElegirAccionEncuentro(accion: EncounterAction): void {
     if (accion === 'bag') {
-      this.mochilaAbierta = true;
+      this.abrirMochila();
       return;
     }
 
@@ -373,31 +412,23 @@ export class Mapcomponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Actualiza los HP mostrados mientras el combate sigue activo.
-   */
-  /**
-   * Actualiza los puntos de vida de ambos Pokémon con la respuesta del back.
-   * Cierra el encuentro si el combate ya terminó.
-   */
-  private actualizarEstadoCombate(estado: BattleState): void {
+  /** Actualiza las barras con el estado que devuelve el back. */
+  private actualizarEstadoCombate(estado: BattleStateModel): void {
     this.estadoCombate = estado;
-
-    if (estado.status !== 'ACTIVE') {
-      this.cerrarEncuentro();
-      return;
-    }
+    this.hpActualJugador = estado.playerCurrentHp;
+    this.hpMaximoJugador = estado.playerMaxHp;
 
     if (this.pokemonSalvaje) {
       this.pokemonSalvaje.hpActual = estado.wildCurrentHp;
       this.pokemonSalvaje.hpMaximo = estado.wildMaxHp;
     }
 
+    if (estado.status !== 'ACTIVE') {
+      this.cerrarEncuentro();
+    }
   }
 
-  /**
-   * Limpia el estado local al terminar el combate o huir.
-   */
+  /** Limpia el estado local al terminar el combate o huir. */
   private cerrarEncuentro(): void {
     this.mochilaAbierta = false;
     this.pokemonSalvaje = null;
@@ -405,49 +436,94 @@ export class Mapcomponent implements OnInit, OnDestroy {
     this.estadoCombate = null;
   }
 
+  /** Abre la mochila y solicita las cantidades actuales al back. */
+  private abrirMochila(): void {
+    this.cargarInventario();
+    this.mochilaAbierta = true;
+  }
+
   alCerrarMochila(): void {
     this.mochilaAbierta = false;
   }
 
-  /**
-   * Gestiona un objeto seleccionado en la mochila.
-   * Si hay un encuentro activo y el objeto es una Poké Ball, solicita
-   * al back que intente capturar al Pokémon salvaje.
-   *
-   * @param item objeto seleccionado por el jugador.
-   */
+  /** Procesa la poción, la Poké Ball u otro objeto seleccionado. */
   alSeleccionarObjetoMochila(item: BagItemModel): void {
-    // Si no hay encuentro o no se seleccionó una Poké Ball,
-    // conserva el comportamiento actual de la mochila.
-    if (
-      !this.pokemonSalvaje ||
-      this.battleId === null ||
-      item.id !== 'pokeball'
-    ) {
-      this.mochilaAbierta = item.cantidad > 0;
+    if (item.cantidad <= 0) {
       return;
     }
 
-    // Evita enviar varias solicitudes mientras una captura está procesándose.
+    if (item.id === 'pokeball') {
+      this.intentarCaptura();
+      return;
+    }
+
+    if (item.id === 'potion') {
+      this.usarPocionEnPokemonActivo();
+      return;
+    }
+
+    console.warn(
+      `El objeto "${item.nombre}" todavía no tiene un efecto implementado.`
+    );
+  }
+
+  /** Aplica una poción al Pokémon activo del combate. */
+  private usarPocionEnPokemonActivo(): void {
+    const pokemonId = this.estadoCombate?.playerPokemonId;
+
+    if (pokemonId == null) {
+      console.error(
+        'No hay un Pokémon activo seleccionado para recibir la poción.'
+      );
+      return;
+    }
+
+    this.playergameservice.usarObjeto('POTION', pokemonId).subscribe({
+      next: pokemon => {
+        this.zone.run(() => {
+          this.hpActualJugador = pokemon.currentHp;
+          this.hpMaximoJugador = pokemon.maxHp;
+          this.mochilaAbierta = false;
+
+          if (this.estadoCombate) {
+            this.estadoCombate = {
+              ...this.estadoCombate,
+              playerCurrentHp: pokemon.currentHp,
+              playerMaxHp: pokemon.maxHp,
+            };
+          }
+
+          this.cargarInventario();
+        });
+      },
+      error: error => {
+        console.error('No se pudo usar la poción:', error);
+      },
+    });
+  }
+
+  /** Intenta capturar el Pokémon salvaje actual. */
+  private intentarCaptura(): void {
+    if (!this.pokemonSalvaje || this.battleId === null) {
+      console.error(
+        'Solo puedes lanzar una Poké Ball durante un encuentro salvaje.'
+      );
+      return;
+    }
+
     if (this.capturaEnCurso) {
       return;
     }
 
     this.capturaEnCurso = true;
-    const battleId = this.battleId;
 
-    this.playergameservice.capturar(battleId).subscribe({
+    this.playergameservice.capturar(this.battleId).subscribe({
       next: estado => {
         this.zone.run(() => {
           this.capturaEnCurso = false;
           this.mochilaAbierta = false;
-
-          /*
-           * Si el back devuelve un combate terminado, actualizarEstadoCombate()
-           * cierra el encuentro. Si la captura falla y sigue ACTIVE, actualiza
-           * los HP y mantiene el Pokémon salvaje en pantalla.
-           */
           this.actualizarEstadoCombate(estado);
+          this.cargarInventario();
         });
       },
       error: error => {
@@ -455,6 +531,60 @@ export class Mapcomponent implements OnInit, OnDestroy {
           this.capturaEnCurso = false;
           console.error('No se pudo intentar la captura:', error);
         });
+      },
+    });
+  }
+
+  /** Carga los objetos y cantidades actuales desde el back. */
+  private cargarInventario(): void {
+    this.playergameservice.obtenerInventario().subscribe({
+      next: inventario => {
+        const cantidades = new Map<string, number>(
+          (inventario ?? []).map((item: InventoryItemModel) => [
+            item.itemCode.toUpperCase(),
+            item.quantity,
+          ])
+        );
+
+        this.zone.run(() => {
+          this.bolsillosInventario = [
+            {
+              tipo: 'items',
+              titulo: 'Items',
+              indiceSpriteMochila: 0,
+              objetos: [
+                {
+                  id: 'potion',
+                  nombre: 'Potion',
+                  cantidad: cantidades.get('POTION') ?? 0,
+                  descripcion: 'Restaura hasta 20 HP a un Pokémon.',
+                },
+              ],
+            },
+            {
+              tipo: 'pokeballs',
+              titulo: 'Poké Balls',
+              indiceSpriteMochila: 1,
+              objetos: [
+                {
+                  id: 'pokeball',
+                  nombre: 'Poké Ball',
+                  cantidad: cantidades.get('POKEBALL') ?? 0,
+                  descripcion: 'Intenta capturar al Pokémon salvaje.',
+                },
+              ],
+            },
+            {
+              tipo: 'key-items',
+              titulo: 'Key Items',
+              indiceSpriteMochila: 4,
+              objetos: [],
+            },
+          ];
+        });
+      },
+      error: error => {
+        console.error('No se pudo cargar el inventario:', error);
       },
     });
   }
@@ -728,7 +858,7 @@ export class Mapcomponent implements OnInit, OnDestroy {
     this.menuLateralAbierto = false;
 
     if (accion === 'bag') {
-      this.mochilaAbierta = true;
+      this.abrirMochila();
       return;
     }
 
@@ -801,5 +931,4 @@ export class Mapcomponent implements OnInit, OnDestroy {
     );
     botonVisible?.click();
   }
-
 }

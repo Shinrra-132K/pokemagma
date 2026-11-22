@@ -1,46 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-/** Oferta de Pokémon iniciales asignada por el back al jugador. */
-export interface StarterOptions {
-  generationOneSpeciesId: number;
-  generationTwoSpeciesId: number;
-  generationThreeSpeciesId: number;
-  selected: boolean;
-}
-
-/** Pokémon perteneciente al equipo del jugador. */
-export interface PlayerPokemon {
-  id: number;
-  speciesId: number;
-  nickname: string | null;
-  level: number;
-}
-
-/** Respuesta del back al explorar una casilla de hierba. */
-export interface ExploreResult {
-  encounter: boolean;
-  battleId: number | null;
-  speciesId: number | null;
-  pokemonName: string | null;
-  level: number;
-}
-
-/** Estado de un combate devuelto por el back. */
-export interface BattleState {
-  id: number;
-  playerPokemonId: number;
-  wildSpeciesId: number;
-  wildName: string;
-  wildLevel: number;
-  wildCurrentHp: number;
-  wildMaxHp: number;
-  playerCurrentHp: number;
-  playerMaxHp: number;
-  status: string;
-  turnNumber: number;
-}
+import { BattleStateModel } from '../models/battlestatemodel';
+import { ExploreResultModel } from '../models/exploreresultmodel';
+import { PlayerPokemonModel } from '../models/playerpokemonmodel';
+import { StarterOptionsModel } from '../models/starteroptionsmodel';
+import { InventoryItemModel } from '../models/inventoryitemmodel';
 
 @Injectable({ providedIn: 'root' })
 export class Playergameservice {
@@ -67,8 +32,8 @@ export class Playergameservice {
    * Consulta el equipo del jugador autenticado.
    * El back responde 204 si el equipo está vacío.
    */
-  obtenerEquipo(): Observable<PlayerPokemon[] | null> {
-    return this.http.get<PlayerPokemon[]>(
+  obtenerEquipo(): Observable<PlayerPokemonModel[] | null> {
+    return this.http.get<PlayerPokemonModel[]>(
       `${this.url}/team/getall`,
       this.opcionesAuth()
     );
@@ -77,8 +42,8 @@ export class Playergameservice {
   /**
    * Obtiene las tres opciones iniciales asignadas por el back.
    */
-  obtenerOpcionesIniciales(): Observable<StarterOptions> {
-    return this.http.get<StarterOptions>(
+  obtenerOpcionesIniciales(): Observable<StarterOptionsModel> {
+    return this.http.get<StarterOptionsModel>(
       `${this.url}/starters/getoptions`,
       this.opcionesAuth()
     );
@@ -89,8 +54,8 @@ export class Playergameservice {
    *
    * @param speciesId identificador de especie del Pokémon.
    */
-  elegirInicial(speciesId: number): Observable<PlayerPokemon> {
-    return this.http.post<PlayerPokemon>(
+  elegirInicial(speciesId: number): Observable<PlayerPokemonModel> {
+    return this.http.post<PlayerPokemonModel>(
       `${this.url}/starters/select`,
       { speciesId },
       this.opcionesAuth()
@@ -106,8 +71,8 @@ export class Playergameservice {
   explorarArbusto(
     mapId: string,
     bushId: string
-  ): Observable<ExploreResult> {
-    return this.http.post<ExploreResult>(
+  ): Observable<ExploreResultModel> {
+    return this.http.post<ExploreResultModel>(
       `${this.url}/explore`,
       { mapId, bushId },
       this.opcionesAuth()
@@ -119,8 +84,8 @@ export class Playergameservice {
    *
    * @param battleId identificador del combate activo.
    */
-  atacar(battleId: number): Observable<BattleState> {
-    return this.http.post<BattleState>(
+  atacar(battleId: number): Observable<BattleStateModel> {
+    return this.http.post<BattleStateModel>(
       `${this.url}/battles/${battleId}/attack`,
       {},
       this.opcionesAuth()
@@ -132,8 +97,8 @@ export class Playergameservice {
    *
    * @param battleId identificador del combate activo.
    */
-  huir(battleId: number): Observable<BattleState> {
-    return this.http.post<BattleState>(
+  huir(battleId: number): Observable<BattleStateModel> {
+    return this.http.post<BattleStateModel>(
       `${this.url}/battles/${battleId}/run`,
       {},
       this.opcionesAuth()
@@ -145,10 +110,35 @@ export class Playergameservice {
    *
    * @param battleId identificador del combate activo.
    */
-  capturar(battleId: number): Observable<BattleState> {
-    return this.http.post<BattleState>(
+  capturar(battleId: number): Observable<BattleStateModel> {
+    return this.http.post<BattleStateModel>(
       `${this.url}/battles/${battleId}/capture`,
       {},
+      this.opcionesAuth()
+    );
+  }
+
+  obtenerCombate(battleId: number): Observable<BattleStateModel> {
+    return this.http.get<BattleStateModel>(
+      `${this.url}/battles/getbyid/${battleId}`,
+      this.opcionesAuth()
+    );
+  }
+
+  obtenerInventario(): Observable<InventoryItemModel[] | null> {
+    return this.http.get<InventoryItemModel[]>(
+      'http://localhost:8080/player/inventory/getall',
+      this.opcionesAuth()
+    );
+  }
+
+  usarObjeto(
+    itemCode: string,
+    playerPokemonId: number
+  ): Observable<PlayerPokemonModel> {
+    return this.http.post<PlayerPokemonModel>(
+      `${this.url}/items/use`,
+      { itemCode, playerPokemonId },
       this.opcionesAuth()
     );
   }
