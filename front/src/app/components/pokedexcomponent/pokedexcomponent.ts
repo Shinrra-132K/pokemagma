@@ -3,7 +3,6 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnChanges,
   Output,
   signal,
 } from '@angular/core';
