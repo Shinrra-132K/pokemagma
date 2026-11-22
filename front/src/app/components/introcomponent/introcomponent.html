@@ -1,7 +1,9 @@
 <img
   src="https://i.pinimg.com/1200x/f4/11/44/f41144ca503d98d02631e345293321a4.jpg"
   class="gif-background-pokemon"
-  alt="background-gif">
+  alt="Fondo de la introducción"
+/>
+
 <div class="intro" [class.saliendo]="saliendo()" (click)="avanzar()">
   <div class="escenario">
     @if (mostrarImagen()) {
@@ -10,7 +12,7 @@
         src="/assets/sprites/normal/abedul.png"
         alt="Profesor Abedul"
         (error)="mostrarImagen.set(false)"
-      >
+      />
     }
 
     @if (fase() === 'pokedex') {
@@ -19,31 +21,48 @@
           class="pokedex-img"
           src="/assets/sprites/normal/pokedex.png"
           alt="Pokédex"
-        >
+        />
       </div>
     }
 
     @if (fase() === 'seleccion') {
       <div class="maleta-escena" (click)="$event.stopPropagation()">
+        @if (cargandoIniciales) {
+          <p class="pokeball-label">Cargando Pokémon...</p>
+        }
+
+        @if (errorIniciales) {
+          <p class="pokeball-label">{{ errorIniciales }}</p>
+        }
+
         <div class="pokebolas-selector">
           @for (op of iniciales; track op.id; let idx = $index) {
             <button
               type="button"
               class="pokeball-btn"
               [style.animation-delay]="(idx * 0.14) + 's'"
-              [class.activa]="inicialSeleccionado()?.id === op.id"
+              [disabled]="cargandoIniciales || cargandoSeleccion"
               (click)="seleccionarInicial(op, $event)"
-              [attr.aria-label]="'Elegir a ' + op.nombre"
+              [attr.aria-label]="'Elegir Pokébola ' + (idx + 1)"
             >
               <img
                 class="pokeball-img"
                 [src]="op.pokeball"
-                [alt]="op.nombre"
-              >
+                alt="Pokébola"
+              />
+
               <span class="pokeball-label">???</span>
             </button>
           }
         </div>
+
+        @if (errorSeleccion) {
+          <p class="pokeball-label">{{ errorSeleccion }}</p>
+        }
+
+        @if (cargandoSeleccion) {
+          <p class="pokeball-label">Guardando elección...</p>
+        }
 
         @if (mostrarMaleta()) {
           <img
@@ -51,7 +70,7 @@
             src="/assets/sprites/normal/bag.png"
             alt="Maleta del Profesor Abedul"
             (error)="mostrarMaleta.set(false)"
-          >
+          />
         }
       </div>
     }
@@ -66,7 +85,13 @@
           [src]="pokemonActualSprite()"
           [alt]="inicialSeleccionado()?.nombre ?? 'Pokémon'"
           (error)="mostrarPokemon.set(false)"
-        >
+        />
+
+        @if (inicialSeleccionado()) {
+          <span class="etiqueta-pokemon">
+            {{ inicialSeleccionado()?.nombre }}
+          </span>
+        }
       </div>
     }
   </div>
@@ -74,6 +99,7 @@
   <div class="dialogo">
     <span class="nombre">Prof. Abedul</span>
     <p>{{ textoMostrado() }}</p>
+
     @if (!escribiendo() && fase() !== 'seleccion') {
       <span class="flecha">▼</span>
     }
