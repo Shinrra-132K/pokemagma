@@ -1,10 +1,10 @@
 @if (pokemon) {
-  <section class="encuentro-overlay" aria-label="Encuentro Pokémon salvaje">
+  <section class="encuentro-overlay" aria-label="Batalla Pokémon">
     <div class="escena-encuentro">
       <img
         src="https://i.pinimg.com/736x/b7/b9/c9/b7b9c92af134f983b726a75519bbcd8e.jpg"
         class="gif-background-pokemon"
-        alt="background-gif"
+        alt="Fondo de la batalla"
       />
 
       <div class="hud-rival">
@@ -13,7 +13,7 @@
           <span class="pokemon-nivel">Nv. {{ pokemon.nivel }}</span>
         </div>
 
-        <div class="barra-hp-contenedor" aria-label="Vida del Pokémon">
+        <div class="barra-hp-contenedor" aria-label="Vida del Pokémon salvaje">
           <span class="etiqueta-hp">HP</span>
           <div class="barra-hp-fondo">
             <div
@@ -40,7 +40,7 @@
         </div>
 
         @if (mostrarOpciones()) {
-          <nav class="menu-opciones" aria-label="Opciones de encuentro">
+          <nav class="menu-opciones" aria-label="Opciones de batalla">
             @for (item of accionesMenu; track item.accion; let i = $index) {
               <button
                 type="button"
